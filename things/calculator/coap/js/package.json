@@ -1,0 +1,19 @@
+{
+  "name": "coap-calculator",
+  "version": "1.0.0",
+  "description": "CoAP Calculator",
+  "main": "main.js",
+  "keywords": [
+    "wot",
+    "thing",
+    "iot",
+    "coap"
+  ],
+  "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+  "license": "EPL-2.0 OR W3C-20150513",
+  "dependencies": {
+    "coap": "^1.3.0",
+    "dotenv": "^16.3.1",
+    "json-placeholder-replacer": "^1.0.35"
+  }
+}
