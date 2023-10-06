@@ -1,25 +1,25 @@
-version: '3'
-services: 
+version: "3"
+services:
   coap-calculator:
-    build: 
+    build:
       context: ./things/calculator/
       dockerfile: ./coap/js/Dockerfile
     ports:
       - "5683:5683/udp"
   http-express-calculator:
-    build: 
+    build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile
     ports:
       - "3000:3000"
   http-flask-calculator:
-    build: 
+    build:
       context: ./things/calculator/
       dockerfile: ./http/flask/Dockerfile
     ports:
       - "5000:5000"
   mqtt-calculator:
-    build: 
+    build:
       context: ./things/calculator/
       dockerfile: ./mqtt/js/Dockerfile
     ports:
