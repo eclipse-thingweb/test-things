@@ -1,0 +1,41 @@
+{
+  "@context":[
+     "https://www.w3.org/2019/wot/td/v1",
+     "https://www.w3.org/2022/wot/td/v1.1",
+     {
+        "@language":"en"
+     }
+  ],
+  "@type":"tm:ThingModel",
+  "title":"{{THING_NAME}}",
+  "description":"Lift Thing",
+  "securityDefinitions":{
+      "nosec_sc":{
+        "scheme":"nosec"
+     }
+  },
+  "security":[
+     "nosec_sc"
+  ],
+  "base": "{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/",
+  "properties":{
+      "lightSwitch": {
+         "type": "boolean",
+         "readOnly": false,
+         "writeOnly": false,
+         "observable": true
+      },
+      "onTheMove": {
+         "type": "boolean",
+         "readOnly": true,
+         "writeOnly": false,
+         "observable": true
+      },
+      "floorNumber": {
+         "type": "integer",
+         "readOnly": false,
+         "writeOnly": false,
+         "observable": true
+      }
+  }
+}

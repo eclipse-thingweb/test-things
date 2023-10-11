@@ -24,3 +24,11 @@ services:
       dockerfile: ./mqtt/js/Dockerfile
     ports:
       - "1883:1883"
+  modbus-lift:
+    build:
+      context: ./things/lift/
+      dockerfile: ./modbus/js/Dockerfile
+    ports:
+      - "8502:8502"
+      - "38502:38502"
+
