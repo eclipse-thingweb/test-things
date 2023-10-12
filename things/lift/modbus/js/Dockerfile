@@ -10,3 +10,4 @@ ENV TM_PATH="./lift.tm.json"
 
 CMD ["node", "main.js"]
 EXPOSE 8502
+EXPOSE 38502
