@@ -62,8 +62,8 @@
         },
         "floorNumber": {
             "type": "integer",
-            "min": 0,
-            "max": 15,
+            "minimum": 0,
+            "maximum": 15,
             "readOnly": false,
             "writeOnly": false,
             "observable": false,
