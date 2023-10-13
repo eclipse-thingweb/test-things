@@ -1,4 +1,6 @@
-# Test Things
+<img title="ThingWeb" alt="Thingweb logo" src="https://raw.githubusercontent.com/eclipse-thingweb/website/master/misc/thingweb_logo.svg" width="300px">
+
+## Test Things
 
 Collection of IoT device simulators that can be used for testing and exploration purposes of different protocols and other Web of Things mechanisms.
 The devices are implemented via various programming languages and frameworks.
