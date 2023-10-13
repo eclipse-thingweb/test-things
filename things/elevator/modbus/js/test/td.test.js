@@ -2,6 +2,7 @@ const Ajv = require('ajv')
 const chai = require('chai')
 const http = require('http')
 const https = require('https')
+const fs = require('fs')
 const path = require('path')
 
 const spawn = require('child_process').spawn
@@ -11,10 +12,8 @@ const ajv = new Ajv({ strict: false, allErrors: true, validateFormats: false })
 const expect = chai.expect
 const port = "8502"
 let thingProcess
-let td
-let i = 0
 
-describe('Lift Modbus JS', () => {
+describe('Elevator Modbus JS', () => {
   let validate
 
   before(async () => {
@@ -68,23 +67,16 @@ describe('Lift Modbus JS', () => {
   })
 
   it('should have a valid TD', (done) => {
-    const tdPortNumber = "3" + port
-    http.get(`http://localhost:${tdPortNumber}/modbus-lift`, function (response) {
-        const body = []
-        response.on('data', (chunk) => {
-          body.push(chunk)
-        })
-  
-        response.on('end', () => {
-          try {
-            const result = JSON.parse(Buffer.concat(body).toString())
-            const valid = validate(result)
-            expect(valid).to.be.true
-            done()
-          } catch (error) {
-            console.log(error)
-          }
-        })
+    fs.readFile(path.join(__dirname, "../modbus-elevator.td.json"), 'utf-8', (err, data) => {
+      if (err) {
+        console.log(err)
+        done(err)
+      }
+
+      const result = JSON.parse(data.toString())
+      const valid = validate(result)
+      expect(valid).to.be.true
+      done()
     })
   })
 })
