@@ -1,0 +1,88 @@
+{
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1",
+        "https://www.w3.org/2022/wot/td/v1.1",
+        {
+            "@language": "en"
+        }
+    ],
+    "@type": "Thing",
+    "title": "modbus-elevator",
+    "description": "Elevator Thing",
+    "securityDefinitions": {
+        "nosec_sc": {
+            "scheme": "nosec"
+        }
+    },
+    "security": [
+        "nosec_sc"
+    ],
+    "base": "modbus+tcp://0.0.0.0:8502/1",
+    "properties": {
+        "lightSwitch": {
+            "type": "boolean",
+            "readOnly": false,
+            "writeOnly": false,
+            "observable": false,
+            "forms": [
+                {
+                    "href": "?address=1&quantity=1",
+                    "op": "readproperty",
+                    "modbus:entity": "Coil",
+                    "modbus:function": "readCoil",
+                    "contentType": "application/octet-stream"
+                },
+                {
+                    "href": "?address=1&quantity=1",
+                    "op": "writeproperty",
+                    "modbus:entity": "Coil",
+                    "modbus:function": "writeSingleCoil",
+                    "contentType": "application/octet-stream"
+                }
+            ]
+        },
+        "onTheMove": {
+            "type": "boolean",
+            "readOnly": true,
+            "writeOnly": false,
+            "observable": true,
+            "forms": [
+                {
+                    "href": "?address=1&quantity=1",
+                    "op": [
+                        "readproperty",
+                        "observeproperty"
+                    ],
+                    "modbus:entity": "DiscreteInput",
+                    "modbus:function": "readDiscreteInput",
+                    "modbus:pollingTime": 1000,
+                    "contentType": "application/octet-stream"
+                }
+            ]
+        },
+        "floorNumber": {
+            "type": "integer",
+            "min": 0,
+            "max": 15,
+            "readOnly": false,
+            "writeOnly": false,
+            "observable": false,
+            "forms": [
+                {
+                    "href": "?address=1&quantity=1",
+                    "op": "readproperty",
+                    "modbus:entity": "HoldingRegister",
+                    "modbus:function": "readHoldingRegister",
+                    "contentType": "application/octet-stream"
+                },
+                {
+                    "href": "?address=1&quantity=1",
+                    "op": "writeproperty",
+                    "modbus:entity": "HoldingRegister",
+                    "modbus:function": "writeSingleHoldingRegister",
+                    "contentType": "application/octet-stream"
+                }
+            ]
+        }
+    }
+}
