@@ -6,7 +6,7 @@ const ajv = new Ajv({ strict: false, allErrors: true, validateFormats: false })
 
 const expect = chai.expect
 
-describe('Lift', () => {
+describe('Elevator', () => {
   let validate
 
   before((done) => {
@@ -25,8 +25,8 @@ describe('Lift', () => {
   })
 
   it('should have a valid TM', () => {
-    const liftTM = require('./lift.tm.json')
-    const valid = validate(liftTM)
+    const elevatorTM = require('./elevator.tm.json')
+    const valid = validate(elevatorTM)
     expect(valid).to.be.true
   })
 })

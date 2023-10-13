@@ -48,9 +48,9 @@ If you are going to add a completely new Thing:
 
 Calculator is a simple device, which has a read only `result` variable and depending on the action selected by the user, it adds or subtracts user input from the `result`. There is also a read only `lastChange` variable, which indicates the last time `result` variable has changed. Additionally, the device publishes an event, when `result` is changed.
 
-### Lift 
+### Elevator 
 
-Lift is a simple device, which has three variables `lightSwitch`, `floorNumber` and `onTheMove`. `lightSwitch` is a boolean which represents whether the light on the lift is turned on or not on. `floorNumber` is an integer and represents the floor number of the lift. `onTheMove` is a boolean and represents whether the lift is on the move or not.
+Elevator is a simple device, which has three variables `lightSwitch`, `floorNumber` and `onTheMove`. `lightSwitch` is a boolean which represents whether the light on the elevator is turned on or not on. `floorNumber` is an integer and represents the floor number of the elevator. `onTheMove` is a boolean and represents whether the elevator is on the move or not.
 
 #### Supported Protocols and Programming Languages
 

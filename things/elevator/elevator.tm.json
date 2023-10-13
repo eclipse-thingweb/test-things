@@ -8,7 +8,7 @@
   ],
   "@type":"tm:ThingModel",
   "title":"{{THING_NAME}}",
-  "description":"Lift Thing",
+  "description":"Elevator Thing",
   "securityDefinitions":{
       "nosec_sc":{
         "scheme":"nosec"
@@ -17,13 +17,13 @@
   "security":[
      "nosec_sc"
   ],
-  "base": "{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/",
+  "base": "{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{UNIT_ID}}",
   "properties":{
       "lightSwitch": {
          "type": "boolean",
          "readOnly": false,
          "writeOnly": false,
-         "observable": true
+         "observable": false
       },
       "onTheMove": {
          "type": "boolean",
@@ -33,9 +33,11 @@
       },
       "floorNumber": {
          "type": "integer",
+         "minimum": 0,
+         "maximum": 15,
          "readOnly": false,
          "writeOnly": false,
-         "observable": true
+         "observable": false
       }
   }
 }

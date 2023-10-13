@@ -22,15 +22,13 @@ services:
     build:
       context: ./things/calculator/
       dockerfile: ./mqtt/js/Dockerfile
-  modbus-lift:
+  modbus-elevator:
     labels:
       - traefik.tcp.routers.modbus-calculator.entrypoints=modbus-lift
       - traefik.tcp.routers.modbus-calculator.rule=HostSNI(`*`)
     build:
-      context: ./things/lift/
+      context: ./things/elevator/
       dockerfile: ./modbus/js/Dockerfile
-    ports:
-      - "38502:38502"
   reverse-proxy:
     image: traefik:v3.0
     command: 
