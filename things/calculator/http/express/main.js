@@ -91,7 +91,8 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, reqParser, (req, res) => {
   }
 })
 
-app.get(`/${thingName}/${EVENTS}/change`, (req, res) => {
+//*Changed the endpoint to "/update" instead of "/change" as thats how it is specified in the TD
+app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
   res.statusCode = 200
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Cache-Control', 'no-cache')
@@ -99,9 +100,16 @@ app.get(`/${thingName}/${EVENTS}/change`, (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
 
   let oldResult = result
+
+  /**
+  ** The SSE specification defines the structure of SSE messages, and 
+  ** it expects event data to be formatted with "data:" followed by the 
+  ** actual data. When you deviate from this standard, it might not be 
+  ** interpreted correctly by the client, which could create empty values.
+  */
   const changeInterval = setInterval(() => {
     if (oldResult !== result) {
-      res.write(`result: ${result}\n\n`)
+      res.write(`data: ${result}\n\n`)
       oldResult = result
     }
   }, 1000)
