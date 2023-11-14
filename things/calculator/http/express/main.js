@@ -91,7 +91,6 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, reqParser, (req, res) => {
   }
 })
 
-//*Changed the endpoint to "/update" instead of "/change" as thats how it is specified in the TD
 app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
   res.statusCode = 200
   res.setHeader('Access-Control-Allow-Origin', '*')
