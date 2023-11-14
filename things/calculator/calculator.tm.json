@@ -29,7 +29,8 @@
               "contentType":"application/json",
               "op":[
                  "observeproperty",
-                 "unobserveproperty"
+                 "unobserveproperty",
+                 "readproperty"
               ]
            }
         ]
@@ -45,7 +46,8 @@
             "contentType":"application/json",
             "op":[
                "observeproperty",
-               "unobserveproperty"
+               "unobserveproperty",
+               "readproperty"
             ]
          }
       ]
