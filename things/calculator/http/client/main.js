@@ -1,10 +1,9 @@
 /**
- * This file is a simple js client to test the main fucntionality from the http thing.
- * Requests as well as Responses can be sent and received in Text, JSON, YAML ans CBOR formats.
+ * This file is a simple js client to test the main functionality from the http thing.
+ * Requests as well as Responses can be sent and received in Text, JSON, and CBOR formats.
  */
 
 const cbor = require('cbor')
-const jsYaml = require('js-yaml');
 
 const url = "http://localhost:3000/http-express-calculator",
     resultEndPoint = "/properties/result",
@@ -17,7 +16,7 @@ const url = "http://localhost:3000/http-express-calculator",
 /**
  * Return the Full TD 
  * @param { String } acceptType - Which content type is accepted by the client
- * @returns Thing description as either a String, Json, yaml or cbor
+ * @returns Thing description as either a String, JSON or cbor
  */
 async function getFullTD(acceptType) {
     let getHeaders = {
@@ -30,15 +29,11 @@ async function getFullTD(acceptType) {
     else if (acceptType === "json") {
         getHeaders.Accept = "application/json"
     }
-    else if (acceptType === "yaml") {
-        getHeaders.Accept = "application/yaml"
-    }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
     } else {
         postHeaders['Content-Type'] = `application/${acceptType}`
     }
-
 
     const res = await fetch(url, {
         method: "GET",
@@ -57,9 +52,6 @@ async function getFullTD(acceptType) {
         const buffer = await res.arrayBuffer()
         const decodedData = cbor.decode(buffer);
         return decodedData
-    }
-    else if (contentType.includes("application/yaml")) {
-        return res.text()
     }
     else {
         // Handle unsupported content types or return an error
@@ -84,9 +76,6 @@ async function getCurrentResult(acceptType) {
     else if (acceptType === "json") {
         getHeaders.Accept = "application/json"
     }
-    else if (acceptType === "yaml") {
-        getHeaders.Accept = "application/yaml"
-    }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
     } else {
@@ -108,9 +97,6 @@ async function getCurrentResult(acceptType) {
         const decodedData = cbor.decode(buffer);
         return decodedData
     }
-    else if (contentType.includes("application/yaml")) {
-        return res.text()
-    }
     else if (contentType.includes("text/plain")) {
         return res.text()
     }
@@ -124,7 +110,7 @@ async function getCurrentResult(acceptType) {
  * @param { String } acceptType - Which content type is accepted by the client 
  * @returns lastChange - A string of the date when it was last changed
  */
-async function getLastestChange(acceptType) {
+async function getLatestChange(acceptType) {
 
     let getHeaders = {
         "Accept": "text/plain"
@@ -135,9 +121,6 @@ async function getLastestChange(acceptType) {
     }
     else if (acceptType === "json") {
         getHeaders.Accept = "application/json"
-    }
-    else if (acceptType === "yaml") {
-        getHeaders.Accept = "application/yaml"
     }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
@@ -159,9 +142,6 @@ async function getLastestChange(acceptType) {
         const buffer = await res.arrayBuffer()
         const decodedData = cbor.decode(buffer);
         return decodedData
-    }
-    else if (contentType.includes("application/yaml")) {
-        return res.text()
     }
     else if (contentType.includes("text/plain")) {
         return res.text()
@@ -193,10 +173,6 @@ async function addNumber(number, contentType, acceptType) {
         inputNumber = JSON.stringify({ "data": number })
         postHeaders['Content-Type'] = "application/json"
     }
-    else if (contentType === "yaml") {
-        inputNumber = jsYaml.dump({ "data": number })
-        postHeaders['Content-Type'] = "application/yaml"
-    }
     else if (contentType === "cbor") {
         inputNumber = cbor.encode(number)
         postHeaders['Content-Type'] = "application/cbor"
@@ -211,9 +187,6 @@ async function addNumber(number, contentType, acceptType) {
     }
     else if (acceptType === "json") {
         postHeaders['Accept'] = "application/json"
-    }
-    else if (acceptType === "yaml") {
-        postHeaders['Accept'] = "application/yaml"
     }
     else if (acceptType === "cbor") {
         postHeaders['Accept'] = "application/cbor"
@@ -238,9 +211,6 @@ async function addNumber(number, contentType, acceptType) {
             const buffer = await res.arrayBuffer()
             const decodedData = cbor.decode(buffer);
             return decodedData
-        }
-        else if (contentType.includes("application/yaml")) {
-            return res.text()
         }
         else if (contentType.includes("text/plain")) {
             return res.text()
@@ -275,10 +245,6 @@ async function subtractNumber(number, contentType, acceptType) {
         inputNumber = JSON.stringify({ "data": number })
         postHeaders['Content-Type'] = "application/json"
     }
-    else if (contentType === "yaml") {
-        inputNumber = jsYaml.dump({ "data": number })
-        postHeaders['Content-Type'] = "application/yaml"
-    }
     else if (contentType === "cbor") {
         inputNumber = cbor.encode(number)
         postHeaders['Content-Type'] = "application/cbor"
@@ -293,9 +259,6 @@ async function subtractNumber(number, contentType, acceptType) {
     }
     else if (acceptType === "json") {
         postHeaders['Accept'] = "application/json"
-    }
-    else if (acceptType === "yaml") {
-        postHeaders['Accept'] = "application/yaml"
     }
     else if (acceptType === "cbor") {
         postHeaders['Accept'] = "application/cbor"
@@ -321,9 +284,6 @@ async function subtractNumber(number, contentType, acceptType) {
             const decodedData = cbor.decode(buffer);
             return decodedData
         }
-        else if (contentType.includes("application/yaml")) {
-            return res.text()
-        }
         else if (contentType.includes("text/plain")) {
             return res.text()
         }
@@ -337,18 +297,18 @@ async function subtractNumber(number, contentType, acceptType) {
 }
 
 /**
- * Runs all the previous fucntions to test the full functionality of the calculator
+ * Runs all the previous functions to test the full functionality of the calculator
  */
 async function runCalculator() {
 
     try {
         console.log("Full thing: \n", await getFullTD("cbor"))
         console.log("Current number: ", await getCurrentResult("json"))
-        console.log("Last Change:", await getLastestChange("text"))
-        console.log("Added the number", await addNumber(3, "cbor", "cbor"))
-        console.log("Subtracted the number", await subtractNumber(20, "json", "cbor"))
-        console.log("Current number: ", await getCurrentResult("yaml"))
-        console.log("Last Change:", await getLastestChange("cbor"))
+        console.log("Last Change: ", await getLatestChange("text"))
+        console.log("Result of the addition is: ", await addNumber(3, "cbor", "cbor"))
+        console.log("Result of the subtraction is: ", await subtractNumber(20, "json", "cbor"))
+        console.log("Current number: ", await getCurrentResult("text"))
+        console.log("Last Change: ", await getLatestChange("cbor"))
 
     } catch (err) {
         console.log(err);

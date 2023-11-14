@@ -421,7 +421,7 @@ app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
       }
       if (acceptHeader.includes('application/cbor')) {
         const cborData = cbor.encode(result)
-        //TODO: Dont send as base64 string
+        //TODO: Don't send as base64 string
         res.setHeader('Content-Transfer-Encoding', 'base64');
         message = `data: ${cborData.toString('base64')}\n\n`
       }
