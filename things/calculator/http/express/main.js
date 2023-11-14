@@ -5,7 +5,6 @@ const bodyParser = require('body-parser')
 const { parseArgs } = require('node:util')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 const cbor = require('cbor')
-const jsYaml = require('js-yaml')
 require('dotenv').config()
 
 const app = express()
@@ -53,17 +52,22 @@ placeholderReplacer.addVariableMap({
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
 
-const supportedContentTypes = ['text/plain', 'application/json', 'application/yaml', 'application/cbor'];
+const supportedContentTypes = ['text/plain', 'application/json', 'application/cbor'];
 
 //Adding headers to the Properties
 for (const key in thingDescription['properties']) {
 
+  thingDescription['properties'][key]['forms'][0]['contentType'] = "text/plain"
   thingDescription['properties'][key]['forms'][0]['htv:methodName'] = 'GET'
-  thingDescription['properties'][key]['forms'][0]['htv:RequestHeader'] = {
+  thingDescription['properties'][key]['forms'][0]['htv:headers'] = {
+    "htv:RequestHeader": {},
+    "htv:ResponseHeader": {}
+  }
+  thingDescription['properties'][key]['forms'][0]['htv:headers']['htv:RequestHeader'] = {
     "fieldValue": "text/plain",
     "fieldName": "Accept",
   }
-  thingDescription['properties'][key]['forms'][0]['htv:ResponseHeader'] = {
+  thingDescription['properties'][key]['forms'][0]['htv:headers']['htv:ResponseHeader'] = {
     "fieldValue": "text/plain",
     "fieldName": "Content-Type",
   }
@@ -71,10 +75,11 @@ for (const key in thingDescription['properties']) {
   const originalForm = thingDescription['properties'][key]['forms'][0]
 
   supportedContentTypes.forEach(type => {
-    if (!thingDescription['properties'][key]['forms'][0]['htv:RequestHeader']['fieldValue'].includes(type)) {
+    if (!thingDescription['properties'][key]['forms'][0]['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
-      newForm['htv:RequestHeader']['fieldValue'] = type
-      newForm['htv:ResponseHeader']['fieldValue'] = type
+      newForm['contentType'] = type
+      newForm['htv:headers']['htv:RequestHeader']['fieldValue'] = type
+      newForm['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
       thingDescription['properties'][key]['forms'].push(newForm)
     }
   })
@@ -84,11 +89,15 @@ for (const key in thingDescription['properties']) {
 for (const key in thingDescription['actions']) {
 
   thingDescription['actions'][key]['forms'][0]['htv:methodName'] = 'POST'
-  thingDescription['actions'][key]['forms'][0]['htv:RequestHeader'] = {
+  thingDescription['actions'][key]['forms'][0]['htv:headers'] = {
+    "htv:RequestHeader": {},
+    "htv:ResponseHeader": {}
+  }
+  thingDescription['actions'][key]['forms'][0]['htv:headers']['htv:RequestHeader'] = {
     "fieldValue": "text/plain",
     "fieldName": "Accept",
   }
-  thingDescription['actions'][key]['forms'][0]['htv:ResponseHeader'] = {
+  thingDescription['actions'][key]['forms'][0]['htv:headers']['htv:ResponseHeader'] = {
     "fieldValue": "text/plain",
     "fieldName": "Content-Type",
   }
@@ -102,19 +111,19 @@ for (const key in thingDescription['actions']) {
       thingDescription['actions'][key]['forms'].push(newForm)
 
       supportedContentTypes.forEach(type => {
-        if (!thingDescription['actions'][key]['forms'][0]['htv:RequestHeader']['fieldValue'].includes(type)) {
+        if (!thingDescription['actions'][key]['forms'][0]['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
           const newFormAccept = JSON.parse(JSON.stringify(newForm))
-          newFormAccept['htv:RequestHeader']['fieldValue'] = type
-          newFormAccept['htv:ResponseHeader']['fieldValue'] = type
+          newFormAccept['htv:headers']['htv:RequestHeader']['fieldValue'] = type
+          newFormAccept['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newFormAccept)
         }
       })
     } else {
       supportedContentTypes.forEach(type => {
-        if (!originalForm['htv:RequestHeader']['fieldValue'].includes(type)) {
+        if (!originalForm['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
           const newForm = JSON.parse(JSON.stringify(originalForm))
-          newForm['htv:RequestHeader']['fieldValue'] = type
-          newForm['htv:ResponseHeader']['fieldValue'] = type
+          newForm['htv:headers']['htv:RequestHeader']['fieldValue'] = type
+          newForm['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newForm)
         }
       })
@@ -128,7 +137,16 @@ for (const key in thingDescription['events']) {
 
   //TODO: Is it necessary to add the method
   // thingDescription['events'][key]['forms'][0]['htv:methodName'] = 'GET'
-  thingDescription['events'][key]['forms'][0]['htv:RequestHeader'] = {
+  thingDescription['events'][key]['forms'][0]['contentType'] = "text/plain"
+  thingDescription['events'][key]['forms'][0]['htv:headers'] = {
+    "htv:RequestHeader": {},
+    "htv:ResponseHeader": {}
+  }
+  thingDescription['events'][key]['forms'][0]['htv:headers']['htv:RequestHeader'] = {
+    "fieldValue": "text/plain",
+    "fieldName": "Accept",
+  }
+  thingDescription['events'][key]['forms'][0]['htv:headers']['htv:ResponseHeader'] = {
     "fieldValue": "text/plain",
     "fieldName": "Accept",
   }
@@ -136,9 +154,11 @@ for (const key in thingDescription['events']) {
   const originalForm = thingDescription['events'][key]['forms'][0]
 
   supportedContentTypes.forEach(type => {
-    if (!thingDescription['events'][key]['forms'][0]['htv:RequestHeader']['fieldValue'].includes(type)) {
+    if (!thingDescription['events'][key]['forms'][0]['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
-      newForm['htv:RequestHeader']['fieldValue'] = type
+      newForm['contentType'] = type
+      newForm['htv:headers']['htv:RequestHeader']['fieldValue'] = type
+      newForm['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
       thingDescription['events'][key]['forms'].push(newForm)
     }
   })
@@ -146,7 +166,7 @@ for (const key in thingDescription['events']) {
 
 //Creating the TD for testing purposes
 try {
-  fs.writeFileSync('http-calculator-thing.json', JSON.stringify(thingDescription, null, 2))
+  fs.writeFileSync('http-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
 } catch (err) {
   console.log(err);
 }
@@ -160,16 +180,16 @@ try {
 app.use((req, res, next) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('text/') || acceptHeader.includes('application/json') || acceptHeader.includes('application/yaml') || acceptHeader.includes('application/cbor')) {
+  if (acceptHeader.includes('text/') || acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor')) {
     next()
   } else {
     res.setHeader('Content-Type', 'text/plain')
-    res.status(406).send('Not Acceptable: Supported formats are  text/*, application/json, application/yaml, and application/cbor.');
+    res.status(406).send('Not Acceptable: Supported formats are  text/*, application/json, and application/cbor.');
   }
 });
 
 
-// Middleware to accept only the content-types: text, json, yaml, cbor
+// Middleware to accept only the content-types: text, json, cbor
 app.use((req, res, next) => {
   const contentType = req.get('Content-Type')
   const method = req.method
@@ -179,7 +199,7 @@ app.use((req, res, next) => {
       next()
     } else {
       res.setHeader('Content-Type', 'text/plain')
-      res.status(415).send('Unsupported Media Type: Supported content types are text/plain, application/json, application/yaml, and application/cbor.');
+      res.status(415).send('Unsupported Media Type: Supported content types are text/plain, application/json, and application/cbor.');
     }
   }
   else {
@@ -191,7 +211,6 @@ app.use((req, res, next) => {
 app.use(bodyParser.text());
 app.use(bodyParser.json({ type: 'application/json' }));
 app.use(bodyParser.raw({ type: 'application/cbor' }));
-app.use(bodyParser.text({ type: 'application/yaml' }));
 
 
 /*****************************************************/
@@ -216,11 +235,6 @@ app.get(`/${thingName}`, (req, res) => {
     res.setHeader('Content-Type', 'application/cbor')
     res.send(cborData)
   }
-  else if (acceptHeader.includes('application/yaml')) {
-    const yamlData = jsYaml.dump(thingDescription)
-    res.setHeader('Content-Type', 'application/yaml')
-    res.send(yamlData)
-  }
   else {
     res.setHeader('Content-Type', 'text/plain')
     res.send(thingDescription)
@@ -241,11 +255,6 @@ app.get(`/${thingName}/${PROPERTIES}/result`, (req, res) => {
     const cborData = cbor.encode(result)
     res.setHeader('Content-Type', 'application/cbor')
     res.send(cborData)
-  }
-  else if (acceptHeader.includes('application/yaml')) {
-    const yamlData = jsYaml.dump(result)
-    res.setHeader('Content-Type', 'application/yaml')
-    res.send(yamlData)
   }
   else {
     res.setHeader('Content-Type', 'text/plain')
@@ -268,11 +277,6 @@ app.get(`/${thingName}/${PROPERTIES}/lastChange`, (req, res) => {
     res.setHeader('Content-Type', 'application/cbor')
     res.send(cborData)
   }
-  else if (acceptHeader.includes('application/yaml')) {
-    const yamlData = jsYaml.dump(lastChange)
-    res.setHeader('Content-Type', 'application/yaml')
-    res.send(yamlData)
-  }
   else {
     res.setHeader('Content-Type', 'text/plain')
     res.send(lastChange.toString())
@@ -289,17 +293,13 @@ app.post(`/${thingName}/${ACTIONS}/add`, (req, res) => {
   const acceptHeader = req.get('Accept')
   let parsedInput
 
-  //check if the data was sent as cbor, json or yaml, and if not get the body normally
+  //check if the data was sent as cbor, json or text and if not get the body normally
   if (req.get('Content-Type') === "application/cbor") {
     const decodedData = cbor.decode(req.body);
     parsedInput = parseInt(decodedData)
   }
   else if (req.get('Content-Type') === "application/json") {
     parsedInput = parseInt(req.body.data)
-  }
-  else if (req.get('Content-Type') === "application/yaml") {
-    yamlToJson = jsYaml.load(req.body)
-    parsedInput = parseInt(yamlToJson.data)
   }
   else {
     parsedInput = parseInt(req.body)
@@ -326,13 +326,6 @@ app.post(`/${thingName}/${ACTIONS}/add`, (req, res) => {
       res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
     }
-    else if (acceptHeader.includes('application/yaml')) {
-      result += parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
-      const yamlData = jsYaml.dump(parsedInput)
-      res.setHeader('Content-Type', 'application/yaml')
-      res.send(yamlData)
-    }
     else {
       result += parsedInput
       lastChange = (new Date()).toLocaleTimeString()
@@ -347,17 +340,13 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, (req, res) => {
   const acceptHeader = req.get('Accept')
   let parsedInput
 
-  //check if the data was sent as cbor, json or yaml, and if not get the body normally
+  //check if the data was sent as cbor, json or text, and if not get the body normally
   if (req.get('Content-Type') === "application/cbor") {
     const decodedData = cbor.decode(req.body);
     parsedInput = parseInt(decodedData)
   }
   else if (req.get('Content-Type') === "application/json") {
     parsedInput = parseInt(req.body.data)
-  }
-  else if (req.get('Content-Type') === "application/yaml") {
-    yamlToJson = jsYaml.load(req.body)
-    parsedInput = parseInt(yamlToJson.data)
   }
   else {
     parsedInput = parseInt(req.body)
@@ -382,13 +371,6 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, (req, res) => {
       const cborData = cbor.encode(parsedInput)
       res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
-    }
-    else if (acceptHeader.includes('application/yaml')) {
-      result -= parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
-      const yamlData = jsYaml.dump(parsedInput)
-      res.setHeader('Content-Type', 'application/yaml')
-      res.send(yamlData)
     }
     else {
       result -= parsedInput
@@ -437,12 +419,9 @@ app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
       else if (acceptHeader.includes('application/json')) {
         message = `data: ${result}\n\n`
       }
-      else if (acceptHeader.includes('application/yaml')) {
-        const yamlData = jsYaml.dump(result).replace(/\n/g, "")
-        message = `data: ${yamlData}\n\n`
-      }
       if (acceptHeader.includes('application/cbor')) {
         const cborData = cbor.encode(result)
+        //TODO: Dont send as base64 string
         res.setHeader('Content-Transfer-Encoding', 'base64');
         message = `data: ${cborData.toString('base64')}\n\n`
       }
