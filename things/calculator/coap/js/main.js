@@ -3,6 +3,7 @@ const coap = require('coap')
 const fs = require('fs')
 const path = require('path')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
+const cbor = require('cbor')
 require('dotenv').config()
 
 const server = coap.createServer()
@@ -47,6 +48,11 @@ placeholderReplacer.addVariableMap({
   LAST_CHANGE_OBSERVABLE: true,
   RESULT_OBSERVABLE: true
 })
+
+/*****************************************/
+/************ Creating the TD ************/
+/*****************************************/
+
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
 
@@ -94,18 +100,46 @@ for (const key in thingDescription['events']) {
 }
 
 let result = 0
-let lastChange = ''
+let lastChange = 'No changes made so far'
 
 server.on('request', (req, res) => {
   const segments = req.url.split('/')
+  // console.log(segments);
+  const acceptHeaders = req.headers["Accept"]
+  const reqContentType = req.headers["Content-Type"] || req.headers["Content-Format"]
+
 
   if (segments[1] !== thingName) {
     res.code = 404
     res.end('Thing does not exist!')
   } else {
     if (!segments[2]) {
+      //TODO: Understand and fix the problem with block wise transfer to be able to pass the headers properly
       if (req.method === 'GET') {
-        res.end(JSON.stringify(thingDescription))
+
+        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
+          if (acceptHeaders === undefined) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify(thingDescription))
+          }
+          else if (acceptHeaders.includes('application/json')) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify(thingDescription))
+          }
+          else if (acceptHeaders.includes('application/cbor')) {
+            const cborData = cbor.encode(JSON.stringify(thingDescription))
+            res.setOption('Content-Format', 'application/cbor')
+            res.end(cborData)
+          }
+          else {
+            res.setOption('Content-Format', 'text/plain')
+            res.end(JSON.stringify(thingDescription))
+          }
+        }
+        else {
+          res.code = 415
+          res.end(`Unsupported Content-Format: ${acceptHeaders}`)
+        }
       }
     }
   }
@@ -113,63 +147,198 @@ server.on('request', (req, res) => {
   if (segments[2] === 'properties') {
     if (segments[3] === 'result') {
       if (req.method === 'GET') {
-        res.end(result.toString())
+
+        if (acceptHeaders === undefined) {
+          res.setOption('Content-Format', 'application/json')
+          res.end(JSON.stringify({ "result": result }))
+        }
+        else if (acceptHeaders.includes('application/json')) {
+          res.setOption('Content-Format', 'application/json')
+          res.end(JSON.stringify({ "result": result }))
+        }
+        else if (acceptHeaders.includes('application/cbor')) {
+          const cborData = cbor.encode(result)
+          res.setOption('Content-Format', 'application/cbor')
+          res.end(cborData)
+        }
+        else {
+          res.setOption('Content-Format', 'text/plain')
+          res.end(result.toString())
+        }
       }
     }
 
     if (segments[3] === 'lastChange') {
       if (req.method === 'GET') {
-        res.end(lastChange)
+        if (acceptHeaders === undefined) {
+          res.setOption('Content-Format', 'application/json')
+          res.end(JSON.stringify({ "lastChange": lastChange }))
+        }
+        else if (acceptHeaders.includes('application/json')) {
+          res.setOption('Content-Format', 'application/json')
+          res.end(JSON.stringify({ "lastChange": lastChange }))
+        }
+        else if (acceptHeaders.includes('application/cbor')) {
+          const cborData = cbor.encode(lastChange)
+          res.setOption('Content-Format', 'application/cbor')
+          res.end(cborData)
+        }
+        else {
+          res.setOption('Content-Format', 'text/plain')
+          res.end(lastChange)
+        }
       }
     }
   }
 
   if (segments[2] === 'actions' && req.method === 'POST') {
     if (segments[3] === 'add') {
-      const parsedInput = parseInt(req.payload.toString())
 
-      if (isNaN(parsedInput)) {
-        res.code = 400
-        res.end('Input should be a valid integer')
+      if (supportedContentTypes.includes(reqContentType)) {
+        let numberToAdd
+
+        if (reqContentType.includes('application/json')) {
+          numberToAdd = JSON.parse(req.payload.toString())["data"]
+        }
+        else if (reqContentType.includes('application/cbor')) {
+          numberToAdd = cbor.decode(req.payload);
+        }
+        else {
+          numberToAdd = req.payload.toString()
+        }
+
+        const parsedInput = parseInt(numberToAdd)
+
+        if (isNaN(parsedInput)) {
+          res.code = 400
+          res.end('Input should be a valid integer')
+        } else {
+          result += parsedInput
+          lastChange = (new Date()).toLocaleTimeString()
+
+          if (acceptHeaders === undefined) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ "additionResult": result }))
+          }
+          else if (acceptHeaders.includes('application/json')) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ "additionResult": result }))
+          }
+          else if (acceptHeaders.includes('application/cbor')) {
+            const cborData = cbor.encode(result)
+            res.setOption('Content-Format', 'application/cbor')
+            res.end(cborData)
+          }
+          else {
+            res.setOption('Content-Format', 'text/plain')
+            res.end(result.toString())
+          }
+        }
+
       } else {
-        result += parsedInput
-        lastChange = (new Date()).toLocaleTimeString()
-        res.end(result.toString())
+        res.code = 415
+        res.end(`Unsupported Content-Format`)
       }
     }
 
     if (segments[3] === 'subtract') {
-      const parsedInput = parseInt(req.payload.toString())
 
-      if (isNaN(parsedInput)) {
-        res.code = 400
-        res.end('Input should be a valid integer')
+      if (supportedContentTypes.includes(reqContentType)) {
+        let numberToSubtract
+
+        if (reqContentType.includes('application/json')) {
+          numberToSubtract = JSON.parse(req.payload.toString())["data"]
+        }
+        else if (reqContentType.includes('application/cbor')) {
+          numberToSubtract = cbor.decode(req.payload);
+        }
+        else {
+          numberToSubtract = req.payload.toString()
+        }
+
+        const parsedInput = parseInt(numberToSubtract)
+
+        if (isNaN(parsedInput)) {
+          res.code = 400
+          res.end('Input should be a valid integer')
+        } else {
+          result -= parsedInput
+          lastChange = (new Date()).toLocaleTimeString()
+
+          if (acceptHeaders === undefined) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ "subtractionResult": result }))
+          }
+          else if (acceptHeaders.includes('application/json')) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ "subtractionResult": result }))
+          }
+          else if (acceptHeaders.includes('application/cbor')) {
+            const cborData = cbor.encode(result)
+            res.setOption('Content-Format', 'application/cbor')
+            res.end(cborData)
+          }
+          else {
+            res.setOption('Content-Format', 'text/plain')
+            res.end(result.toString())
+          }
+        }
+
       } else {
-        result -= parsedInput
-        lastChange = (new Date()).toLocaleTimeString()
-        res.end(result.toString())
+        res.code = 415
+        res.end(`Unsupported Content-Format`)
       }
     }
   }
 
   if (segments[2] === 'events' && req.method === 'GET') {
-    if (segments[3] === 'change') {
+    if (segments[3] === 'update') {
       if (req.headers.Observe === 0) {
-        console.log('Observing the change...')
-        res.code = 205
+        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
+          res.setOption('Content-Format', 'text/plain')
+          console.log('Observing the change...')
 
-        let oldResult = result
-        const changeInterval = setInterval(() => {
-          res.write('stay connected!')
-          if (oldResult !== result) {
-            res.write(`result: ${result}\n`)
-            oldResult = result
-          }
-        }, 1000)
+          let oldResult = result
 
-        res.on('finish', () => {
-          clearInterval(changeInterval)
-        })
+          const changeInterval = setInterval(() => {
+            res.setOption('Content-Format', 'text/plain')
+            res.write('stay connected!')
+
+            if (oldResult !== result) {
+              res.code = 205
+              if (acceptHeaders === undefined) {
+                res.setOption('Content-Format', 'application/json')
+                res.write(JSON.stringify({ "Result": result }))
+                oldResult = result
+              }
+              else if (acceptHeaders.includes('application/json')) {
+                res.setOption('Content-Format', 'application/json')
+                res.write(JSON.stringify({ "Result": result }))
+                oldResult = result
+              }
+              else if (acceptHeaders.includes('application/cbor')) {
+                const cborData = cbor.encode(result)
+                res.setOption('Content-Format', 'application/cbor')
+                res.write(cborData)
+                oldResult = result
+              }
+              else {
+                res.setOption('Content-Format', 'text/plain')
+                res.write(result.toString())
+                oldResult = result
+              }
+            }
+          }, 1000)
+
+          res.on('finish', () => {
+            clearInterval(changeInterval)
+          })
+        }
+        else {
+          res.setOption('Content-Format', 'text/plain')
+          res.code = 415
+          res.end(`Unsupported Content-Format: ${acceptHeaders}`)
+        }
       } else {
         res.end()
       }
