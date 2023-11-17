@@ -17,40 +17,19 @@
   "security":[
      "nosec_sc"
   ],
+  "base":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}",
   "properties":{
      "result":{
         "type":"number",
         "readOnly":false,
         "writeOnly":false,
-        "observable":true,
-        "forms":[
-           {
-              "href":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/{{PROPERTIES}}/result",
-              "contentType":"application/json",
-              "op":[
-                 "observeproperty",
-                 "unobserveproperty",
-                 "readproperty"
-              ]
-           }
-        ]
+        "observable":"{{RESULT_OBSERVABLE}}"
      },
      "lastChange":{
       "type":"string",
       "readOnly":false,
       "writeOnly":false,
-      "observable":true,
-      "forms":[
-         {
-            "href":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/{{PROPERTIES}}/lastChange",
-            "contentType":"application/json",
-            "op":[
-               "observeproperty",
-               "unobserveproperty",
-               "readproperty"
-            ]
-         }
-      ]
+      "observable":"{{LAST_CHANGE_OBSERVABLE}}"
      }
   },
   "actions":{
@@ -61,15 +40,6 @@
         "output":{
            "type":"number"
         },
-        "forms":[
-           {
-              "href":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/{{ACTIONS}}/add",
-              "contentType":"application/json",
-              "op":[
-                 "invokeaction"
-              ]
-           }
-        ],
         "idempotent":false,
         "safe":false
      },
@@ -80,15 +50,6 @@
         "output":{
            "type":"number"
         },
-        "forms":[
-           {
-              "href":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/{{ACTIONS}}/subtract",
-              "contentType":"application/json",
-              "op":[
-                 "invokeaction"
-              ]
-           }
-        ],
         "idempotent":false,
         "safe":false
      }
@@ -97,17 +58,7 @@
      "update":{
         "data":{
            "type":"string"
-        },
-        "forms":[
-           {
-              "href":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/{{EVENTS}}/update",
-              "contentType":"application/json",
-              "op":[
-                 "subscribeevent",
-                 "unsubscribeevent"
-              ]
-           }
-        ]
+        }
      }
   }
 }
