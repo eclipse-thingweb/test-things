@@ -4,7 +4,7 @@ This client was created with the sole purpose of testing the main functionality 
 
 **This folder and files are not final and might be subject to changes or might be completely removed in the future.**
 
-## Enpoints
+## Endpoints
 
 - Full TD: /coap-calculator
 - Result: /coap-calculator/properties/result
