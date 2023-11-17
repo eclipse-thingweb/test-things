@@ -20,19 +20,16 @@ const url = "http://localhost:3000/http-express-calculator",
  */
 async function getFullTD(acceptType) {
     let getHeaders = {
-        "Accept": "text/plain"
+        "Accept": ""
     }
 
-    if (acceptType === "text") {
-        getHeaders.Accept = "text/plain"
-    }
-    else if (acceptType === "json") {
+    if (acceptType === "json") {
         getHeaders.Accept = "application/json"
     }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
     } else {
-        postHeaders['Content-Type'] = `application/${acceptType}`
+        getHeaders.Accept = acceptType;
     }
 
     const res = await fetch(url, {
@@ -44,9 +41,6 @@ async function getFullTD(acceptType) {
 
     if (contentType.includes("application/json")) {
         return res.json()
-    }
-    else if (contentType.includes("text/plain")) {
-        return res.text()
     }
     else if (contentType.includes("application/cbor")) {
         const buffer = await res.arrayBuffer()
@@ -67,19 +61,16 @@ async function getFullTD(acceptType) {
 async function getCurrentResult(acceptType) {
 
     let getHeaders = {
-        "Accept": "text/plain"
+        "Accept": ""
     }
 
-    if (acceptType === "text") {
-        getHeaders.Accept = "text/plain"
-    }
-    else if (acceptType === "json") {
+    if (acceptType === "json") {
         getHeaders.Accept = "application/json"
     }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
     } else {
-        postHeaders['Content-Type'] = `application/${acceptType}`
+        getHeaders.Accept = acceptType;
     }
 
     const res = await fetch(url + resultEndPoint, {
@@ -97,9 +88,6 @@ async function getCurrentResult(acceptType) {
         const decodedData = cbor.decode(buffer);
         return decodedData
     }
-    else if (contentType.includes("text/plain")) {
-        return res.text()
-    }
     else {
         throw new Error(`Unsupported content type: ${contentType}`);
     }
@@ -113,19 +101,16 @@ async function getCurrentResult(acceptType) {
 async function getLatestChange(acceptType) {
 
     let getHeaders = {
-        "Accept": "text/plain"
+        "Accept": ""
     }
 
-    if (acceptType === "text") {
-        getHeaders.Accept = "text/plain"
-    }
-    else if (acceptType === "json") {
+    if (acceptType === "json") {
         getHeaders.Accept = "application/json"
     }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
     } else {
-        postHeaders['Content-Type'] = `application/${acceptType}`
+        getHeaders.Accept = acceptType;
     }
 
     const res = await fetch(url + lastChangeEndPoint, {
@@ -143,9 +128,6 @@ async function getLatestChange(acceptType) {
         const decodedData = cbor.decode(buffer);
         return decodedData
     }
-    else if (contentType.includes("text/plain")) {
-        return res.text()
-    }
     else {
         // Handle unsupported content types or return an error
         throw new Error(`Unsupported content type: ${contentType}`);
@@ -161,15 +143,11 @@ async function getLatestChange(acceptType) {
  */
 async function addNumber(number, contentType, acceptType) {
     let postHeaders = {
-        "Content-Type": "text/plain",
-        "Accept": "text/plain",
+        "Content-Type": "",
+        "Accept": "",
     }
 
-    if (contentType === "text") {
-        inputNumber = number
-        postHeaders['Content-Type'] = "text/plain"
-    }
-    else if (contentType === "json") {
+    if (contentType === "json") {
         inputNumber = JSON.stringify({ "data": number })
         postHeaders['Content-Type'] = "application/json"
     }
@@ -179,20 +157,17 @@ async function addNumber(number, contentType, acceptType) {
     }
     else {
         inputNumber = number
-        postHeaders['Content-Type'] = `application/${contentType}`
+        postHeaders['Content-Type'] = contentType
     }
 
-    if (acceptType === "text") {
-        postHeaders['Accept'] = "text/plain"
-    }
-    else if (acceptType === "json") {
+    if (acceptType === "json") {
         postHeaders['Accept'] = "application/json"
     }
     else if (acceptType === "cbor") {
         postHeaders['Accept'] = "application/cbor"
     }
     else {
-        postHeaders['Accept'] = `application/${acceptType}`
+        postHeaders['Accept'] = acceptType
     }
 
     const res = await fetch(url + additionEndPoint, {
@@ -212,9 +187,6 @@ async function addNumber(number, contentType, acceptType) {
             const decodedData = cbor.decode(buffer);
             return decodedData
         }
-        else if (contentType.includes("text/plain")) {
-            return res.text()
-        }
         else {
             // Handle unsupported content types or return an error
             throw new Error(`Unsupported content type: ${contentType}`);
@@ -233,15 +205,11 @@ async function addNumber(number, contentType, acceptType) {
  */
 async function subtractNumber(number, contentType, acceptType) {
     let postHeaders = {
-        "Content-Type": "text/plain",
-        "Accept": "text/plain",
+        "Content-Type": "",
+        "Accept": "",
     }
 
-    if (contentType === "text") {
-        inputNumber = number
-        postHeaders['Content-Type'] = "text/plain"
-    }
-    else if (contentType === "json") {
+    if (contentType === "json") {
         inputNumber = JSON.stringify({ "data": number })
         postHeaders['Content-Type'] = "application/json"
     }
@@ -251,20 +219,17 @@ async function subtractNumber(number, contentType, acceptType) {
     }
     else {
         inputNumber = number
-        postHeaders['Content-Type'] = `application/${contentType}`
+        postHeaders['Content-Type'] = contentType
     }
 
-    if (acceptType === "text") {
-        postHeaders['Accept'] = "text/plain"
-    }
-    else if (acceptType === "json") {
+    if (acceptType === "json") {
         postHeaders['Accept'] = "application/json"
     }
     else if (acceptType === "cbor") {
         postHeaders['Accept'] = "application/cbor"
     }
     else {
-        postHeaders['Accept'] = `application/${acceptType}`
+        postHeaders['Accept'] = acceptType
     }
 
     const res = await fetch(url + subtractionEndPoint, {
@@ -284,9 +249,6 @@ async function subtractNumber(number, contentType, acceptType) {
             const decodedData = cbor.decode(buffer);
             return decodedData
         }
-        else if (contentType.includes("text/plain")) {
-            return res.text()
-        }
         else {
             // Handle unsupported content types or return an error
             throw new Error(`Unsupported content type: ${contentType}`);
@@ -304,10 +266,10 @@ async function runCalculator() {
     try {
         console.log("Full thing: \n", await getFullTD("cbor"))
         console.log("Current number: ", await getCurrentResult("json"))
-        console.log("Last Change: ", await getLatestChange("text"))
+        console.log("Last Change: ", await getLatestChange("cbor"));
         console.log("Result of the addition is: ", await addNumber(3, "cbor", "cbor"))
         console.log("Result of the subtraction is: ", await subtractNumber(20, "json", "cbor"))
-        console.log("Current number: ", await getCurrentResult("text"))
+        console.log("Current number: ", await getCurrentResult("json"))
         console.log("Last Change: ", await getLatestChange("cbor"))
 
     } catch (err) {

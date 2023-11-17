@@ -11,11 +11,7 @@ const app = express()
 
 const hostname = 'localhost'
 let portNumber = 3000
-
-const thingName = 'http-express-calculator'
-const PROPERTIES = 'properties'
-const ACTIONS = 'actions'
-const EVENTS = 'events'
+const thingName = 'http-express-calculator-content-negotiation'
 
 const { values: { port } } = parseArgs({
   options: {
@@ -42,17 +38,32 @@ const placeholderReplacer = new JsonPlaceholderReplacer()
 placeholderReplacer.addVariableMap({
   PROTOCOL: 'http',
   THING_NAME: thingName,
-  PROPERTIES,
-  ACTIONS,
-  EVENTS,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber
 })
 
+const defaultForm =         
+{
+  "href": "",
+  "contentType": "",
+  "op": "readproperty",
+  "htv:methodName": "",
+  "htv:headers": {
+    "htv:RequestHeader": [{
+      "fieldValue": "",
+      "fieldName": "Accept"
+    }],
+    "htv:ResponseHeader": {
+      "fieldValue": "",
+      "fieldName": "Content-Type"
+    }
+  }
+}
+
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
 
-const supportedContentTypes = ['text/plain', 'application/json', 'application/cbor'];
+const supportedContentTypes = ['application/json', 'application/cbor'];
 
 //Adding headers to the Properties
 for (const key in thingDescription['properties']) {
