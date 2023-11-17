@@ -161,6 +161,7 @@
         {
           "href": "http://localhost:3000/http-express-calculator/actions/add",
           "contentType": "application/json",
+          "response":"text/plain",
           "op": [
             "invokeaction"
           ],
