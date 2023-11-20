@@ -4,13 +4,14 @@
  */
 
 const cbor = require('cbor')
+const EventSource = require('eventsource')
 
-const url = "http://localhost:3000/http-express-calculator",
+const url = "http://localhost:3000/http-express-calculator-content-negotiation",
     resultEndPoint = "/properties/result",
     lastChangeEndPoint = "/properties/lastChange",
     additionEndPoint = "/actions/add",
-    subtractionEndPoint = "/actions/subtract"
-    // updateEndPoint = "/events/update"
+    subtractionEndPoint = "/actions/subtract",
+    updateEndPoint = "/events/update"
 
 
 /**
@@ -258,6 +259,7 @@ async function subtractNumber(number, contentType, acceptType) {
     }
 }
 
+
 /**
  * Runs all the previous functions to test the full functionality of the calculator
  */
@@ -267,8 +269,8 @@ async function runCalculator() {
         console.log("Full thing: \n", await getFullTD("cbor"))
         console.log("Current number: ", await getCurrentResult("json"))
         console.log("Last Change: ", await getLatestChange("cbor"));
-        console.log("Result of the addition is: ", await addNumber(3, "cbor", "cbor"))
-        console.log("Result of the subtraction is: ", await subtractNumber(20, "json", "cbor"))
+        console.log("Result of the addition is: ", await addNumber(10, "json", "cbor"))
+        console.log("Result of the subtraction is: ", await subtractNumber(5, "cbor", "json"))
         console.log("Current number: ", await getCurrentResult("json"))
         console.log("Last Change: ", await getLatestChange("cbor"))
 
@@ -279,3 +281,32 @@ async function runCalculator() {
 }
 
 runCalculator()
+
+
+
+/**
+ * Create an EventSource for the update endpoint.
+ * Uncomment to test the SSE functionality.
+ */
+
+// const updateEventSource = new EventSource(url + updateEndPoint, {
+//     headers: {
+//         'Accept': 'application/cbor'
+//     }
+// });
+
+// updateEventSource.onmessage = (e) => {
+//     const data = JSON.parse(e.data);
+//     if (data.headers["content-type"] === 'application/cbor') {
+//         const buffer = Buffer.from(data.result.data);
+//         const decodedData = cbor.decode(buffer);
+//         console.log(decodedData);
+//     }
+//     else {
+//         console.log(data.result);
+//     }
+// };
+
+// updateEventSource.onerror = (error) => {
+//     console.error('Error with SSE:', error);
+// };

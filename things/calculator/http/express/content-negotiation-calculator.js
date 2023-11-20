@@ -12,6 +12,17 @@ const app = express()
 const hostname = 'localhost'
 let portNumber = 3000
 const thingName = 'http-express-calculator-content-negotiation'
+const url = `http://localhost:3000/${thingName}`
+
+const fullTDEndPoint = `/${thingName}`,
+  resultEndPoint = `/${thingName}/properties/result`,
+  lastChangeEndPoint = `/${thingName}/properties/lastChange`,
+  additionEndPoint = `/${thingName}/actions/add`,
+  subtractionEndPoint = `/${thingName}/actions/subtract`,
+  updateEndPoint = `/${thingName}/events/update`
+
+let result = 0
+let lastChange = 'No changes made so far'
 
 const { values: { port } } = parseArgs({
   options: {
@@ -39,25 +50,25 @@ placeholderReplacer.addVariableMap({
   PROTOCOL: 'http',
   THING_NAME: thingName,
   HOSTNAME: hostname,
-  PORT_NUMBER: portNumber
+  PORT_NUMBER: portNumber,
+  RESULT_OBSERVABLE: false,
+  LAST_CHANGE_OBSERVABLE: false
 })
 
-const defaultForm =         
+const defaultForm =
 {
   "href": "",
-  "contentType": "",
-  "op": "readproperty",
+  "contentType": "application/json",
+  "response": "application/json",
+  "op": "",
   "htv:methodName": "",
-  "htv:headers": {
-    "htv:RequestHeader": [{
-      "fieldValue": "",
+  "htv:headers": [
+    {
+      "@type": "htv:RequestHeader",
+      "fieldValue": "application/json",
       "fieldName": "Accept"
-    }],
-    "htv:ResponseHeader": {
-      "fieldValue": "",
-      "fieldName": "Content-Type"
     }
-  }
+  ]
 }
 
 const thingDescription = placeholderReplacer.replace(thingModel)
@@ -68,29 +79,23 @@ const supportedContentTypes = ['application/json', 'application/cbor'];
 //Adding headers to the Properties
 for (const key in thingDescription['properties']) {
 
-  thingDescription['properties'][key]['forms'][0]['contentType'] = "text/plain"
-  thingDescription['properties'][key]['forms'][0]['htv:methodName'] = 'GET'
-  thingDescription['properties'][key]['forms'][0]['htv:headers'] = {
-    "htv:RequestHeader": {},
-    "htv:ResponseHeader": {}
-  }
-  thingDescription['properties'][key]['forms'][0]['htv:headers']['htv:RequestHeader'] = {
-    "fieldValue": "text/plain",
-    "fieldName": "Accept",
-  }
-  thingDescription['properties'][key]['forms'][0]['htv:headers']['htv:ResponseHeader'] = {
-    "fieldValue": "text/plain",
-    "fieldName": "Content-Type",
-  }
+  thingDescription['properties'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${url}/properties/${key}`
+  newForm['htv:methodName'] = 'GET'
+  newForm['op'] = 'readproperty'
+  
+  thingDescription['properties'][key]['forms'].push(newForm)
 
   const originalForm = thingDescription['properties'][key]['forms'][0]
 
   supportedContentTypes.forEach(type => {
-    if (!thingDescription['properties'][key]['forms'][0]['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
+    if (!thingDescription['properties'][key]['forms'][0]['contentType'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = type
-      newForm['htv:headers']['htv:RequestHeader']['fieldValue'] = type
-      newForm['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
+      newForm['response'] = type
+      newForm['htv:headers'][0]['fieldValue'] = type
       thingDescription['properties'][key]['forms'].push(newForm)
     }
   })
@@ -99,19 +104,14 @@ for (const key in thingDescription['properties']) {
 //Adding headers to the Actions
 for (const key in thingDescription['actions']) {
 
-  thingDescription['actions'][key]['forms'][0]['htv:methodName'] = 'POST'
-  thingDescription['actions'][key]['forms'][0]['htv:headers'] = {
-    "htv:RequestHeader": {},
-    "htv:ResponseHeader": {}
-  }
-  thingDescription['actions'][key]['forms'][0]['htv:headers']['htv:RequestHeader'] = {
-    "fieldValue": "text/plain",
-    "fieldName": "Accept",
-  }
-  thingDescription['actions'][key]['forms'][0]['htv:headers']['htv:ResponseHeader'] = {
-    "fieldValue": "text/plain",
-    "fieldName": "Content-Type",
-  }
+  thingDescription['actions'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${url}/actions/${key}`
+  newForm['htv:methodName'] = 'POST'
+  newForm['op'] = 'invokeaction'
+
+  thingDescription['actions'][key]['forms'].push(newForm)
 
   const originalForm = thingDescription['actions'][key]['forms'][0]
 
@@ -122,19 +122,19 @@ for (const key in thingDescription['actions']) {
       thingDescription['actions'][key]['forms'].push(newForm)
 
       supportedContentTypes.forEach(type => {
-        if (!thingDescription['actions'][key]['forms'][0]['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
+        if (!thingDescription['actions'][key]['forms'][0]['response'].includes(type)) {
           const newFormAccept = JSON.parse(JSON.stringify(newForm))
-          newFormAccept['htv:headers']['htv:RequestHeader']['fieldValue'] = type
-          newFormAccept['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
+          newFormAccept['response'] = type
+          newFormAccept['htv:headers'][0]['fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newFormAccept)
         }
       })
     } else {
       supportedContentTypes.forEach(type => {
-        if (!originalForm['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
+        if (!originalForm['response'].includes(type)) {
           const newForm = JSON.parse(JSON.stringify(originalForm))
-          newForm['htv:headers']['htv:RequestHeader']['fieldValue'] = type
-          newForm['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
+          newForm['response'] = type
+          newForm['htv:headers'][0]['fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newForm)
         }
       })
@@ -146,30 +146,23 @@ for (const key in thingDescription['actions']) {
 
 for (const key in thingDescription['events']) {
 
-  //TODO: Is it necessary to add the method
-  // thingDescription['events'][key]['forms'][0]['htv:methodName'] = 'GET'
-  thingDescription['events'][key]['forms'][0]['contentType'] = "text/plain"
-  thingDescription['events'][key]['forms'][0]['htv:headers'] = {
-    "htv:RequestHeader": {},
-    "htv:ResponseHeader": {}
-  }
-  thingDescription['events'][key]['forms'][0]['htv:headers']['htv:RequestHeader'] = {
-    "fieldValue": "text/plain",
-    "fieldName": "Accept",
-  }
-  thingDescription['events'][key]['forms'][0]['htv:headers']['htv:ResponseHeader'] = {
-    "fieldValue": "text/plain",
-    "fieldName": "Accept",
-  }
+  thingDescription['events'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${url}/events/${key}`
+  newForm['htv:methodName'] = 'GET'
+  newForm['op'] = 'subscribeevent'
+
+  thingDescription['events'][key]['forms'].push(newForm)
 
   const originalForm = thingDescription['events'][key]['forms'][0]
 
   supportedContentTypes.forEach(type => {
-    if (!thingDescription['events'][key]['forms'][0]['htv:headers']['htv:RequestHeader']['fieldValue'].includes(type)) {
+    if (!thingDescription['events'][key]['forms'][0]['contentType'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = type
-      newForm['htv:headers']['htv:RequestHeader']['fieldValue'] = type
-      newForm['htv:headers']['htv:ResponseHeader']['fieldValue'] = type
+      newForm['response'] = type
+      newForm['htv:headers'][0]['fieldValue'] = type
       thingDescription['events'][key]['forms'].push(newForm)
     }
   })
@@ -191,11 +184,13 @@ try {
 app.use((req, res, next) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('text/') || acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor')) {
+  if (acceptHeader === undefined) {
+    next()
+  }
+  else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('*/*')) {
     next()
   } else {
-    res.setHeader('Content-Type', 'text/plain')
-    res.status(406).send('Not Acceptable: Supported formats are  text/*, application/json, and application/cbor.');
+    res.status(406).json({ 'msg': 'Not Acceptable: Supported formats are application/json, and application/cbor' });
   }
 });
 
@@ -209,8 +204,7 @@ app.use((req, res, next) => {
     if (supportedContentTypes.includes(contentType)) {
       next()
     } else {
-      res.setHeader('Content-Type', 'text/plain')
-      res.status(415).send('Unsupported Media Type: Supported content types are text/plain, application/json, and application/cbor.');
+      res.status(415).json({ 'msg': 'Unsupported Media Type: Supported Content-Types are application/json, and application/cbor' });
     }
   }
   else {
@@ -228,11 +222,8 @@ app.use(bodyParser.raw({ type: 'application/cbor' }));
 /************** Properties Endpoints *****************/
 /*****************************************************/
 
-let result = 0
-let lastChange = 'No changes made so far'
-
 // Get full thing
-app.get(`/${thingName}`, (req, res) => {
+app.get(fullTDEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
   if (acceptHeader === '*/*' || acceptHeader === undefined) {
@@ -241,19 +232,15 @@ app.get(`/${thingName}`, (req, res) => {
   else if (acceptHeader.includes('application/json')) {
     res.json(thingDescription)
   }
-  else if (acceptHeader.includes('application/cbor')) {
+  else {
     const cborData = cbor.encode(thingDescription)
     res.setHeader('Content-Type', 'application/cbor')
     res.send(cborData)
   }
-  else {
-    res.setHeader('Content-Type', 'text/plain')
-    res.send(thingDescription)
-  }
 })
 
 //Get current result
-app.get(`/${thingName}/${PROPERTIES}/result`, (req, res) => {
+app.get(resultEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
   if (acceptHeader === '*/*' || acceptHeader === undefined) {
@@ -262,19 +249,15 @@ app.get(`/${thingName}/${PROPERTIES}/result`, (req, res) => {
   else if (acceptHeader.includes('application/json')) {
     res.json(result)
   }
-  else if (acceptHeader.includes('application/cbor')) {
+  else {
     const cborData = cbor.encode(result)
     res.setHeader('Content-Type', 'application/cbor')
     res.send(cborData)
   }
-  else {
-    res.setHeader('Content-Type', 'text/plain')
-    res.send(result.toString())
-  }
 })
 
 // Get the time of the last change
-app.get(`/${thingName}/${PROPERTIES}/lastChange`, (req, res) => {
+app.get(lastChangeEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
   if (acceptHeader === '*/*' || acceptHeader === undefined) {
@@ -283,37 +266,30 @@ app.get(`/${thingName}/${PROPERTIES}/lastChange`, (req, res) => {
   else if (acceptHeader.includes('application/json')) {
     res.json(lastChange)
   }
-  else if (acceptHeader.includes('application/cbor')) {
+  else {
     const cborData = cbor.encode(lastChange)
     res.setHeader('Content-Type', 'application/cbor')
     res.send(cborData)
   }
-  else {
-    res.setHeader('Content-Type', 'text/plain')
-    res.send(lastChange.toString())
-  }
 })
 
 
-/*****************************************************/
-/*************** Actions Endpoints *******************/
-/*****************************************************/
+// /*****************************************************/
+// /*************** Actions Endpoints *******************/
+// /*****************************************************/
 
 // Add a number to the current result endpoint
-app.post(`/${thingName}/${ACTIONS}/add`, (req, res) => {
+app.post(additionEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
   let parsedInput
 
-  //check if the data was sent as cbor, json or text and if not get the body normally
+  //check if the data was sent as cbor or json and if not get the body normally
   if (req.get('Content-Type') === "application/cbor") {
     const decodedData = cbor.decode(req.body);
     parsedInput = parseInt(decodedData)
   }
-  else if (req.get('Content-Type') === "application/json") {
-    parsedInput = parseInt(req.body.data)
-  }
   else {
-    parsedInput = parseInt(req.body)
+    parsedInput = parseInt(req.body.data)
   }
 
   /**Check if given input is a valid number, if not return an error message,
@@ -321,33 +297,31 @@ app.post(`/${thingName}/${ACTIONS}/add`, (req, res) => {
    * return the added number in the accepted format
    */
   if (isNaN(parsedInput)) {
-    res.setHeader('Content-Type', 'text/plain')
-    res.status(400).send('Input should be a valid integer')
+    res.status(400).json({ 'msg': 'Input should be a valid integer' })
   } else {
 
-    if (acceptHeader.includes('application/json')) {
+    if (acceptHeader === '*/*' || acceptHeader === undefined) {
       result += parsedInput
       lastChange = (new Date()).toLocaleTimeString()
-      res.json(parsedInput)
+      res.json(result)
     }
-    else if (acceptHeader.includes('application/cbor')) {
+    else if (acceptHeader.includes('application/json')) {
       result += parsedInput
       lastChange = (new Date()).toLocaleTimeString()
-      const cborData = cbor.encode(parsedInput)
-      res.setHeader('Content-Type', 'application/cbor')
-      res.send(cborData)
+      res.json(result)
     }
     else {
       result += parsedInput
       lastChange = (new Date()).toLocaleTimeString()
-      res.setHeader('Content-Type', 'text/plain')
-      res.send(parsedInput.toString())
+      const cborData = cbor.encode(result)
+      res.setHeader('Content-Type', 'application/cbor')
+      res.send(cborData)
     }
   }
 })
 
 // Subtract a number from the current result endpoint
-app.post(`/${thingName}/${ACTIONS}/subtract`, (req, res) => {
+app.post(subtractionEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
   let parsedInput
 
@@ -356,11 +330,8 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, (req, res) => {
     const decodedData = cbor.decode(req.body);
     parsedInput = parseInt(decodedData)
   }
-  else if (req.get('Content-Type') === "application/json") {
-    parsedInput = parseInt(req.body.data)
-  }
   else {
-    parsedInput = parseInt(req.body)
+    parsedInput = parseInt(req.body.data)
   }
 
   /**Check  if given input is a valid number, if not return an error message,
@@ -368,42 +339,39 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, (req, res) => {
    * return the added number in the accepted format
    */
   if (isNaN(parsedInput)) {
-    res.setHeader('Content-Type', 'text/plain')
-    res.status(400).send('Input should be a valid integer')
+    res.status(400).json({ 'msg': 'Input should be a valid integer' })
   } else {
-    if (acceptHeader.includes('application/json')) {
+    if (acceptHeader === '*/*' || acceptHeader === undefined) {
       result -= parsedInput
       lastChange = (new Date()).toLocaleTimeString()
-      res.json(parsedInput)
+      res.json(result)
     }
-    else if (acceptHeader.includes('application/cbor')) {
+    else if (acceptHeader.includes('application/json')) {
       result -= parsedInput
       lastChange = (new Date()).toLocaleTimeString()
-      const cborData = cbor.encode(parsedInput)
-      res.setHeader('Content-Type', 'application/cbor')
-      res.send(cborData)
+      res.json(result)
     }
     else {
       result -= parsedInput
       lastChange = (new Date()).toLocaleTimeString()
-      res.setHeader('Content-Type', 'text/plain')
-      res.send(parsedInput.toString())
+      const cborData = cbor.encode(result)
+      res.setHeader('Content-Type', 'application/cbor')
+      res.send(cborData)
     }
   }
 })
 
 
-/*****************************************************/
-/**************** Events Endpoints *******************/
-/*****************************************************/
+// /*****************************************************/
+// /**************** Events Endpoints *******************/
+// /*****************************************************/
 
 // Get updates when a change to the main result happens endpoint
-//*Changed the endpoint to "/update" instead of "/change" as thats how it is specified in the TD
-app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
+app.get(updateEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Cache-Control', 'no-cache')
-  res.setHeader('connection', 'keep-alive')
+  res.setHeader('Connection', 'keep-alive')
   res.setHeader('Content-Type', 'text/event-stream')
 
   let oldResult = result
@@ -424,17 +392,16 @@ app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader.includes('text/')) {
-        message = `data: ${result}\n\n`
+      if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify({
+          'headers': {'content-type': 'application/json'},
+          'result': result})}\n\n`
       }
-      else if (acceptHeader.includes('application/json')) {
-        message = `data: ${result}\n\n`
-      }
-      if (acceptHeader.includes('application/cbor')) {
+      else {
         const cborData = cbor.encode(result)
-        //TODO: Don't send as base64 string
-        res.setHeader('Content-Transfer-Encoding', 'base64');
-        message = `data: ${cborData.toString('base64')}\n\n`
+        message = `data: ${JSON.stringify({
+          'headers': {'content-type': 'application/cbor'},
+          'result': cborData})}\n\n`
       }
 
       res.statusCode = 200
@@ -448,6 +415,7 @@ app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
   res.on('finish', () => {
     clearInterval(changeInterval)
   })
+
 })
 
 /************************************************/
