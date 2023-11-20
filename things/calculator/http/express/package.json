@@ -18,6 +18,7 @@
     "body-parser": "^1.20.2",
     "cbor": "^9.0.1",
     "dotenv": "^16.3.1",
+    "eventsource": "^2.0.2",
     "express": "^4.18.2",
     "json-placeholder-replacer": "^1.0.35"
   },

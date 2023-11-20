@@ -7,7 +7,7 @@
     }
   ],
   "@type": "Thing",
-  "title": "http-express-calculator",
+  "title": "http-express-calculator-content-negotiation",
   "description": "Calculator Thing",
   "securityDefinitions": {
     "nosec_sc": {
@@ -17,69 +17,41 @@
   "security": [
     "nosec_sc"
   ],
+  "base": "http://localhost:3000/http-express-calculator-content-negotiation",
   "properties": {
     "result": {
       "type": "number",
       "readOnly": false,
       "writeOnly": false,
-      "observable": true,
+      "observable": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator/properties/result",
-          "contentType": "text/plain",
-          "op": [
-            "observeproperty",
-            "unobserveproperty"
-          ],
-          "htv:methodName": "GET",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/properties/result",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/result",
           "contentType": "application/json",
-          "op": [
-            "observeproperty",
-            "unobserveproperty"
-          ],
+          "response": "application/json",
+          "op": "readproperty",
           "htv:methodName": "GET",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/properties/result",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/result",
           "contentType": "application/cbor",
-          "op": [
-            "observeproperty",
-            "unobserveproperty"
-          ],
+          "response": "application/cbor",
+          "op": "readproperty",
           "htv:methodName": "GET",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         }
       ]
     },
@@ -87,64 +59,35 @@
       "type": "string",
       "readOnly": false,
       "writeOnly": false,
-      "observable": true,
+      "observable": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator/properties/lastChange",
-          "contentType": "text/plain",
-          "op": [
-            "observeproperty",
-            "unobserveproperty"
-          ],
-          "htv:methodName": "GET",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/properties/lastChange",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/lastChange",
           "contentType": "application/json",
-          "op": [
-            "observeproperty",
-            "unobserveproperty"
-          ],
+          "response": "application/json",
+          "op": "readproperty",
           "htv:methodName": "GET",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/properties/lastChange",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/lastChange",
           "contentType": "application/cbor",
-          "op": [
-            "observeproperty",
-            "unobserveproperty"
-          ],
+          "response": "application/cbor",
+          "op": "readproperty",
           "htv:methodName": "GET",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         }
       ]
     }
@@ -157,173 +100,66 @@
       "output": {
         "type": "number"
       },
+      "idempotent": false,
+      "safe": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
           "contentType": "application/json",
-          "response":"text/plain",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/json",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
-          "contentType": "text/plain",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
-          "contentType": "text/plain",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
-          "contentType": "text/plain",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
           "contentType": "application/json",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/cbor",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
-          "contentType": "application/json",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
           "contentType": "application/cbor",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/json",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
-          "contentType": "application/cbor",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/add",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
           "contentType": "application/cbor",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/cbor",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         }
-      ],
-      "idempotent": false,
-      "safe": false
+      ]
     },
     "subtract": {
       "input": {
@@ -332,172 +168,66 @@
       "output": {
         "type": "number"
       },
+      "idempotent": false,
+      "safe": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
           "contentType": "application/json",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/json",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
-          "contentType": "text/plain",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
-          "contentType": "text/plain",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
-          "contentType": "text/plain",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
           "contentType": "application/json",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/cbor",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
-          "contentType": "application/json",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
           "contentType": "application/cbor",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/json",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Content-Type"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
-          "contentType": "application/cbor",
-          "op": [
-            "invokeaction"
-          ],
-          "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/actions/subtract",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
           "contentType": "application/cbor",
-          "op": [
-            "invokeaction"
-          ],
+          "response": "application/cbor",
+          "op": "invokeaction",
           "htv:methodName": "POST",
-          "htv:headers": {
-            "htv:RequestHeader": {
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Content-Type"
             }
-          }
+          ]
         }
-      ],
-      "idempotent": false,
-      "safe": false
+      ]
     }
   },
   "events": {
@@ -507,58 +237,32 @@
       },
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator/events/update",
-          "contentType": "text/plain",
-          "op": [
-            "subscribeevent",
-            "unsubscribeevent"
-          ],
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
-              "fieldValue": "text/plain",
-              "fieldName": "Accept"
-            }
-          }
-        },
-        {
-          "href": "http://localhost:3000/http-express-calculator/events/update",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/events/update",
           "contentType": "application/json",
-          "op": [
-            "subscribeevent",
-            "unsubscribeevent"
-          ],
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "application/json",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
+          "response": "application/json",
+          "op": "subscribeevent",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/json",
               "fieldName": "Accept"
             }
-          }
+          ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator/events/update",
+          "href": "http://localhost:3000/http-express-calculator-content-negotiation/events/update",
           "contentType": "application/cbor",
-          "op": [
-            "subscribeevent",
-            "unsubscribeevent"
-          ],
-          "htv:headers": {
-            "htv:RequestHeader": {
-              "fieldValue": "application/cbor",
-              "fieldName": "Accept"
-            },
-            "htv:ResponseHeader": {
+          "response": "application/cbor",
+          "op": "subscribeevent",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
             }
-          }
+          ]
         }
       ]
     }
