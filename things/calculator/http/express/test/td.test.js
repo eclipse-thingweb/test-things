@@ -19,7 +19,7 @@ describe('Calculator HTTP JS', () => {
     const initiateMain = new Promise(async (resolve, reject) => {
       thingProcess = spawn(
         'node',
-        ['main.js', '-p', `${port}`],
+        ['simple-calculator.js', '-p', `${port}`],
         { cwd: path.join(__dirname, '..') }
       )
       thingProcess.stdout.on('data', (data) => {
@@ -66,7 +66,7 @@ describe('Calculator HTTP JS', () => {
   })
 
   it('should have a valid TD', (done) => {
-    http.get(`http://localhost:${port}/http-express-calculator`, function (response) {
+    http.get(`http://localhost:${port}/http-express-calculator-simple`, function (response) {
       const body = []
       response.on('data', (chunk) => {
         body.push(chunk)

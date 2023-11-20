@@ -12,10 +12,9 @@ const hostname = "localhost";
 let portNumber = 3000;
 
 const thingName = "http-express-calculator-simple";
-const PROPERTIES = "properties"; //FIXME: not needed anymore in TM
-const ACTIONS = "actions";
-const EVENTS = "events";
-const RESULT_OBSERVABLE =true;
+const RESULT_OBSERVABLE = true;
+const LAST_CHANGE_OBSERVABLE = true
+const url = `http://localhost:3000/${thingName}`
 
 const {
   values: { port },
@@ -44,15 +43,62 @@ const placeholderReplacer = new JsonPlaceholderReplacer();
 placeholderReplacer.addVariableMap({
   PROTOCOL: "http",
   THING_NAME: thingName,
-  PROPERTIES,
-  ACTIONS,
-  EVENTS,
   RESULT_OBSERVABLE,
+  LAST_CHANGE_OBSERVABLE,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
 });
 const thingDescription = placeholderReplacer.replace(thingModel);
 thingDescription["@type"] = "Thing";
+
+const defaultForm = {
+  "href": "",
+  "contentType": "application/json",
+  "op": []
+}
+
+//add properties forms
+for (const key in thingDescription['properties']) {
+
+  thingDescription['properties'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${url}/properties/${key}`
+  newForm['op'] = ["observeproperty", "unobserveproperty", "readproperty"]
+
+  thingDescription['properties'][key]['forms'].push(newForm)
+}
+
+//add actions forms
+for (const key in thingDescription['actions']) {
+
+  thingDescription['actions'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${url}/actions/${key}`
+  newForm['op'] = ["invokeaction"]
+
+  thingDescription['actions'][key]['forms'].push(newForm)
+}
+
+//add events forms
+for (const key in thingDescription['events']) {
+
+  thingDescription['events'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${url}/events/${key}`
+  newForm['op'] = ["subscribeevent", "unsubscribeevent"]
+                 
+  thingDescription['events'][key]['forms'].push(newForm)
+}
+
+//Creating the TD for testing purposes
+try {
+  fs.writeFileSync('http-calculator-thing-simple.td.jsonld', JSON.stringify(thingDescription, null, 2))
+} catch (err) {
+  console.log(err);
+}
 
 const reqParser = bodyParser.text({ type: "*/*" });
 
@@ -63,15 +109,15 @@ app.get(`/${thingName}`, (req, res) => {
   res.end(JSON.stringify(thingDescription));
 });
 
-app.get(`/${thingName}/${PROPERTIES}/result`, (req, res) => {
+app.get(`/${thingName}/properties/result`, (req, res) => {
   res.end(result.toString());
 });
 
-app.get(`/${thingName}/${PROPERTIES}/lastChange`, (req, res) => {
+app.get(`/${thingName}/properties/lastChange`, (req, res) => {
   res.end(lastChange);
 });
 
-app.post(`/${thingName}/${ACTIONS}/add`, reqParser, (req, res) => {
+app.post(`/${thingName}/actions/add`, reqParser, (req, res) => {
   const parsedInput = parseInt(req.body);
 
   if (isNaN(parsedInput)) {
@@ -83,7 +129,7 @@ app.post(`/${thingName}/${ACTIONS}/add`, reqParser, (req, res) => {
   }
 });
 
-app.post(`/${thingName}/${ACTIONS}/subtract`, reqParser, (req, res) => {
+app.post(`/${thingName}/actions/subtract`, reqParser, (req, res) => {
   const parsedInput = parseInt(req.body);
 
   if (isNaN(parsedInput)) {
@@ -95,7 +141,7 @@ app.post(`/${thingName}/${ACTIONS}/subtract`, reqParser, (req, res) => {
   }
 });
 
-app.get(`/${thingName}/${EVENTS}/update`, (req, res) => {
+app.get(`/${thingName}/events/update`, (req, res) => {
   res.statusCode = 200;
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "no-cache");
