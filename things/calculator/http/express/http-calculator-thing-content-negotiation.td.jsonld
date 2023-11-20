@@ -23,7 +23,7 @@
       "type": "number",
       "readOnly": false,
       "writeOnly": false,
-      "observable": false,
+      "observable": true,
       "forms": [
         {
           "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/result",
@@ -59,7 +59,7 @@
       "type": "string",
       "readOnly": false,
       "writeOnly": false,
-      "observable": false,
+      "observable": true,
       "forms": [
         {
           "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/lastChange",

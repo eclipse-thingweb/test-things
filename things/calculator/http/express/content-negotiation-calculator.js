@@ -51,8 +51,8 @@ placeholderReplacer.addVariableMap({
   THING_NAME: thingName,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
-  RESULT_OBSERVABLE: false,
-  LAST_CHANGE_OBSERVABLE: false
+  RESULT_OBSERVABLE: true,
+  LAST_CHANGE_OBSERVABLE: true
 })
 
 const defaultForm =
@@ -170,7 +170,7 @@ for (const key in thingDescription['events']) {
 
 //Creating the TD for testing purposes
 try {
-  fs.writeFileSync('http-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
+  fs.writeFileSync('http-calculator-thing-content-negotiation.td.jsonld', JSON.stringify(thingDescription, null, 2))
 } catch (err) {
   console.log(err);
 }
