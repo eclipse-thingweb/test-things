@@ -1,0 +1,114 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "@language": "en"
+    }
+  ],
+  "@type": "Thing",
+  "title": "coap-calculator-simple",
+  "description": "Calculator Thing",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": [
+    "nosec_sc"
+  ],
+  "base": "coap://localhost:5683/coap-calculator-simple",
+  "properties": {
+    "result": {
+      "type": "number",
+      "readOnly": false,
+      "writeOnly": false,
+      "observable": true,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-simple/properties/result",
+          "contentType": "application/json",
+          "op": [
+            "observeproperty",
+            "unobserveproperty",
+            "readproperty"
+          ]
+        }
+      ]
+    },
+    "lastChange": {
+      "type": "string",
+      "readOnly": false,
+      "writeOnly": false,
+      "observable": true,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-simple/properties/lastChange",
+          "contentType": "application/json",
+          "op": [
+            "observeproperty",
+            "unobserveproperty",
+            "readproperty"
+          ]
+        }
+      ]
+    }
+  },
+  "actions": {
+    "add": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-simple/actions/add",
+          "contentType": "application/json",
+          "op": [
+            "invokeaction"
+          ]
+        }
+      ]
+    },
+    "subtract": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-simple/actions/subtract",
+          "contentType": "application/json",
+          "op": [
+            "invokeaction"
+          ]
+        }
+      ]
+    }
+  },
+  "events": {
+    "update": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-simple/events/update",
+          "contentType": "application/json",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ]
+        }
+      ]
+    }
+  }
+}
