@@ -103,29 +103,29 @@ try {
 const reqParser = bodyParser.text({ type: "*/*" });
 
 let result = 0;
-let lastChange = "";
+let lastChange = "No changes made";
 
 app.get(`/${thingName}`, (req, res) => {
-  res.end(JSON.stringify(thingDescription));
+  res.json(thingDescription);
 });
 
 app.get(`/${thingName}/properties/result`, (req, res) => {
-  res.end(result.toString());
+  res.json(result);
 });
 
 app.get(`/${thingName}/properties/lastChange`, (req, res) => {
-  res.end(lastChange);
+  res.json(lastChange);
 });
 
 app.post(`/${thingName}/actions/add`, reqParser, (req, res) => {
   const parsedInput = parseInt(req.body);
 
   if (isNaN(parsedInput)) {
-    res.status(400).send("Input should be a valid integer");
+    res.status(400).json("Input should be a valid integer");
   } else {
     result += parsedInput;
     lastChange = new Date().toLocaleTimeString();
-    res.end(result.toString());
+    res.json(result);
   }
 });
 
@@ -133,11 +133,11 @@ app.post(`/${thingName}/actions/subtract`, reqParser, (req, res) => {
   const parsedInput = parseInt(req.body);
 
   if (isNaN(parsedInput)) {
-    res.status(400).send("Input should be a valid integer");
+    res.status(400).json("Input should be a valid integer");
   } else {
     result -= parsedInput;
     lastChange = new Date().toLocaleTimeString();
-    res.end(result.toString());
+    res.json(result);
   }
 });
 
@@ -151,12 +151,14 @@ app.get(`/${thingName}/events/update`, (req, res) => {
   let oldResult = result;
 
   /**
-   ** The SSE specification defines the structure of SSE messages, and
-   ** it expects event data to be formatted with "data:" followed by the
-   ** actual data. When you deviate from this standard, it might not be
-   ** interpreted correctly by the client, which could create empty values.
+   * The SSE specification defines the structure of SSE messages, and
+   * it expects event data to be formatted with "data:" followed by the
+   * actual data. When you deviate from this standard, it might not be
+   * interpreted correctly by the client, which could create empty values.
    */
   const changeInterval = setInterval(() => {
+    res.write(`data: "Waiting for change.."\n\n`);
+
     if (oldResult !== result) {
       res.write(`data: ${result}\n\n`);
       oldResult = result;
@@ -169,6 +171,6 @@ app.get(`/${thingName}/events/update`, (req, res) => {
 });
 
 app.listen(portNumber, () => {
-  console.log(`Started listening to on port ${portNumber}`);
+  console.log(`Started listening to localhost on port ${portNumber}`);
   console.log("ThingIsReady");
 });

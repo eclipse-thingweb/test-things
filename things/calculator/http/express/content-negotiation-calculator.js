@@ -85,7 +85,7 @@ for (const key in thingDescription['properties']) {
   newForm['href'] = `${url}/properties/${key}`
   newForm['htv:methodName'] = 'GET'
   newForm['op'] = 'readproperty'
-  
+
   thingDescription['properties'][key]['forms'].push(newForm)
 
   const originalForm = thingDescription['properties'][key]['forms'][0]
@@ -375,26 +375,31 @@ app.get(updateEndPoint, (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
 
   let oldResult = result
+
+  /**
+   * The SSE specification defines the structure of SSE messages, and 
+   * it expects event data to be formatted with "data:" followed by the 
+   * actual data. When you deviate from this standard, it might not be 
+   * interpreted correctly by the client, which could explain why you receive empty values.
+   */
   const changeInterval = setInterval(() => {
-    /**
-     ** The SSE specification defines the structure of SSE messages, and 
-     ** it expects event data to be formatted with "data:" followed by the 
-     ** actual data. When you deviate from this standard, it might not be 
-     ** interpreted correctly by the client, which could explain why you receive empty values.
-     */
+    res.write(`data: "Waiting for change.."\n\n`);
+
     if (oldResult !== result) {
       let message
 
       if (acceptHeader.includes('application/json')) {
         message = `data: ${JSON.stringify({
-          'headers': {'content-type': 'application/json'},
-          'result': result})}\n\n`
+          'headers': { 'content-type': 'application/json' },
+          'result': result
+        })}\n\n`
       }
       else {
         const cborData = cbor.encode(result)
         message = `data: ${JSON.stringify({
-          'headers': {'content-type': 'application/cbor'},
-          'result': cborData})}\n\n`
+          'headers': { 'content-type': 'application/cbor' },
+          'result': cborData
+        })}\n\n`
       }
 
       res.statusCode = 200
@@ -416,6 +421,6 @@ app.get(updateEndPoint, (req, res) => {
 /************************************************/
 
 app.listen(portNumber, () => {
-  console.log(`Started listening to on port ${portNumber}`)
+  console.log(`Started listening to localhost on port ${portNumber}`)
   console.log('ThingIsReady')
 })
