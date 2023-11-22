@@ -1,0 +1,242 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "@language": "en"
+    }
+  ],
+  "@type": "Thing",
+  "title": "coap-calculator-content-negotiation",
+  "description": "Calculator Thing",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": [
+    "nosec_sc"
+  ],
+  "base": "coap://localhost:5683/coap-calculator-content-negotiation",
+  "properties": {
+    "result": {
+      "type": "number",
+      "readOnly": false,
+      "writeOnly": false,
+      "observable": true,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/result",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "readproperty",
+          "cov:method": "GET",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/result",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "readproperty",
+          "cov:method": "GET",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        }
+      ]
+    },
+    "lastChange": {
+      "type": "string",
+      "readOnly": false,
+      "writeOnly": false,
+      "observable": true,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/lastChange",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "readproperty",
+          "cov:method": "GET",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/lastChange",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "readproperty",
+          "cov:method": "GET",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        }
+      ]
+    }
+  },
+  "actions": {
+    "add": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        }
+      ]
+    },
+    "subtract": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false,
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "invokeaction",
+          "cov:method": "POST",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        }
+      ]
+    }
+  },
+  "events": {
+    "update": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/events/update",
+          "contentType": "application/json",
+          "cov:contentFormat": 50,
+          "op": "subscribeevent",
+          "cov:method": "GET",
+          "cov:accept": 50,
+          "response": {
+            "contentType": "application/json",
+            "cov:contentFormat": 50
+          }
+        },
+        {
+          "href": "coap://localhost:5683/coap-calculator-content-negotiation/events/update",
+          "contentType": "application/cbor",
+          "cov:contentFormat": 60,
+          "op": "subscribeevent",
+          "cov:method": "GET",
+          "cov:accept": 60,
+          "response": {
+            "contentType": "application/cbor",
+            "cov:contentFormat": 60
+          }
+        }
+      ]
+    }
+  }
+}
