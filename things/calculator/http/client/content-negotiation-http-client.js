@@ -1,6 +1,7 @@
 /**
- * This file is a simple js client to test the main functionality from the http thing.
- * Requests as well as Responses can be sent and received in Text, JSON, and CBOR formats.
+ * @file The `content-negotiation-http-client.js` file acts a client for the content-negotiation-calculator.js.
+ * This client is mostly used for testing the content negotiation functionality of the http thing.
+ * Requests as well as responses can be sent and received in JSON and CBOR formats.
  */
 
 const cbor = require('cbor')
@@ -297,13 +298,19 @@ runCalculator()
 
 // updateEventSource.onmessage = (e) => {
 //     const data = JSON.parse(e.data);
-//     if (data.headers["content-type"] === 'application/cbor') {
-//         const buffer = Buffer.from(data.result.data);
-//         const decodedData = cbor.decode(buffer);
-//         console.log(decodedData);
+
+//     if (data.headers) {
+//         if (data.headers["content-type"] === 'application/cbor') {
+//             const buffer = Buffer.from(data.result.data);
+//             const decodedData = cbor.decode(buffer);
+//             console.log(decodedData);
+//         }
+//         else {
+//             console.log(data.result);
+//         }
 //     }
 //     else {
-//         console.log(data.result);
+//         console.log(data);
 //     }
 // };
 
