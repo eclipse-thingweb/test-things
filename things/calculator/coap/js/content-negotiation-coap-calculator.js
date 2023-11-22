@@ -9,11 +9,7 @@ require('dotenv').config()
 const server = coap.createServer()
 const hostname = 'localhost'
 let portNumber = 5683
-
-const thingName = 'coap-calculator'
-const PROPERTIES = 'properties'
-const ACTIONS = 'actions'
-const EVENTS = 'events'
+const thingName = 'coap-calculator-content-negotiation'
 
 const { values: { port } } = parseArgs({
   options: {
@@ -40,11 +36,10 @@ const placeholderReplacer = new JsonPlaceholderReplacer()
 placeholderReplacer.addVariableMap({
   PROTOCOL: 'coap',
   THING_NAME: thingName,
-  PROPERTIES,
-  ACTIONS,
-  EVENTS,
   HOSTNAME: hostname,
-  PORT_NUMBER: portNumber
+  PORT_NUMBER: portNumber,
+  RESULT_OBSERVABLE: true,
+  LAST_CHANGE_OBSERVABLE: true
 })
 
 /*****************************************/
@@ -53,36 +48,43 @@ placeholderReplacer.addVariableMap({
 
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
+const baseURL = thingDescription['base']
 
-const supportedContentTypes = ['text/plain', 'application/json', 'application/cbor'];
+const supportedContentTypes = ['application/json', 'application/cbor'];
 const formatIdentifiers = {
-  "text/plain": 0,
-  "application/json": 50,
-  "application/cbor": 60
+  'application/json': 50,
+  'application/cbor': 60
+}
+
+const defaultForm = {
+  'href': '',
+  'contentType': 'application/json',
+  'cov:contentFormat': 50,
+  'op': '',
+  'cov:method': '',
+  'cov:accept': 50,
+  'response': {
+    'contentType': 'application/json',
+    'cov:contentFormat': 50
+  }
 }
 
 //Adding headers to the Properties
 for (const key in thingDescription['properties']) {
 
-  // Setting the original form with the necessary values to then duplicate
-  thingDescription['properties'][key]['forms'][0]['contentType'] = "text/plain"
-  thingDescription['properties'][key]['forms'][0]['cov:contentFormat'] = 0
-  thingDescription['properties'][key]['forms'][0]['cov:method'] = 'GET'
-  thingDescription['properties'][key]['forms'][0]['cov:accept'] = 0
-  thingDescription['properties'][key]['forms'][0]['response'] = {
-    "contentType": "text/plain",
-    "cov:contentFormat": 0
-  }
+  thingDescription['properties'][key]['forms'] = []
 
-  //Getting the original form to use as reference
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${baseURL}/properties/${key}`
+  newForm['cov:method'] = 'GET'
+  newForm['op'] = 'readproperty'
+
+  thingDescription['properties'][key]['forms'].push(newForm)
+
   const originalForm = thingDescription['properties'][key]['forms'][0]
 
   for (const identifier in formatIdentifiers) {
-    /**
-     * Checking if the original form does not have the json and cbor formats, and cloning 
-     * the original format but adding the different formats
-     */
-    if (thingDescription['properties'][key]['forms'][0]['cov:accept'] !== formatIdentifiers[identifier]) {
+    if (originalForm['contentType'] !== identifier) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = identifier
       newForm['cov:contentFormat'] = formatIdentifiers[identifier]
@@ -91,39 +93,37 @@ for (const key in thingDescription['properties']) {
       newForm['response']['cov:contentFormat'] = formatIdentifiers[identifier]
       thingDescription['properties'][key]['forms'].push(newForm)
     }
-
   }
 }
 
 //Adding headers to the Actions
 for (const key in thingDescription['actions']) {
 
-  // Setting the original form with the necessary values to then duplicate
-  thingDescription['actions'][key]['forms'][0]['contentType'] = "text/plain"
-  thingDescription['actions'][key]['forms'][0]['cov:contentFormat'] = 0
-  thingDescription['actions'][key]['forms'][0]['cov:method'] = 'POST'
-  thingDescription['actions'][key]['forms'][0]['cov:accept'] = 0
-  thingDescription['actions'][key]['forms'][0]['response'] = {
-    "contentType": "text/plain",
-    "cov:contentFormat": 0
-  }
+  thingDescription['actions'][key]['forms'] = []
 
-  //Getting the original form to use as reference
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${baseURL}/actions/${key}`
+  newForm['cov:method'] = 'POST'
+  newForm['op'] = 'invokeaction'
+
+  thingDescription['actions'][key]['forms'].push(newForm)
+
   const originalForm = thingDescription['actions'][key]['forms'][0]
 
   for (const identifier in formatIdentifiers) {
-
     /**
-     * Checking if the original form does not have the formats from the "formatIdentifiers" object and 
-     * duplicating the original for with the new formats.
+     * Checking if the original form does not have the formats from the 'formatIdentifiers' object and 
+     * duplicating the original form with the new formats.
      * If it does have it, duplicate the original one, but modify the response and accept header to include
      * the other headers.
      */
-
-    if (thingDescription['actions'][key]['forms'][0]['cov:accept'] !== formatIdentifiers[identifier]) {
+    if (originalForm['contentType'] !== identifier) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = identifier
       newForm['cov:contentFormat'] = formatIdentifiers[identifier]
+      newForm['cov:accept'] = formatIdentifiers[identifier]
+      newForm['response']['contentType'] = identifier
+      newForm['response']['cov:contentFormat'] = formatIdentifiers[identifier]
       thingDescription['actions'][key]['forms'].push(newForm)
 
       /**
@@ -131,7 +131,7 @@ for (const key in thingDescription['actions']) {
        * to include the different formats
        */
       for (const identifier in formatIdentifiers) {
-        if (thingDescription['actions'][key]['forms'][0]['cov:accept'] !== formatIdentifiers[identifier]) {
+        if (newForm['cov:accept'] !== formatIdentifiers[identifier]) {
           const newFormAccept = JSON.parse(JSON.stringify(newForm))
           newFormAccept['cov:accept'] = formatIdentifiers[identifier]
           newFormAccept['response']['contentType'] = identifier
@@ -139,8 +139,7 @@ for (const key in thingDescription['actions']) {
           thingDescription['actions'][key]['forms'].push(newFormAccept)
         }
       }
-    }
-    else {
+    } else {
       for (const identifier in formatIdentifiers) {
         if (originalForm['cov:accept'] !== formatIdentifiers[identifier]) {
           const newForm = JSON.parse(JSON.stringify(originalForm))
@@ -151,7 +150,6 @@ for (const key in thingDescription['actions']) {
         }
       }
     }
-
   }
 }
 
@@ -159,26 +157,19 @@ for (const key in thingDescription['actions']) {
 //Adding headers to the Events
 for (const key in thingDescription['events']) {
 
-  // Setting the original form with the necessary values to then duplicate
-  thingDescription['events'][key]['forms'][0]['contentType'] = "text/plain"
-  thingDescription['events'][key]['forms'][0]['cov:contentFormat'] = 0
-  thingDescription['events'][key]['forms'][0]['cov:method'] = 'GET'
-  thingDescription['events'][key]['forms'][0]['cov:accept'] = 0
-  thingDescription['events'][key]['forms'][0]['response'] = {
-    "contentType": "text/plain",
-    "cov:contentFormat": 0
-  }
-  thingDescription['events'][key]['forms'][0]["subprotocol"] = "cov:observe"
-  thingDescription['events'][key]['forms'][0]["op"].push("observeproperty")
+  thingDescription['events'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `${baseURL}/events/${key}`
+  newForm['cov:method'] = 'GET'
+  newForm['op'] = 'subscribeevent'
+
+  thingDescription['events'][key]['forms'].push(newForm)
 
   const originalForm = thingDescription['events'][key]['forms'][0]
 
   for (const identifier in formatIdentifiers) {
-    /**
-     * Checking if the original form does not have the json and cbor formats, and cloning 
-     * the original format but adding the different formats
-     */
-    if (thingDescription['events'][key]['forms'][0]['cov:accept'] !== formatIdentifiers[identifier]) {
+    if (originalForm['contentType'] !== identifier) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = identifier
       newForm['cov:contentFormat'] = formatIdentifiers[identifier]
@@ -192,11 +183,10 @@ for (const key in thingDescription['events']) {
 
 //Creating the TD for testing purposes
 try {
-  fs.writeFileSync('coap-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
+  fs.writeFileSync('coap-calculator-thing-content-negotiation.td.jsonld', JSON.stringify(thingDescription, null, 2))
 } catch (err) {
   console.log(err);
 }
-
 
 /*********************************************************/
 /************** Main server functionality ****************/
@@ -206,9 +196,8 @@ let lastChange = 'No changes made so far'
 
 server.on('request', (req, res) => {
   const segments = req.url.split('/')
-  // console.log(segments);
-  const acceptHeaders = req.headers["Accept"]
-  const reqContentType = req.headers["Content-Type"] || req.headers["Content-Format"]
+  const acceptHeaders = req.headers['Accept']
+  const reqContentType = req.headers['Content-Type'] || req.headers['Content-Format']
 
 
   if (segments[1] !== thingName) {
@@ -216,7 +205,7 @@ server.on('request', (req, res) => {
     res.end('Thing does not exist!')
   } else {
     if (!segments[2]) {
-      //TODO: Understand and fix the problem with block wise transfer to be able to pass the headers properly
+      //TODO: Fix the problem with block wise transfer to be able to pass the headers properly
       if (req.method === 'GET') {
 
         if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
@@ -228,19 +217,15 @@ server.on('request', (req, res) => {
             res.setOption('Content-Format', 'application/json')
             res.end(JSON.stringify(thingDescription))
           }
-          else if (acceptHeaders.includes('application/cbor')) {
+          else {
             const cborData = cbor.encode(JSON.stringify(thingDescription))
             res.setOption('Content-Format', 'application/cbor')
             res.end(cborData)
           }
-          else {
-            res.setOption('Content-Format', 'text/plain')
-            res.end(JSON.stringify(thingDescription))
-          }
         }
         else {
-          res.code = 415
-          res.end(`Unsupported Content-Format: ${acceptHeaders}`)
+          res.code = 406
+          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
     }
@@ -250,44 +235,49 @@ server.on('request', (req, res) => {
     if (segments[3] === 'result') {
       if (req.method === 'GET') {
 
-        if (acceptHeaders === undefined) {
-          res.setOption('Content-Format', 'application/json')
-          res.end(JSON.stringify({ "result": result }))
-        }
-        else if (acceptHeaders.includes('application/json')) {
-          res.setOption('Content-Format', 'application/json')
-          res.end(JSON.stringify({ "result": result }))
-        }
-        else if (acceptHeaders.includes('application/cbor')) {
-          const cborData = cbor.encode(result)
-          res.setOption('Content-Format', 'application/cbor')
-          res.end(cborData)
+        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
+          if (acceptHeaders === undefined) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ 'result': result }))
+          }
+          else if (acceptHeaders.includes('application/json')) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ 'result': result }))
+          }
+          else {
+            const cborData = cbor.encode(result)
+            res.setOption('Content-Format', 'application/cbor')
+            res.end(cborData)
+          }
         }
         else {
-          res.setOption('Content-Format', 'text/plain')
-          res.end(result.toString())
+          res.code = 406
+          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
     }
 
     if (segments[3] === 'lastChange') {
       if (req.method === 'GET') {
-        if (acceptHeaders === undefined) {
-          res.setOption('Content-Format', 'application/json')
-          res.end(JSON.stringify({ "lastChange": lastChange }))
-        }
-        else if (acceptHeaders.includes('application/json')) {
-          res.setOption('Content-Format', 'application/json')
-          res.end(JSON.stringify({ "lastChange": lastChange }))
-        }
-        else if (acceptHeaders.includes('application/cbor')) {
-          const cborData = cbor.encode(lastChange)
-          res.setOption('Content-Format', 'application/cbor')
-          res.end(cborData)
+
+        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
+          if (acceptHeaders === undefined) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ 'lastChange': lastChange }))
+          }
+          else if (acceptHeaders.includes('application/json')) {
+            res.setOption('Content-Format', 'application/json')
+            res.end(JSON.stringify({ 'lastChange': lastChange }))
+          }
+          else {
+            const cborData = cbor.encode(lastChange)
+            res.setOption('Content-Format', 'application/cbor')
+            res.end(cborData)
+          }
         }
         else {
-          res.setOption('Content-Format', 'text/plain')
-          res.end(lastChange)
+          res.code = 406
+          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
     }
@@ -300,13 +290,10 @@ server.on('request', (req, res) => {
         let numberToAdd
 
         if (reqContentType.includes('application/json')) {
-          numberToAdd = JSON.parse(req.payload.toString())["data"]
-        }
-        else if (reqContentType.includes('application/cbor')) {
-          numberToAdd = cbor.decode(req.payload);
+          numberToAdd = JSON.parse(req.payload.toString())['data']
         }
         else {
-          numberToAdd = req.payload.toString()
+          numberToAdd = cbor.decode(req.payload);
         }
 
         const parsedInput = parseInt(numberToAdd)
@@ -314,32 +301,34 @@ server.on('request', (req, res) => {
         if (isNaN(parsedInput)) {
           res.code = 400
           res.end('Input should be a valid integer')
-        } else {
-          result += parsedInput
-          lastChange = (new Date()).toLocaleTimeString()
+        }
+        else {
+          if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
+            result += parsedInput
+            lastChange = (new Date()).toLocaleTimeString()
 
-          if (acceptHeaders === undefined) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ "additionResult": result }))
-          }
-          else if (acceptHeaders.includes('application/json')) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ "additionResult": result }))
-          }
-          else if (acceptHeaders.includes('application/cbor')) {
-            const cborData = cbor.encode(result)
-            res.setOption('Content-Format', 'application/cbor')
-            res.end(cborData)
+            if (acceptHeaders === undefined) {
+              res.setOption('Content-Format', 'application/json')
+              res.end(JSON.stringify({ 'additionResult': result }))
+            }
+            else if (acceptHeaders.includes('application/json')) {
+              res.setOption('Content-Format', 'application/json')
+              res.end(JSON.stringify({ 'additionResult': result }))
+            }
+            else {
+              const cborData = cbor.encode(result)
+              res.setOption('Content-Format', 'application/cbor')
+              res.end(cborData)
+            }
           }
           else {
-            res.setOption('Content-Format', 'text/plain')
-            res.end(result.toString())
+            res.code = 406
+            res.end(`Not Acceptable: ${acceptHeaders}`)
           }
         }
-
       } else {
         res.code = 415
-        res.end(`Unsupported Content-Format`)
+        res.end(`Unsupported Content-Format: ${reqContentType}`)
       }
     }
 
@@ -349,13 +338,10 @@ server.on('request', (req, res) => {
         let numberToSubtract
 
         if (reqContentType.includes('application/json')) {
-          numberToSubtract = JSON.parse(req.payload.toString())["data"]
-        }
-        else if (reqContentType.includes('application/cbor')) {
-          numberToSubtract = cbor.decode(req.payload);
+          numberToSubtract = JSON.parse(req.payload.toString())['data']
         }
         else {
-          numberToSubtract = req.payload.toString()
+          numberToSubtract = cbor.decode(req.payload);
         }
 
         const parsedInput = parseInt(numberToSubtract)
@@ -363,32 +349,34 @@ server.on('request', (req, res) => {
         if (isNaN(parsedInput)) {
           res.code = 400
           res.end('Input should be a valid integer')
-        } else {
-          result -= parsedInput
-          lastChange = (new Date()).toLocaleTimeString()
+        }
+        else {
+          if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
+            result -= parsedInput
+            lastChange = (new Date()).toLocaleTimeString()
 
-          if (acceptHeaders === undefined) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ "subtractionResult": result }))
-          }
-          else if (acceptHeaders.includes('application/json')) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ "subtractionResult": result }))
-          }
-          else if (acceptHeaders.includes('application/cbor')) {
-            const cborData = cbor.encode(result)
-            res.setOption('Content-Format', 'application/cbor')
-            res.end(cborData)
+            if (acceptHeaders === undefined) {
+              res.setOption('Content-Format', 'application/json')
+              res.end(JSON.stringify({ 'subtractionResult': result }))
+            }
+            else if (acceptHeaders.includes('application/json')) {
+              res.setOption('Content-Format', 'application/json')
+              res.end(JSON.stringify({ 'subtractionResult': result }))
+            }
+            else {
+              const cborData = cbor.encode(result)
+              res.setOption('Content-Format', 'application/cbor')
+              res.end(cborData)
+            }
           }
           else {
-            res.setOption('Content-Format', 'text/plain')
-            res.end(result.toString())
+            res.code = 406
+            res.end(`Not Acceptable: ${acceptHeaders}`)
           }
         }
-
       } else {
         res.code = 415
-        res.end(`Unsupported Content-Format`)
+        res.end(`Unsupported Content-Format: ${reqContentType}`)
       }
     }
   }
@@ -397,36 +385,30 @@ server.on('request', (req, res) => {
     if (segments[3] === 'update') {
       if (req.headers.Observe === 0) {
         if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-          res.setOption('Content-Format', 'text/plain')
           console.log('Observing the change...')
 
           let oldResult = result
 
           const changeInterval = setInterval(() => {
-            res.setOption('Content-Format', 'text/plain')
-            res.write('stay connected!')
+            res.setOption('Content-Format', 'application/json')
+            res.write(JSON.stringify({ 'Result': 'Stay connected!' }))
 
             if (oldResult !== result) {
-              res.code = 205
+              res.statusCode = 205
               if (acceptHeaders === undefined) {
                 res.setOption('Content-Format', 'application/json')
-                res.write(JSON.stringify({ "Result": result }))
+                res.write(JSON.stringify({ 'Result': result }))
                 oldResult = result
               }
               else if (acceptHeaders.includes('application/json')) {
                 res.setOption('Content-Format', 'application/json')
-                res.write(JSON.stringify({ "Result": result }))
-                oldResult = result
-              }
-              else if (acceptHeaders.includes('application/cbor')) {
-                const cborData = cbor.encode(result)
-                res.setOption('Content-Format', 'application/cbor')
-                res.write(cborData)
+                res.write(JSON.stringify({ 'Result': result }))
                 oldResult = result
               }
               else {
-                res.setOption('Content-Format', 'text/plain')
-                res.write(result.toString())
+                const cborData = cbor.encode(result)
+                res.setOption('Content-Format', 'application/cbor')
+                res.write(cborData)
                 oldResult = result
               }
             }
@@ -437,9 +419,8 @@ server.on('request', (req, res) => {
           })
         }
         else {
-          res.setOption('Content-Format', 'text/plain')
-          res.code = 415
-          res.end(`Unsupported Content-Format: ${acceptHeaders}`)
+          res.statusCode = 406
+          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       } else {
         res.end()
@@ -449,6 +430,6 @@ server.on('request', (req, res) => {
 })
 
 server.listen(portNumber, () => {
-  console.log(`Started listening to on port ${portNumber}...`)
+  console.log(`Started listening to localhost on port ${portNumber}...`)
   console.log('ThingIsReady')
 })
