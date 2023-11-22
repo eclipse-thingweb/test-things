@@ -2,7 +2,7 @@
   "name": "coap-calculator",
   "version": "1.0.0",
   "description": "CoAP Calculator",
-  "main": "main.js",
+  "main": "simple-coap-calculator.js",
   "keywords": [
     "wot",
     "thing",

@@ -8,6 +8,6 @@ RUN npm install
 
 ENV TM_PATH="./calculator.tm.json"
 
-CMD ["node", "main.js"]
+CMD ["node", "simple-coap-calculator.js"]
 
 EXPOSE 5683/udp

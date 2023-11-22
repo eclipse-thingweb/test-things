@@ -19,7 +19,7 @@ describe('Calculator CoAP JS', () => {
     const initiateMain = new Promise(async (resolve, reject) => {
       thingProcess = spawn(
         'node',
-        ['main.js', '-p', `${port}`],
+        ['simple-coap-calculator.js', '-p', `${port}`],
         { cwd: path.join(__dirname, '..') }
       )
       thingProcess.stdout.on('data', (data) => {
@@ -66,7 +66,7 @@ describe('Calculator CoAP JS', () => {
   })
 
   it('should have a valid TD', (done) => {
-    const req = coap.request(`coap://localhost:${port}/coap-calculator`)
+    const req = coap.request(`coap://localhost:${port}/coap-calculator-simple`)
 
     req.on('response', (res) => {
       const valid = validate(JSON.parse(res.payload.toString()))
