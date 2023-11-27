@@ -4,7 +4,7 @@ These clients were created with the sole purpose of testing the main functionali
 
 **This folder and files are not final and might be subject to changes or might be completely removed in the future.**
 
-## Enpoints Simple Calculator Thing
+## Endpoints Simple Calculator Thing
 
 - Full TD: /http-express-calculator-simple
 - Result: /http-express-calculator-simple/properties/result
