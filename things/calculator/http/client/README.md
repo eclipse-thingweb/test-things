@@ -13,7 +13,7 @@ These clients were created with the sole purpose of testing the main functionali
 - Subtract: /http-express-calculator-simple/actions/subtract
 - Update: /http-express-calculator-simple/events/update
 
-## Enpoints Content Negotiation Calculator Thing
+## Endpoints Content Negotiation Calculator Thing
 
 - Full TD: /http-express-calculator-content-negotiation
 - Result: /http-express-calculator-content-negotiation/properties/result
