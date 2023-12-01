@@ -12,7 +12,6 @@ const app = express()
 const hostname = 'localhost'
 let portNumber = 3000
 const thingName = 'http-express-calculator-content-negotiation'
-const url = `http://localhost:3000/${thingName}`
 
 const fullTDEndPoint = `/${thingName}`,
   resultEndPoint = `/${thingName}/properties/result`,
@@ -51,8 +50,8 @@ placeholderReplacer.addVariableMap({
   THING_NAME: thingName,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
-  RESULT_OBSERVABLE: true,
-  LAST_CHANGE_OBSERVABLE: true
+  RESULT_OBSERVABLE: false,
+  LAST_CHANGE_OBSERVABLE: false
 })
 
 const defaultForm =
@@ -82,7 +81,7 @@ for (const key in thingDescription['properties']) {
   thingDescription['properties'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${url}/properties/${key}`
+  newForm['href'] = `properties/${key}`
   newForm['htv:methodName'] = 'GET'
   newForm['op'] = 'readproperty'
 
@@ -107,7 +106,7 @@ for (const key in thingDescription['actions']) {
   thingDescription['actions'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${url}/actions/${key}`
+  newForm['href'] = `actions/${key}`
   newForm['htv:methodName'] = 'POST'
   newForm['op'] = 'invokeaction'
 
@@ -149,9 +148,10 @@ for (const key in thingDescription['events']) {
   thingDescription['events'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${url}/events/${key}`
+  newForm['href'] = `events/${key}`
   newForm['htv:methodName'] = 'GET'
   newForm['op'] = 'subscribeevent'
+  newForm['subprotocol'] = "sse"
 
   thingDescription['events'][key]['forms'].push(newForm)
 

@@ -10,11 +10,14 @@ const app = express();
 
 const hostname = "localhost";
 let portNumber = 3000;
-
 const thingName = "http-express-calculator-simple";
-const RESULT_OBSERVABLE = true;
-const LAST_CHANGE_OBSERVABLE = true
-const url = `http://localhost:3000/${thingName}`
+
+const fullTDEndPoint = `/${thingName}`,
+  resultEndPoint = `/${thingName}/properties/result`,
+  lastChangeEndPoint = `/${thingName}/properties/lastChange`,
+  additionEndPoint = `/${thingName}/actions/add`,
+  subtractionEndPoint = `/${thingName}/actions/subtract`,
+  updateEndPoint = `/${thingName}/events/update`
 
 const {
   values: { port },
@@ -43,10 +46,10 @@ const placeholderReplacer = new JsonPlaceholderReplacer();
 placeholderReplacer.addVariableMap({
   PROTOCOL: "http",
   THING_NAME: thingName,
-  RESULT_OBSERVABLE,
-  LAST_CHANGE_OBSERVABLE,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
+  RESULT_OBSERVABLE: true,
+  LAST_CHANGE_OBSERVABLE: true
 });
 const thingDescription = placeholderReplacer.replace(thingModel);
 thingDescription["@type"] = "Thing";
@@ -62,11 +65,16 @@ for (const key in thingDescription['properties']) {
 
   thingDescription['properties'][key]['forms'] = []
 
-  const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${url}/properties/${key}`
-  newForm['op'] = ["observeproperty", "unobserveproperty", "readproperty"]
+  const newFormRead = JSON.parse(JSON.stringify(defaultForm))
+  newFormRead['href'] = `properties/${key}`
+  newFormRead['op'] = ["readproperty"]
 
-  thingDescription['properties'][key]['forms'].push(newForm)
+  const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+  newFormObs['op'] = ["observeproperty", "unobserveproperty"]
+  newFormObs['subprotocol'] = "sse"
+
+  thingDescription['properties'][key]['forms'].push(newFormRead)
+  thingDescription['properties'][key]['forms'].push(newFormObs)
 }
 
 //add actions forms
@@ -75,7 +83,7 @@ for (const key in thingDescription['actions']) {
   thingDescription['actions'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${url}/actions/${key}`
+  newForm['href'] = `actions/${key}`
   newForm['op'] = ["invokeaction"]
 
   thingDescription['actions'][key]['forms'].push(newForm)
@@ -87,8 +95,9 @@ for (const key in thingDescription['events']) {
   thingDescription['events'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${url}/events/${key}`
+  newForm['href'] = `events/${key}`
   newForm['op'] = ["subscribeevent", "unsubscribeevent"]
+  newForm['subprotocol'] = "sse"
                  
   thingDescription['events'][key]['forms'].push(newForm)
 }
@@ -105,19 +114,19 @@ const reqParser = bodyParser.text({ type: "*/*" });
 let result = 0;
 let lastChange = "No changes made";
 
-app.get(`/${thingName}`, (req, res) => {
+app.get(fullTDEndPoint, (req, res) => {
   res.json(thingDescription);
 });
 
-app.get(`/${thingName}/properties/result`, (req, res) => {
+app.get(resultEndPoint, (req, res) => {
   res.json(result);
 });
 
-app.get(`/${thingName}/properties/lastChange`, (req, res) => {
+app.get(lastChangeEndPoint, (req, res) => {
   res.json(lastChange);
 });
 
-app.post(`/${thingName}/actions/add`, reqParser, (req, res) => {
+app.post(additionEndPoint, reqParser, (req, res) => {
   const parsedInput = parseInt(req.body);
 
   if (isNaN(parsedInput)) {
@@ -129,7 +138,7 @@ app.post(`/${thingName}/actions/add`, reqParser, (req, res) => {
   }
 });
 
-app.post(`/${thingName}/actions/subtract`, reqParser, (req, res) => {
+app.post(subtractionEndPoint, reqParser, (req, res) => {
   const parsedInput = parseInt(req.body);
 
   if (isNaN(parsedInput)) {
@@ -141,7 +150,7 @@ app.post(`/${thingName}/actions/subtract`, reqParser, (req, res) => {
   }
 });
 
-app.get(`/${thingName}/events/update`, (req, res) => {
+app.get(updateEndPoint, (req, res) => {
   res.statusCode = 200;
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "no-cache");
