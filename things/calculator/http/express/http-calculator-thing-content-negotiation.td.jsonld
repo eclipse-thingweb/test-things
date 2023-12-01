@@ -23,10 +23,10 @@
       "type": "number",
       "readOnly": false,
       "writeOnly": false,
-      "observable": true,
+      "observable": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/result",
+          "href": "properties/result",
           "contentType": "application/json",
           "response": "application/json",
           "op": "readproperty",
@@ -40,7 +40,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/result",
+          "href": "properties/result",
           "contentType": "application/cbor",
           "response": "application/cbor",
           "op": "readproperty",
@@ -59,10 +59,10 @@
       "type": "string",
       "readOnly": false,
       "writeOnly": false,
-      "observable": true,
+      "observable": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/lastChange",
+          "href": "properties/lastChange",
           "contentType": "application/json",
           "response": "application/json",
           "op": "readproperty",
@@ -76,7 +76,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/properties/lastChange",
+          "href": "properties/lastChange",
           "contentType": "application/cbor",
           "response": "application/cbor",
           "op": "readproperty",
@@ -104,7 +104,7 @@
       "safe": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/json",
           "response": "application/json",
           "op": "invokeaction",
@@ -118,7 +118,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/json",
           "response": "application/cbor",
           "op": "invokeaction",
@@ -132,7 +132,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/cbor",
           "response": "application/json",
           "op": "invokeaction",
@@ -146,7 +146,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/cbor",
           "response": "application/cbor",
           "op": "invokeaction",
@@ -172,7 +172,7 @@
       "safe": false,
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/json",
           "response": "application/json",
           "op": "invokeaction",
@@ -186,7 +186,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/json",
           "response": "application/cbor",
           "op": "invokeaction",
@@ -200,7 +200,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/cbor",
           "response": "application/json",
           "op": "invokeaction",
@@ -214,7 +214,7 @@
           ]
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/cbor",
           "response": "application/cbor",
           "op": "invokeaction",
@@ -237,7 +237,7 @@
       },
       "forms": [
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/events/update",
+          "href": "events/update",
           "contentType": "application/json",
           "response": "application/json",
           "op": "subscribeevent",
@@ -248,10 +248,11 @@
               "fieldValue": "application/json",
               "fieldName": "Accept"
             }
-          ]
+          ],
+          "subprotocol": "sse"
         },
         {
-          "href": "http://localhost:3000/http-express-calculator-content-negotiation/events/update",
+          "href": "events/update",
           "contentType": "application/cbor",
           "response": "application/cbor",
           "op": "subscribeevent",
@@ -262,7 +263,8 @@
               "fieldValue": "application/cbor",
               "fieldName": "Accept"
             }
-          ]
+          ],
+          "subprotocol": "sse"
         }
       ]
     }
