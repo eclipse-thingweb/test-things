@@ -38,8 +38,8 @@ placeholderReplacer.addVariableMap({
   THING_NAME: thingName,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
-  RESULT_OBSERVABLE: true,
-  LAST_CHANGE_OBSERVABLE: true
+  RESULT_OBSERVABLE: false,
+  LAST_CHANGE_OBSERVABLE: false
 })
 
 /*****************************************/
@@ -48,7 +48,6 @@ placeholderReplacer.addVariableMap({
 
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
-const baseURL = thingDescription['base']
 
 const supportedContentTypes = ['application/json', 'application/cbor'];
 const formatIdentifiers = {
@@ -75,7 +74,7 @@ for (const key in thingDescription['properties']) {
   thingDescription['properties'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${baseURL}/properties/${key}`
+  newForm['href'] = `properties/${key}`
   newForm['cov:method'] = 'GET'
   newForm['op'] = 'readproperty'
 
@@ -102,7 +101,7 @@ for (const key in thingDescription['actions']) {
   thingDescription['actions'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${baseURL}/actions/${key}`
+  newForm['href'] = `actions/${key}`
   newForm['cov:method'] = 'POST'
   newForm['op'] = 'invokeaction'
 
@@ -160,9 +159,12 @@ for (const key in thingDescription['events']) {
   thingDescription['events'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `${baseURL}/events/${key}`
+  newForm['href'] = `events/${key}`
   newForm['cov:method'] = 'GET'
-  newForm['op'] = 'subscribeevent'
+  newForm['op'] = ["subscribeevent", "unsubscribeevent"],
+
+  
+  newForm['subprotocol'] = 'cov:observe'
 
   thingDescription['events'][key]['forms'].push(newForm)
 

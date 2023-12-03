@@ -48,7 +48,6 @@ placeholderReplacer.addVariableMap({
 
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
-const baseURL = thingDescription['base']
 
 const defaultForm = {
     "href": "",
@@ -61,11 +60,16 @@ for (const key in thingDescription['properties']) {
 
     thingDescription['properties'][key]['forms'] = []
 
-    const newForm = JSON.parse(JSON.stringify(defaultForm))
-    newForm['href'] = `${baseURL}/properties/${key}`
-    newForm['op'] = ["observeproperty", "unobserveproperty", "readproperty"]
+    const newFormRead = JSON.parse(JSON.stringify(defaultForm))
+    newFormRead['href'] = `properties/${key}`
+    newFormRead['op'] = ["readproperty"]
 
-    thingDescription['properties'][key]['forms'].push(newForm)
+    const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+    newFormObs['op'] = ["observeproperty", "unobserveproperty"]
+    newFormObs['subprotocol'] = "cov:observe"
+
+    thingDescription['properties'][key]['forms'].push(newFormRead)
+    thingDescription['properties'][key]['forms'].push(newFormObs)
 }
 
 //add actions forms
@@ -74,7 +78,7 @@ for (const key in thingDescription['actions']) {
     thingDescription['actions'][key]['forms'] = []
 
     const newForm = JSON.parse(JSON.stringify(defaultForm))
-    newForm['href'] = `${baseURL}/actions/${key}`
+    newForm['href'] = `actions/${key}`
     newForm['op'] = ["invokeaction"]
 
     thingDescription['actions'][key]['forms'].push(newForm)
@@ -86,8 +90,9 @@ for (const key in thingDescription['events']) {
     thingDescription['events'][key]['forms'] = []
 
     const newForm = JSON.parse(JSON.stringify(defaultForm))
-    newForm['href'] = `${baseURL}/events/${key}`
+    newForm['href'] = `events/${key}`
     newForm['op'] = ["subscribeevent", "unsubscribeevent"]
+    newForm['subprotocol'] = 'cov:observe'
 
     thingDescription['events'][key]['forms'].push(newForm)
 }
