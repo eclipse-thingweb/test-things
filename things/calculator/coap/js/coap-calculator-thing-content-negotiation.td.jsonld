@@ -23,10 +23,10 @@
       "type": "number",
       "readOnly": false,
       "writeOnly": false,
-      "observable": true,
+      "observable": false,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/result",
+          "href": "properties/result",
           "contentType": "application/json",
           "cov:contentFormat": 50,
           "op": "readproperty",
@@ -38,7 +38,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/result",
+          "href": "properties/result",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
           "op": "readproperty",
@@ -55,10 +55,10 @@
       "type": "string",
       "readOnly": false,
       "writeOnly": false,
-      "observable": true,
+      "observable": false,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/lastChange",
+          "href": "properties/lastChange",
           "contentType": "application/json",
           "cov:contentFormat": 50,
           "op": "readproperty",
@@ -70,7 +70,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/properties/lastChange",
+          "href": "properties/lastChange",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
           "op": "readproperty",
@@ -96,7 +96,7 @@
       "safe": false,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/json",
           "cov:contentFormat": 50,
           "op": "invokeaction",
@@ -108,7 +108,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/json",
           "cov:contentFormat": 50,
           "op": "invokeaction",
@@ -120,7 +120,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
           "op": "invokeaction",
@@ -132,7 +132,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/add",
+          "href": "actions/add",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
           "op": "invokeaction",
@@ -156,7 +156,7 @@
       "safe": false,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/json",
           "cov:contentFormat": 50,
           "op": "invokeaction",
@@ -168,7 +168,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/json",
           "cov:contentFormat": 50,
           "op": "invokeaction",
@@ -180,7 +180,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
           "op": "invokeaction",
@@ -192,7 +192,7 @@
           }
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
           "op": "invokeaction",
@@ -213,28 +213,36 @@
       },
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/events/update",
+          "href": "events/update",
           "contentType": "application/json",
           "cov:contentFormat": 50,
-          "op": "subscribeevent",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
           "cov:method": "GET",
           "cov:accept": 50,
           "response": {
             "contentType": "application/json",
             "cov:contentFormat": 50
-          }
+          },
+          "subprotocol": "cov:observe"
         },
         {
-          "href": "coap://localhost:5683/coap-calculator-content-negotiation/events/update",
+          "href": "events/update",
           "contentType": "application/cbor",
           "cov:contentFormat": 60,
-          "op": "subscribeevent",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
           "cov:method": "GET",
           "cov:accept": 60,
           "response": {
             "contentType": "application/cbor",
             "cov:contentFormat": 60
-          }
+          },
+          "subprotocol": "cov:observe"
         }
       ]
     }

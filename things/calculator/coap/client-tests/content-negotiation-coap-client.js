@@ -4,12 +4,19 @@ const hostname = 'localhost'
 const portNumber = 5683
 const thingName = 'coap-calculator-content-negotiation'
 
+const fullTDEndpoint = `/${thingName}`,
+    resultEndPoint = `/${thingName}/properties/result`,
+    lastChangeEndPoint = `/${thingName}/properties/lastChange`,
+    additionEndPoint = `/${thingName}/actions/add`,
+    subtractionEndPoint = `/${thingName}/actions/subtract`,
+    updateEndPoint = `/${thingName}/events/update`
+
 // GET request to retrieve thing description
 const getThingDescriptionMsg = coap.request({
     method: 'GET',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}`,
+    pathname: fullTDEndpoint,
     headers: {
         "Accept": "application/json"
     }
@@ -30,7 +37,7 @@ const getPropertyResult = coap.request({
     method: 'GET',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/properties/result`,
+    pathname: resultEndPoint,
     headers: {
         "Accept": "application/cbor"
     }
@@ -61,7 +68,7 @@ const getLastChange = coap.request({
     method: 'GET',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/properties/lastChange`,
+    pathname: lastChangeEndPoint,
     headers: {
         "Accept": "application/json"
     }
@@ -92,7 +99,7 @@ const addNumberReq = coap.request({
     method: 'POST',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/actions/add`,
+    pathname: additionEndPoint,
     headers: {
         "Accept": "application/json",
         // "Content-Format": "application/json"
@@ -134,7 +141,7 @@ const subtractNumberReq = coap.request({
     method: 'POST',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/actions/subtract`,
+    pathname: subtractionEndPoint,
     headers: {
         "Accept": "application/cbor",
         // "Content-Format": "application/cbor"
@@ -164,7 +171,7 @@ subtractNumberReq.on('response', (res) => {
             throw new Error(`Unsupported content type: ${contentType}`);
         }
     } else {
-        console.error(`Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`) 
+        console.error(`Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`)
     }
 });
 subtractNumberReq.end();
@@ -179,7 +186,7 @@ subtractNumberReq.end();
 //     observe: true, // Enable observation
 //     host: hostname,
 //     port: portNumber,
-//     pathname: `/${thingName}/events/update`,
+//     pathname: updateEndPoint,
 //     headers: {
 //         "Accept": "application/json"
 //     }

@@ -26,13 +26,20 @@
       "observable": true,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-simple/properties/result",
+          "href": "properties/result",
+          "contentType": "application/json",
+          "op": [
+            "readproperty"
+          ]
+        },
+        {
+          "href": "properties/result",
           "contentType": "application/json",
           "op": [
             "observeproperty",
-            "unobserveproperty",
-            "readproperty"
-          ]
+            "unobserveproperty"
+          ],
+          "subprotocol": "cov:observe"
         }
       ]
     },
@@ -43,13 +50,20 @@
       "observable": true,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-simple/properties/lastChange",
+          "href": "properties/lastChange",
+          "contentType": "application/json",
+          "op": [
+            "readproperty"
+          ]
+        },
+        {
+          "href": "properties/lastChange",
           "contentType": "application/json",
           "op": [
             "observeproperty",
-            "unobserveproperty",
-            "readproperty"
-          ]
+            "unobserveproperty"
+          ],
+          "subprotocol": "cov:observe"
         }
       ]
     }
@@ -66,7 +80,7 @@
       "safe": false,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-simple/actions/add",
+          "href": "actions/add",
           "contentType": "application/json",
           "op": [
             "invokeaction"
@@ -85,7 +99,7 @@
       "safe": false,
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-simple/actions/subtract",
+          "href": "actions/subtract",
           "contentType": "application/json",
           "op": [
             "invokeaction"
@@ -101,12 +115,13 @@
       },
       "forms": [
         {
-          "href": "coap://localhost:5683/coap-calculator-simple/events/update",
+          "href": "events/update",
           "contentType": "application/json",
           "op": [
             "subscribeevent",
             "unsubscribeevent"
-          ]
+          ],
+          "subprotocol": "cov:observe"
         }
       ]
     }

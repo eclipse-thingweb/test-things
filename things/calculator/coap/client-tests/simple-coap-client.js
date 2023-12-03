@@ -3,12 +3,19 @@ const hostname = 'localhost'
 const portNumber = 5683
 const thingName = 'coap-calculator-simple'
 
+const fullTDEndpoint = `/${thingName}`,
+    resultEndPoint = `/${thingName}/properties/result`,
+    lastChangeEndPoint = `/${thingName}/properties/lastChange`,
+    additionEndPoint = `/${thingName}/actions/add`,
+    subtractionEndPoint = `/${thingName}/actions/subtract`,
+    updateEndPoint = `/${thingName}/events/update`
+
 // GET request to retrieve thing description
 const getThingDescriptionMsg = coap.request({
     method: 'GET',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}`
+    pathname: fullTDEndpoint
 })
 
 getThingDescriptionMsg.on('response', (res) => {
@@ -25,7 +32,7 @@ const getPropertyResult = coap.request({
     method: 'GET',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/properties/result`
+    pathname: resultEndPoint
 });
 
 getPropertyResult.on('response', (res) => {
@@ -43,7 +50,7 @@ const getLastChange = coap.request({
     method: 'GET',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/properties/lastChange`
+    pathname: lastChangeEndPoint
 })
 getLastChange.on('response', (res) => {
 
@@ -61,7 +68,7 @@ const addNumberReq = coap.request({
     method: 'POST',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/actions/add`
+    pathname: additionEndPoint
 });
 
 // Set the payload with the input value
@@ -84,7 +91,7 @@ const subtractNumberReq = coap.request({
     method: 'POST',
     host: hostname,
     port: portNumber,
-    pathname: `/${thingName}/actions/subtract`
+    pathname: subtractionEndPoint
 });
 
 // Set the payload with the input value
@@ -111,7 +118,7 @@ subtractNumberReq.end();
 //     observe: true, // Enable observation
 //     host: hostname,
 //     port: portNumber,
-//     pathname: `/${thingName}/events/update`
+//     pathname: updateEndPoint
 // });
 
 // observeEventChange.on('response', (res) => {
