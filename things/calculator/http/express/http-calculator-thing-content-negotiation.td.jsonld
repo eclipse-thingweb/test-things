@@ -28,7 +28,9 @@
         {
           "href": "properties/result",
           "contentType": "application/json",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "readproperty",
           "htv:methodName": "GET",
           "htv:headers": [
@@ -42,7 +44,9 @@
         {
           "href": "properties/result",
           "contentType": "application/cbor",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "readproperty",
           "htv:methodName": "GET",
           "htv:headers": [
@@ -64,7 +68,9 @@
         {
           "href": "properties/lastChange",
           "contentType": "application/json",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "readproperty",
           "htv:methodName": "GET",
           "htv:headers": [
@@ -78,7 +84,9 @@
         {
           "href": "properties/lastChange",
           "contentType": "application/cbor",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "readproperty",
           "htv:methodName": "GET",
           "htv:headers": [
@@ -106,7 +114,9 @@
         {
           "href": "actions/add",
           "contentType": "application/json",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -120,7 +130,9 @@
         {
           "href": "actions/add",
           "contentType": "application/json",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -134,7 +146,9 @@
         {
           "href": "actions/add",
           "contentType": "application/cbor",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -148,7 +162,9 @@
         {
           "href": "actions/add",
           "contentType": "application/cbor",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -174,7 +190,9 @@
         {
           "href": "actions/subtract",
           "contentType": "application/json",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -188,7 +206,9 @@
         {
           "href": "actions/subtract",
           "contentType": "application/json",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -202,7 +222,9 @@
         {
           "href": "actions/subtract",
           "contentType": "application/cbor",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -216,7 +238,9 @@
         {
           "href": "actions/subtract",
           "contentType": "application/cbor",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "invokeaction",
           "htv:methodName": "POST",
           "htv:headers": [
@@ -239,7 +263,9 @@
         {
           "href": "events/update",
           "contentType": "application/json",
-          "response": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
           "op": "subscribeevent",
           "htv:methodName": "GET",
           "htv:headers": [
@@ -254,7 +280,9 @@
         {
           "href": "events/update",
           "contentType": "application/cbor",
-          "response": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
           "op": "subscribeevent",
           "htv:methodName": "GET",
           "htv:headers": [
