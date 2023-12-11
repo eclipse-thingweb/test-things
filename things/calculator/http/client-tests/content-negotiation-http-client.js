@@ -1,5 +1,5 @@
 /**
- * @file The `content-negotiation-http-client.js` file acts a client for the content-negotiation-calculator.js.
+ * @file The `content-negotiation-http-client.js` file acts as a client for the content-negotiation-calculator.js.
  * This client is mostly used for testing the content negotiation functionality of the http thing.
  * Requests as well as responses can be sent and received in JSON and CBOR formats.
  */
@@ -18,7 +18,7 @@ const url = "http://localhost:3000/http-express-calculator-content-negotiation",
 /**
  * Return the Full TD 
  * @param { String } acceptType - Which content type is accepted by the client
- * @returns Thing description as either a String, JSON or cbor
+ * @returns Thing description as either a String, JSON or CBOR
  */
 async function getFullTD(acceptType) {
     let getHeaders = {
@@ -58,7 +58,7 @@ async function getFullTD(acceptType) {
 /**
  * Fetch current calculator result
  * @param { String } acceptType - Which content type is accepted by the client 
- * @returns result - a string or number depending on the req
+ * @returns result - a string or number depending on the request
  */
 async function getCurrentResult(acceptType) {
 
