@@ -8,6 +8,7 @@ const cbor = require('cbor')
 require('dotenv').config()
 
 const app = express()
+app.use(express.json({ strict: false }));
 
 const hostname = 'localhost'
 let portNumber = 3000
@@ -58,7 +59,9 @@ const defaultForm =
 {
   "href": "",
   "contentType": "application/json",
-  "response": "application/json",
+  "response": {
+    "contentType":"application/json"
+  },
   "op": "",
   "htv:methodName": "",
   "htv:headers": [
@@ -93,7 +96,7 @@ for (const key in thingDescription['properties']) {
     if (!thingDescription['properties'][key]['forms'][0]['contentType'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = type
-      newForm['response'] = type
+      newForm['response'].contentType = type
       newForm['htv:headers'][0]['fieldValue'] = type
       thingDescription['properties'][key]['forms'].push(newForm)
     }
@@ -121,20 +124,20 @@ for (const key in thingDescription['actions']) {
       thingDescription['actions'][key]['forms'].push(newForm)
 
       supportedContentTypes.forEach(type => {
-        if (!thingDescription['actions'][key]['forms'][0]['response'].includes(type)) {
+        if (!thingDescription['actions'][key]['forms'][0]['response'].contentType.includes(type)) {
           const newFormAccept = JSON.parse(JSON.stringify(newForm))
-          newFormAccept['response'] = type
+          newFormAccept["response"].contentType = type;
           newFormAccept['htv:headers'][0]['fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newFormAccept)
         }
       })
     } else {
       supportedContentTypes.forEach(type => {
-        if (!originalForm['response'].includes(type)) {
-          const newForm = JSON.parse(JSON.stringify(originalForm))
-          newForm['response'] = type
-          newForm['htv:headers'][0]['fieldValue'] = type
-          thingDescription['actions'][key]['forms'].push(newForm)
+        if (!originalForm["response"].contentType.includes(type)) {
+          const newForm = JSON.parse(JSON.stringify(originalForm));
+          newForm["response"].contentType = type;
+          newForm["htv:headers"][0]["fieldValue"] = type;
+          thingDescription["actions"][key]["forms"].push(newForm);
         }
       })
     }
@@ -161,7 +164,7 @@ for (const key in thingDescription['events']) {
     if (!thingDescription['events'][key]['forms'][0]['contentType'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = type
-      newForm['response'] = type
+      newForm["response"].contentType = type;
       newForm['htv:headers'][0]['fieldValue'] = type
       thingDescription['events'][key]['forms'].push(newForm)
     }
@@ -289,7 +292,7 @@ app.post(additionEndPoint, (req, res) => {
     parsedInput = parseInt(decodedData)
   }
   else {
-    parsedInput = parseInt(req.body.data)
+    parsedInput = parseInt(req.body)
   }
 
   /**Check if given input is a valid number, if not return an error message,
@@ -331,7 +334,7 @@ app.post(subtractionEndPoint, (req, res) => {
     parsedInput = parseInt(decodedData)
   }
   else {
-    parsedInput = parseInt(req.body.data)
+    parsedInput = parseInt(req.body)
   }
 
   /**Check  if given input is a valid number, if not return an error message,

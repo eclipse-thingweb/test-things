@@ -6,7 +6,8 @@ const { parseArgs } = require("node:util");
 const { JsonPlaceholderReplacer } = require("json-placeholder-replacer");
 require("dotenv").config();
 
-const app = express();
+const app = express(stric);
+app.use(express.json({ strict: false }));
 
 const hostname = "localhost";
 let portNumber = 3000;

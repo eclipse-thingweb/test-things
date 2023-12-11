@@ -150,7 +150,7 @@ async function addNumber(number, contentType, acceptType) {
     }
 
     if (contentType === "json") {
-        inputNumber = JSON.stringify({ "data": number })
+        inputNumber = JSON.stringify(number)
         postHeaders['Content-Type'] = "application/json"
     }
     else if (contentType === "cbor") {
@@ -212,7 +212,7 @@ async function subtractNumber(number, contentType, acceptType) {
     }
 
     if (contentType === "json") {
-        inputNumber = JSON.stringify({ "data": number })
+        inputNumber = JSON.stringify(number)
         postHeaders['Content-Type'] = "application/json"
     }
     else if (contentType === "cbor") {
@@ -268,7 +268,7 @@ async function runCalculator() {
 
     try {
         console.log("Full thing: \n", await getFullTD("cbor"))
-        console.log("Current number: ", await getCurrentResult("json"))
+        console.log("Current number: ", await getCurrentResult("cbor"))
         console.log("Last Change: ", await getLatestChange("cbor"));
         console.log("Result of the addition is: ", await addNumber(10, "json", "cbor"))
         console.log("Result of the subtraction is: ", await subtractNumber(5, "cbor", "json"))
