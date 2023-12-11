@@ -21,13 +21,13 @@
   "properties":{
      "result":{
         "type":"number",
-        "readOnly":false,
+        "readOnly":true,
         "writeOnly":false,
         "observable":"{{RESULT_OBSERVABLE}}"
      },
      "lastChange":{
       "type":"string",
-      "readOnly":false,
+      "readOnly":true,
       "writeOnly":false,
       "observable":"{{LAST_CHANGE_OBSERVABLE}}"
      }
