@@ -10,14 +10,16 @@
     "http"
   ],
   "scripts": {
-    "test": "node main.js ; pid = $! ; result=$(mocha --exit *.test.js)) & kill $pid"
+    "test": "node simple-calculator.js ; pid = $! ; result=$(mocha --exit *.test.js)) & kill $pid"
   },
   "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
   "license": "EPL-2.0 OR W3C-20150513",
   "dependencies": {
     "body-parser": "^1.20.2",
-    "express": "^4.18.2",
+    "cbor": "^9.0.1",
     "dotenv": "^16.3.1",
+    "eventsource": "^2.0.2",
+    "express": "^4.18.2",
     "json-placeholder-replacer": "^1.0.35"
   },
   "devDependencies": {
