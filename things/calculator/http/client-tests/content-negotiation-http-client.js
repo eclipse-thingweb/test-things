@@ -9,7 +9,9 @@ const EventSource = require('eventsource')
 
 const url = "http://localhost:3000/http-express-calculator-content-negotiation",
     resultEndPoint = "/properties/result",
+    resultEndPointObserve = `${resultEndPoint}/observe`,
     lastChangeEndPoint = "/properties/lastChange",
+    lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
     additionEndPoint = "/actions/add",
     subtractionEndPoint = "/actions/subtract",
     updateEndPoint = "/events/update"
@@ -96,7 +98,39 @@ async function getCurrentResult(acceptType) {
 }
 
 /**
- * Fetches when the latest change was made
+ * Create an EventSource for the result observe property.
+ * Uncomment to test the SSE functionality.
+ */
+// const resultEventSource = new EventSource(url + resultEndPointObserve, {
+//     headers: {
+//         'Accept': 'application/json'
+//     }
+// });
+
+// resultEventSource.onmessage = (e) => {
+//     const body = JSON.parse(e.data);
+    
+//     if (body.headers) {
+//         if (body.headers["content-type"] === 'application/cbor') {
+//             const buffer = Buffer.from(body.data);
+//             const decodedData = cbor.decode(buffer);
+//             console.log(decodedData);
+//         }
+//         else {
+//             console.log(body.data);
+//         }
+//     }
+//     else {
+//         console.log(body);
+//     }
+// };
+
+// resultEventSource.onerror = (error) => {
+//     console.error('Error with SSE:', error);
+// };
+
+/**
+ * Fetches the last change made
  * @param { String } acceptType - Which content type is accepted by the client 
  * @returns lastChange - A string of the date when it was last changed
  */
@@ -135,6 +169,38 @@ async function getLatestChange(acceptType) {
         throw new Error(`Unsupported content type: ${contentType}`);
     }
 }
+
+/**
+ * Create an EventSource for the last change observe property.
+ * Uncomment to test the SSE functionality.
+ */
+// const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve, {
+//     headers: {
+//         'Accept': 'application/cbor'
+//     }
+// });
+
+// lastChangeEventSource.onmessage = (e) => {
+//     const body = JSON.parse(e.data);
+    
+//     if (body.headers) {
+//         if (body.headers["content-type"] === 'application/cbor') {
+//             const buffer = Buffer.from(body.data);
+//             const decodedData = cbor.decode(buffer);
+//             console.log(decodedData);
+//         }
+//         else {
+//             console.log(body.data);
+//         }
+//     }
+//     else {
+//         console.log(body);
+//     }
+// };
+
+// lastChangeEventSource.onerror = (error) => {
+//     console.error('Error with SSE:', error);
+// };
 
 /**
  * Adds a number to the current result
@@ -297,20 +363,20 @@ runCalculator()
 // });
 
 // updateEventSource.onmessage = (e) => {
-//     const data = JSON.parse(e.data);
-
-//     if (data.headers) {
-//         if (data.headers["content-type"] === 'application/cbor') {
-//             const buffer = Buffer.from(data.result.data);
+//     const body = JSON.parse(e.data);
+    
+//     if (body.headers) {
+//         if (body.headers["content-type"] === 'application/cbor') {
+//             const buffer = Buffer.from(body.data);
 //             const decodedData = cbor.decode(buffer);
 //             console.log(decodedData);
 //         }
 //         else {
-//             console.log(data.result);
+//             console.log(body.data);
 //         }
 //     }
 //     else {
-//         console.log(data);
+//         console.log(body);
 //     }
 // };
 

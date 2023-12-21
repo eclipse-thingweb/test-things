@@ -16,7 +16,9 @@ const thingName = 'http-express-calculator-content-negotiation'
 
 const fullTDEndPoint = `/${thingName}`,
   resultEndPoint = `/${thingName}/properties/result`,
+  resultEndPointObserve = `${resultEndPoint}/observe`,
   lastChangeEndPoint = `/${thingName}/properties/lastChange`,
+  lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
   additionEndPoint = `/${thingName}/actions/add`,
   subtractionEndPoint = `/${thingName}/actions/subtract`,
   updateEndPoint = `/${thingName}/events/update`
@@ -51,24 +53,24 @@ placeholderReplacer.addVariableMap({
   THING_NAME: thingName,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
-  RESULT_OBSERVABLE: false,
-  LAST_CHANGE_OBSERVABLE: false
+  RESULT_OBSERVABLE: true,
+  LAST_CHANGE_OBSERVABLE: true
 })
 
 const defaultForm =
 {
-  "href": "",
-  "contentType": "application/json",
-  "response": {
-    "contentType":"application/json"
+  'href': '',
+  'contentType': 'application/json',
+  'response': {
+    'contentType': 'application/json'
   },
-  "op": "",
-  "htv:methodName": "",
-  "htv:headers": [
+  'op': '',
+  'htv:methodName': '',
+  'htv:headers': [
     {
-      "@type": "htv:RequestHeader",
-      "fieldValue": "application/json",
-      "fieldName": "Accept"
+      '@type': 'htv:RequestHeader',
+      'fieldValue': 'application/json',
+      'fieldName': 'Accept'
     }
   ]
 }
@@ -83,22 +85,33 @@ for (const key in thingDescription['properties']) {
 
   thingDescription['properties'][key]['forms'] = []
 
-  const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `properties/${key}`
-  newForm['htv:methodName'] = 'GET'
-  newForm['op'] = 'readproperty'
+  const newFormRead = JSON.parse(JSON.stringify(defaultForm))
+  newFormRead['href'] = `properties/${key}`
+  newFormRead['htv:methodName'] = 'GET'
+  newFormRead['op'] = 'readproperty'
+  thingDescription['properties'][key]['forms'].push(newFormRead)
 
-  thingDescription['properties'][key]['forms'].push(newForm)
+  const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+  newFormObs['href'] = `properties/${key}/observe`
+  newFormObs['op'] = ['observeproperty', 'unobserveproperty']
+  newFormObs['subprotocol'] = 'sse'
+  thingDescription['properties'][key]['forms'].push(newFormObs)
 
   const originalForm = thingDescription['properties'][key]['forms'][0]
 
   supportedContentTypes.forEach(type => {
     if (!thingDescription['properties'][key]['forms'][0]['contentType'].includes(type)) {
-      const newForm = JSON.parse(JSON.stringify(originalForm))
-      newForm['contentType'] = type
-      newForm['response'].contentType = type
-      newForm['htv:headers'][0]['fieldValue'] = type
-      thingDescription['properties'][key]['forms'].push(newForm)
+      const newFormRead = JSON.parse(JSON.stringify(originalForm))
+      newFormRead['contentType'] = type
+      newFormRead['response'].contentType = type
+      newFormRead['htv:headers'][0]['fieldValue'] = type
+      thingDescription['properties'][key]['forms'].push(newFormRead)
+
+      const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+      newFormObs['href'] = `properties/${key}/observe`
+      newFormObs['op'] = ['observeproperty', 'unobserveproperty']
+      newFormObs['subprotocol'] = 'sse'
+      thingDescription['properties'][key]['forms'].push(newFormObs)
     }
   })
 }
@@ -126,18 +139,18 @@ for (const key in thingDescription['actions']) {
       supportedContentTypes.forEach(type => {
         if (!thingDescription['actions'][key]['forms'][0]['response'].contentType.includes(type)) {
           const newFormAccept = JSON.parse(JSON.stringify(newForm))
-          newFormAccept["response"].contentType = type;
+          newFormAccept['response'].contentType = type;
           newFormAccept['htv:headers'][0]['fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newFormAccept)
         }
       })
     } else {
       supportedContentTypes.forEach(type => {
-        if (!originalForm["response"].contentType.includes(type)) {
+        if (!originalForm['response'].contentType.includes(type)) {
           const newForm = JSON.parse(JSON.stringify(originalForm));
-          newForm["response"].contentType = type;
-          newForm["htv:headers"][0]["fieldValue"] = type;
-          thingDescription["actions"][key]["forms"].push(newForm);
+          newForm['response'].contentType = type;
+          newForm['htv:headers'][0]['fieldValue'] = type;
+          thingDescription['actions'][key]['forms'].push(newForm);
         }
       })
     }
@@ -154,7 +167,7 @@ for (const key in thingDescription['events']) {
   newForm['href'] = `events/${key}`
   newForm['htv:methodName'] = 'GET'
   newForm['op'] = 'subscribeevent'
-  newForm['subprotocol'] = "sse"
+  newForm['subprotocol'] = 'sse'
 
   thingDescription['events'][key]['forms'].push(newForm)
 
@@ -164,7 +177,7 @@ for (const key in thingDescription['events']) {
     if (!thingDescription['events'][key]['forms'][0]['contentType'].includes(type)) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = type
-      newForm["response"].contentType = type;
+      newForm['response'].contentType = type;
       newForm['htv:headers'][0]['fieldValue'] = type
       thingDescription['events'][key]['forms'].push(newForm)
     }
@@ -183,7 +196,7 @@ try {
 /************** Middleware ****************/
 /******************************************/
 
-// Middleware to check if supported "Accept" values have been sent
+// Middleware to check if supported 'Accept' values have been sent
 app.use((req, res, next) => {
   const acceptHeader = req.get('Accept')
 
@@ -193,27 +206,50 @@ app.use((req, res, next) => {
   else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('*/*')) {
     next()
   } else {
-    res.status(406).json({ 'msg': 'Not Acceptable: Supported formats are application/json, and application/cbor' });
+    res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
   }
 });
 
 
-// Middleware to accept only the content-types: text, json, cbor
+// Middleware to accept only the content-types: json and cbor
 app.use((req, res, next) => {
   const contentType = req.get('Content-Type')
   const method = req.method
+  const endpoint = req.url
 
-  if (method === 'POST') {
+  if (method === 'POST' && (endpoint === additionEndPoint || endpoint === subtractionEndPoint)) {
     if (supportedContentTypes.includes(contentType)) {
       next()
     } else {
-      res.status(415).json({ 'msg': 'Unsupported Media Type: Supported Content-Types are application/json, and application/cbor' });
+      res.status(415).json('Unsupported Media Type: Supported Content-Types are application/json, and application/cbor');
     }
   }
   else {
     next()
   }
 });
+
+//Middleware to ensure the right method is been used for each endpoint
+app.use((req, res, next) => {
+  const method = req.method
+  const endpoint = req.url
+
+  if (endpoint === fullTDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
+    if (method === 'GET') {
+      next()
+    } else {
+      res.status(405).json('Method Not Allowed');
+    }
+  }
+
+  if (endpoint === additionEndPoint || endpoint === subtractionEndPoint) {
+    if (method === 'POST') {
+      next()
+    } else {
+      res.status(405).json('Method Not Allowed');
+    }
+  }
+})
 
 // Use body-parser middleware to parse the request body
 app.use(bodyParser.text());
@@ -259,6 +295,63 @@ app.get(resultEndPoint, (req, res) => {
   }
 })
 
+//Observe the current result property
+app.get(resultEndPointObserve, (req, res) => {
+  const acceptHeader = req.get('Accept')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+  res.setHeader('Content-Type', 'text/event-stream')
+
+  let oldResult = result
+
+  const changeInterval = setInterval(() => {
+    res.write(`data: ${JSON.stringify({
+      'msg': 'Waiting for change..'
+    })}\n\n`);
+
+    if (oldResult !== result) {
+      let message
+
+      if (acceptHeader === '*/*' || acceptHeader === undefined) {
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/json'
+          },
+          'data': result
+        })}\n\n`
+      }
+      else if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/json'
+          },
+          'data': result
+        })}\n\n`
+      }
+      else {
+        const cborData = cbor.encode(result)
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/cbor'
+          },
+          'data': cborData
+        })}\n\n`
+      }
+
+      res.statusCode = 200
+      res.write(message)
+      oldResult = result
+    }
+
+  }, 1000)
+
+
+  res.on('finish', () => {
+    clearInterval(changeInterval)
+  })
+})
+
 // Get the time of the last change
 app.get(lastChangeEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
@@ -276,6 +369,63 @@ app.get(lastChangeEndPoint, (req, res) => {
   }
 })
 
+//Observe the last change property
+app.get(lastChangeEndPointObserve, (req, res) => {
+  const acceptHeader = req.get('Accept')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+  res.setHeader('Content-Type', 'text/event-stream')
+
+  let oldLastChange = lastChange
+
+  const changeInterval = setInterval(() => {
+    res.write(`data: ${JSON.stringify({
+      'msg': 'Waiting for change..'
+    })}\n\n`);
+
+    if (oldLastChange !== lastChange) {
+      let message
+
+      if (acceptHeader === '*/*' || acceptHeader === undefined) {
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/json'
+          },
+          'data': lastChange
+        })}\n\n`
+      }
+      else if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/json'
+          },
+          'data': lastChange
+        })}\n\n`
+      }
+      else {
+        const cborData = cbor.encode(lastChange)
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/cbor'
+          },
+          'data': cborData
+        })}\n\n`
+      }
+
+      res.statusCode = 200
+      res.write(message)
+      oldLastChange = lastChange
+    }
+
+  }, 1000)
+
+
+  res.on('finish', () => {
+    clearInterval(changeInterval)
+  })
+})
+
 
 // /*****************************************************/
 // /*************** Actions Endpoints *******************/
@@ -284,38 +434,37 @@ app.get(lastChangeEndPoint, (req, res) => {
 // Add a number to the current result endpoint
 app.post(additionEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
-  let parsedInput
+  let bodyInput
 
   //check if the data was sent as cbor or json and if not get the body normally
-  if (req.get('Content-Type') === "application/cbor") {
+  if (req.get('Content-Type') === 'application/cbor') {
     const decodedData = cbor.decode(req.body);
-    parsedInput = parseInt(decodedData)
+    bodyInput = decodedData
   }
   else {
-    parsedInput = parseInt(req.body)
+    bodyInput = req.body
   }
 
-  /**Check if given input is a valid number, if not return an error message,
+  /**Check if given input is a number, if not return an error message,
    * if yes add the new number to the result, update the lastChange variable and
    * return the added number in the accepted format
    */
-  if (isNaN(parsedInput)) {
-    res.status(400).json({ 'msg': 'Input should be a valid integer' })
+  if (typeof bodyInput !== 'number') {
+    res.status(400).json('Input should be a valid integer')
   } else {
-
     if (acceptHeader === '*/*' || acceptHeader === undefined) {
-      result += parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
+      result += bodyInput
+      lastChange = new Date()
       res.json(result)
     }
     else if (acceptHeader.includes('application/json')) {
-      result += parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
+      result += bodyInput
+      lastChange = new Date()
       res.json(result)
     }
     else {
-      result += parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
+      result += bodyInput
+      lastChange = new Date()
       const cborData = cbor.encode(result)
       res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
@@ -326,37 +475,37 @@ app.post(additionEndPoint, (req, res) => {
 // Subtract a number from the current result endpoint
 app.post(subtractionEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
-  let parsedInput
+  let bodyInput
 
   //check if the data was sent as cbor, json or text, and if not get the body normally
-  if (req.get('Content-Type') === "application/cbor") {
+  if (req.get('Content-Type') === 'application/cbor') {
     const decodedData = cbor.decode(req.body);
-    parsedInput = parseInt(decodedData)
+    bodyInput = decodedData
   }
   else {
-    parsedInput = parseInt(req.body)
+    bodyInput = req.body
   }
 
   /**Check  if given input is a valid number, if not return an error message,
    * if yes add the new number to the result, update the lastChange variable and
    * return the added number in the accepted format
    */
-  if (isNaN(parsedInput)) {
-    res.status(400).json({ 'msg': 'Input should be a valid integer' })
+  if (typeof bodyInput !== 'number') {
+    res.status(400).json('Input should be a valid integer')
   } else {
     if (acceptHeader === '*/*' || acceptHeader === undefined) {
-      result -= parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
+      result -= bodyInput
+      lastChange = new Date()
       res.json(result)
     }
     else if (acceptHeader.includes('application/json')) {
-      result -= parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
+      result -= bodyInput
+      lastChange = new Date()
       res.json(result)
     }
     else {
-      result -= parsedInput
-      lastChange = (new Date()).toLocaleTimeString()
+      result -= bodyInput
+      lastChange = new Date()
       const cborData = cbor.encode(result)
       res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
@@ -379,29 +528,37 @@ app.get(updateEndPoint, (req, res) => {
 
   let oldResult = result
 
-  /**
-   * The SSE specification defines the structure of SSE messages, and 
-   * it expects event data to be formatted with "data:" followed by the 
-   * actual data. When you deviate from this standard, it might not be 
-   * interpreted correctly by the client, which could explain why you receive empty values.
-   */
   const changeInterval = setInterval(() => {
-    res.write(`data: "Waiting for change.."\n\n`);
+    res.write(`data: ${JSON.stringify({
+      'msg': 'Waiting for change..'
+    })}\n\n`);
 
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader.includes('application/json')) {
+      if (acceptHeader === '*/*' || acceptHeader === undefined) {
         message = `data: ${JSON.stringify({
-          'headers': { 'content-type': 'application/json' },
-          'result': result
+          'headers': {
+            'content-type': 'application/json'
+          },
+          'data': result
+        })}\n\n`
+      }
+      else if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify({
+          'headers': {
+            'content-type': 'application/json'
+          },
+          'data': result
         })}\n\n`
       }
       else {
         const cborData = cbor.encode(result)
         message = `data: ${JSON.stringify({
-          'headers': { 'content-type': 'application/cbor' },
-          'result': cborData
+          'headers': {
+            'content-type': 'application/cbor'
+          },
+          'data': cborData
         })}\n\n`
       }
 

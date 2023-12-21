@@ -15,7 +15,9 @@ const thingName = "http-express-calculator-simple";
 
 const fullTDEndPoint = `/${thingName}`,
   resultEndPoint = `/${thingName}/properties/result`,
+  resultEndPointObserve = `${resultEndPoint}/observe`,
   lastChangeEndPoint = `/${thingName}/properties/lastChange`,
+  lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
   additionEndPoint = `/${thingName}/actions/add`,
   subtractionEndPoint = `/${thingName}/actions/subtract`,
   updateEndPoint = `/${thingName}/events/update`
@@ -71,6 +73,7 @@ for (const key in thingDescription['properties']) {
   newFormRead['op'] = ["readproperty"]
 
   const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+  newFormObs['href'] = `properties/${key}/observe`
   newFormObs['op'] = ["observeproperty", "unobserveproperty"]
   newFormObs['subprotocol'] = "sse"
 
@@ -115,6 +118,37 @@ const reqParser = bodyParser.text({ type: "*/*" });
 let result = 0;
 let lastChange = "No changes made";
 
+/******************************************/
+/************** Middleware ****************/
+/******************************************/
+
+//Middleware to ensure the right method is been used for each endpoint
+app.use((req, res, next) => {
+  const method = req.method
+  const endpoint = req.url
+
+  if (endpoint === fullTDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
+    if (method === 'GET') {
+      next()
+    } else {
+      res.status(405).json('Method Not Allowed');
+    }
+  }
+
+  if (endpoint === additionEndPoint || endpoint === subtractionEndPoint) {
+    if (method === 'POST') {
+      next()
+    } else {
+      res.status(405).json('Method Not Allowed');
+    }
+  }
+})
+
+
+/******************************************/
+/*************** Endpoints ****************/
+/******************************************/
+
 app.get(fullTDEndPoint, (req, res) => {
   res.json(thingDescription);
 });
@@ -123,8 +157,54 @@ app.get(resultEndPoint, (req, res) => {
   res.json(result);
 });
 
+app.get(resultEndPointObserve, (req, res) => {
+  res.statusCode = 200;
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("connection", "keep-alive");
+  res.setHeader("Content-Type", "text/event-stream");
+
+  let oldResult = result;
+
+  const changeInterval = setInterval(() => {
+    res.write(`data: "Waiting for change.."\n\n`);
+
+    if (oldResult !== result) {
+      res.write(`data: ${result}\n\n`);
+      oldResult = result;
+    }
+  }, 1000);
+
+  res.on("finish", () => {
+    clearInterval(changeInterval);
+  });
+});
+
 app.get(lastChangeEndPoint, (req, res) => {
   res.json(lastChange);
+});
+
+app.get(lastChangeEndPointObserve, (req, res) => {
+  res.statusCode = 200;
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("connection", "keep-alive");
+  res.setHeader("Content-Type", "text/event-stream");
+
+  let oldLastChange = lastChange;
+
+  const changeInterval = setInterval(() => {
+    res.write(`data: "Waiting for change.."\n\n`);
+
+    if (oldLastChange !== lastChange) {
+      res.write(`data: ${lastChange}\n\n`);
+      oldLastChange = lastChange;
+    }
+  }, 1000);
+
+  res.on("finish", () => {
+    clearInterval(changeInterval);
+  });
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
@@ -134,7 +214,7 @@ app.post(additionEndPoint, reqParser, (req, res) => {
     res.status(400).json("Input should be a valid integer");
   } else {
     result += parsedInput;
-    lastChange = new Date().toLocaleTimeString();
+    lastChange = new Date();
     res.json(result);
   }
 });
@@ -146,7 +226,7 @@ app.post(subtractionEndPoint, reqParser, (req, res) => {
     res.status(400).json("Input should be a valid integer");
   } else {
     result -= parsedInput;
-    lastChange = new Date().toLocaleTimeString();
+    lastChange = new Date();
     res.json(result);
   }
 });
