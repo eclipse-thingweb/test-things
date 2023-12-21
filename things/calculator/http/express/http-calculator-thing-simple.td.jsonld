@@ -21,7 +21,7 @@
   "properties": {
     "result": {
       "type": "number",
-      "readOnly": false,
+      "readOnly": true,
       "writeOnly": false,
       "observable": true,
       "forms": [
@@ -33,7 +33,7 @@
           ]
         },
         {
-          "href": "properties/result",
+          "href": "properties/result/observe",
           "contentType": "application/json",
           "op": [
             "observeproperty",
@@ -45,7 +45,7 @@
     },
     "lastChange": {
       "type": "string",
-      "readOnly": false,
+      "readOnly": true,
       "writeOnly": false,
       "observable": true,
       "forms": [
@@ -57,7 +57,7 @@
           ]
         },
         {
-          "href": "properties/lastChange",
+          "href": "properties/lastChange/observe",
           "contentType": "application/json",
           "op": [
             "observeproperty",

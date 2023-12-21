@@ -21,9 +21,9 @@
   "properties": {
     "result": {
       "type": "number",
-      "readOnly": false,
+      "readOnly": true,
       "writeOnly": false,
-      "observable": false,
+      "observable": true,
       "forms": [
         {
           "href": "properties/result",
@@ -42,6 +42,26 @@
           ]
         },
         {
+          "href": "properties/result/observe",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        },
+        {
           "href": "properties/result",
           "contentType": "application/cbor",
           "response": {
@@ -56,14 +76,34 @@
               "fieldName": "Accept"
             }
           ]
+        },
+        {
+          "href": "properties/result/observe",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
         }
       ]
     },
     "lastChange": {
       "type": "string",
-      "readOnly": false,
+      "readOnly": true,
       "writeOnly": false,
-      "observable": false,
+      "observable": true,
       "forms": [
         {
           "href": "properties/lastChange",
@@ -82,6 +122,26 @@
           ]
         },
         {
+          "href": "properties/lastChange/observe",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        },
+        {
           "href": "properties/lastChange",
           "contentType": "application/cbor",
           "response": {
@@ -96,6 +156,26 @@
               "fieldName": "Accept"
             }
           ]
+        },
+        {
+          "href": "properties/lastChange/observe",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
         }
       ]
     }

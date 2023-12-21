@@ -7,7 +7,9 @@ const EventSource = require('eventsource')
 
 const url = "http://localhost:3000/http-express-calculator-simple",
     resultEndPoint = "/properties/result",
+    resultEndPointObserve = `${resultEndPoint}/observe`,
     lastChangeEndPoint = "/properties/lastChange",
+    lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
     additionEndPoint = "/actions/add",
     subtractionEndPoint = "/actions/subtract",
     updateEndPoint = "/events/update"
@@ -29,9 +31,24 @@ async function getFullTD() {
  */
 async function getCurrentResult() {
     const res = await fetch(url + resultEndPoint)
-    
+
     return res.json()
 }
+
+/**
+ * Create an EventSource for the result observe endpoint.
+ * Uncomment to test the SSE functionality.
+ */
+// const resultEventSource = new EventSource(url + resultEndPointObserve);
+
+// resultEventSource.onmessage = (e) => {
+//     const data = e.data;
+//     console.log(data);
+// };
+
+// resultEventSource.onerror = (error) => {
+//     console.error('Error with SSE:', error);
+// };
 
 /**
  * Fetches when the latest change was made 
@@ -42,6 +59,21 @@ async function getLatestChange() {
 
     return res.json()
 }
+
+/**
+ * Create an EventSource for the result observe endpoint.
+ * Uncomment to test the SSE functionality.
+ */
+// const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve);
+
+// lastChangeEventSource.onmessage = (e) => {
+//     const data = e.data;
+//     console.log(data);
+// };
+
+// lastChangeEventSource.onerror = (error) => {
+//     console.error('Error with SSE:', error);
+// };
 
 /**
  * Adds a number to the current result
@@ -98,6 +130,7 @@ runCalculator()
  * Uncomment to test the SSE functionality.
  */
 
+//Listening to the update event
 // const updateEventSource = new EventSource(url + updateEndPoint);
 
 // updateEventSource.onmessage = (e) => {
