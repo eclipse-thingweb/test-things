@@ -21,6 +21,13 @@ Thing Model validation test should be put under Thing's main directory and named
 Thing Description validation test should be put under protocol and programming language/framework's test directory and named as `td.test.json`.
 For Thing Description validation test, the device should boot up and to understand the device booted up without any error, a message `"ThingIsReady"` is expected to be prompted to the console by the device.
 
+## Port Configuration
+
+It is possible to run several Things at the same time in a container, which requires container to expose that many ports. 
+Traefik helps with this issue and routes the requests on one exposed port to relevant services inside the container.
+Traefik configuration can be seen inside `docker-compose.yml`.
+It is not possible to route using path prefix with UDP, therefore port must be exposed for new Things that uses UDP.
+
 ## Adding a new Thing
 
 If you are going to add a different protocol for an existing Thing:
