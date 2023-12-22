@@ -1,0 +1,21 @@
+{
+  "name": "modbus-elevator",
+  "version": "1.0.0",
+  "description": "Modbus Elevator",
+  "main": "main.js",
+  "keywords": [
+    "wot",
+    "thing",
+    "iot",
+    "modbus"
+  ],
+  "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+  "license": "EPL-2.0 OR W3C-20150513",
+  "dependencies": {
+    "json-placeholder-replacer": "^1.0.35",
+    "modbus": "^1.1.1",
+    "modbus-serial": "^8.0.11",
+    "serialport": "^11.0.0",
+    "dotenv": "^16.3.1"
+  }
+}
