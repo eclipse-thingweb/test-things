@@ -208,24 +208,24 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
-  const parsedInput = parseInt(req.body);
+  const bodyInput = req.body
 
-  if (isNaN(parsedInput)) {
+  if(typeof bodyInput !== "number") {
     res.status(400).json("Input should be a valid integer");
   } else {
-    result += parsedInput;
+    result += bodyInput;
     lastChange = new Date();
     res.json(result);
   }
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
-  const parsedInput = parseInt(req.body);
+  const bodyInput = req.body
 
-  if (isNaN(parsedInput)) {
+  if(typeof bodyInput !== "number") {
     res.status(400).json("Input should be a valid integer");
   } else {
-    result -= parsedInput;
+    result -= bodyInput;
     lastChange = new Date();
     res.json(result);
   }
