@@ -26,7 +26,7 @@ For Thing Description validation test, the device should boot up and to understa
 It is possible to run several Things at the same time in a container, which requires container to expose that many ports. 
 Traefik helps with this issue and routes the requests on one exposed port to relevant services inside the container.
 Traefik configuration can be seen inside `docker-compose.yml`.
-It is not possible to route using path prefix with UDP, therefore port must be exposed for new Things that uses UDP.
+It is not possible to route using path prefix with UDP, therefore port must be exposed for new Things that use UDP.
 
 ## Adding a new Thing
 
