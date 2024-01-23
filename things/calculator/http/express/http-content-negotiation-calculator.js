@@ -186,7 +186,7 @@ for (const key in thingDescription['events']) {
 
 //Creating the TD for testing purposes
 try {
-  fs.writeFileSync('http-calculator-thing-content-negotiation.td.jsonld', JSON.stringify(thingDescription, null, 2))
+  fs.writeFileSync('http-content-negotiation-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
 } catch (err) {
   console.log(err);
 }
