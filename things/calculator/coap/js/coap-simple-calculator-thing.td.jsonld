@@ -21,7 +21,7 @@
   "properties": {
     "result": {
       "type": "number",
-      "readOnly": false,
+      "readOnly": true,
       "writeOnly": false,
       "observable": true,
       "forms": [
@@ -45,7 +45,7 @@
     },
     "lastChange": {
       "type": "string",
-      "readOnly": false,
+      "readOnly": true,
       "writeOnly": false,
       "observable": true,
       "forms": [

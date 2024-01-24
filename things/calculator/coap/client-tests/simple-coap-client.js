@@ -10,6 +10,11 @@ const fullTDEndpoint = `/${thingName}`,
     subtractionEndPoint = `/${thingName}/actions/subtract`,
     updateEndPoint = `/${thingName}/events/update`
 
+
+/****************************************/
+/****** Thing Description Endpoint ******/
+/****************************************/
+
 // GET request to retrieve thing description
 const getThingDescriptionMsg = coap.request({
     method: 'GET',
@@ -27,7 +32,13 @@ getThingDescriptionMsg.on('response', (res) => {
 })
 getThingDescriptionMsg.end()
 
-// GET request to retrieve a property (result)
+
+
+/****************************************/
+/*********** Result Endpoint ************/
+/****************************************/
+
+// GET request to retrieve the property result
 const getPropertyResult = coap.request({
     method: 'GET',
     host: hostname,
@@ -45,7 +56,41 @@ getPropertyResult.on('response', (res) => {
 })
 getPropertyResult.end()
 
-// GET request to retrieve a property (lastChange)
+
+/**
+ * GET request to observe the property result.
+ * Uncomment to test the observe functionality
+ */
+
+// const observeResult = coap.request({
+//     method: 'GET',
+//     observe: true, // Enable observation
+//     host: hostname,
+//     port: portNumber,
+//     pathname: resultEndPoint
+// });
+
+// observeResult.on('response', (res) => {
+
+//     res.on('data', function () {
+//         if (res.code === '2.05') {
+//             console.log(res.payload.toString())
+//         } else {
+//             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+//         }
+//     })
+
+// });
+
+// // Start observing
+// observeResult.end();
+
+
+/****************************************/
+/********** lastChange Endpoint *********/
+/****************************************/
+
+// GET request to retrieve the property lastChange
 const getLastChange = coap.request({
     method: 'GET',
     host: hostname,
@@ -60,8 +105,42 @@ getLastChange.on('response', (res) => {
         console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)
     }
 })
+
 getLastChange.end()
 
+
+/**
+ * GET request to observe the property lastChange.
+ * Uncomment to test the observe functionality
+ */
+
+// const observeLastChange = coap.request({
+//     method: 'GET',
+//     observe: true, // Enable observation
+//     host: hostname,
+//     port: portNumber,
+//     pathname: lastChangeEndPoint
+// });
+
+// observeLastChange.on('response', (res) => {
+
+//     res.on('data', function () {
+//         if (res.code === '2.05') {
+//             console.log(res.payload.toString())
+//         } else {
+//             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+//         }
+//     })
+
+// });
+
+// // Start observing
+// observeLastChange.end();
+
+
+/****************************************/
+/*********** Addition Endpoint **********/
+/****************************************/
 
 // POST request to perform an action (add)
 const addNumberReq = coap.request({
@@ -86,6 +165,11 @@ addNumberReq.on('response', (res) => {
 addNumberReq.end();
 
 
+
+/****************************************/
+/********** Subtraction Endpoint ********/
+/****************************************/
+
 // POST request to perform an action (subtract)
 const subtractNumberReq = coap.request({
     method: 'POST',
@@ -108,6 +192,11 @@ subtractNumberReq.on('response', (res) => {
 });
 subtractNumberReq.end();
 
+
+/****************************************/
+/*********** Update Endpoint ************/
+/****************************************/
+
 /**
  * GET request to observe an event (update).
  * Uncomment to test the update functionality
@@ -124,9 +213,8 @@ subtractNumberReq.end();
 // observeEventChange.on('response', (res) => {
 
 //     res.on('data', function () {
-
 //         if (res.code === '2.05') {
-//             console.log(`Update result: ${res.payload.toString()}`)
+//             console.log(res.payload.toString())
 //         } else {
 //             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
 //         }
