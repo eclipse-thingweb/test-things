@@ -163,16 +163,15 @@ function addNumber(numberToAdd) {
     // Set the payload with the input value
     addNumberAction.write(JSON.stringify(numberToAdd))
 
-    addNumberAction.on('response', (res) => {
-        if (res.code === '2.05') {
-            console.log('Addition result:', JSON.parse(res.payload.toString()))
-        } else {
-            console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
-        }
-    });
-    addNumberAction.end();
-}
+addNumberReq.on('response', (res) => {
 
+    if (res.code === '2.05') {
+        console.log(`Addition result: ${res.payload.toString()}`)
+    } else {
+        console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
+    }
+});
+addNumberReq.end();
 
 
 /****************************************/
