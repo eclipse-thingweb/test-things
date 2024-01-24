@@ -99,7 +99,7 @@ for (const key in thingDescription['events']) {
 
 //Creating the TD for testing purposes
 try {
-    fs.writeFileSync('coap-calculator-thing-simple.td.jsonld', JSON.stringify(thingDescription, null, 2))
+    fs.writeFileSync('coap-simple-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
 } catch (err) {
     console.log(err);
 }
@@ -110,7 +110,7 @@ try {
 /*********************************************************/
 
 let result = 0
-let lastChange = 'No changes made so far'
+let lastChange = ''
 
 server.on('request', (req, res) => {
     const segments = req.url.split('/')
@@ -123,71 +123,138 @@ server.on('request', (req, res) => {
             if (req.method === 'GET') {
                 res.end(JSON.stringify(thingDescription))
             }
+            else {
+                res.code = 405
+                res.end('Method Not Allowed')
+            }
         }
     }
 
     if (segments[2] === 'properties') {
-        if (segments[3] === 'result') {
-            if (req.method === 'GET') {
-                res.end(result.toString())
+        if (req.method === 'GET') {
+
+            //Result endpoint
+            if (segments[3] === 'result') {
+                //Checking for the observe option
+                if (req.headers.Observe === 0) {
+                    console.log('Observing the result property...')
+                    res.statusCode = 205
+
+                    let oldResult = result
+                    const changeInterval = setInterval(() => {
+                        res.write('stay connected!')
+                        if (oldResult !== result) {
+                            res.write(`${result.toString()}`)
+                            oldResult = result
+                        }
+                    }, 1000)
+
+                    res.on('finish', () => {
+                        console.log('Client closed the connection');
+                        clearInterval(changeInterval)
+                    })
+                } 
+                //If the observe option is false, then the value is given and the connection is closed
+                else {
+                    res.end(result.toString())
+                }
+            }
+
+            //LastChange endpoint
+            if (segments[3] === 'lastChange') {
+                //Checking for the observe option
+                if (req.headers.Observe === 0) {
+                    console.log('Observing the lastChange property...')
+                    res.statusCode = 205
+
+                    let oldDate = lastChange
+                    const changeInterval = setInterval(() => {
+                        res.write('stay connected!')
+                        if (oldDate !== lastChange) {
+                            res.write(`${lastChange.toISOString()}`)
+                            oldDate = lastChange
+                        }
+                    }, 1000)
+
+                    res.on('finish', () => {
+                        console.log('Client closed the connection');
+                        clearInterval(changeInterval)
+                    })
+                } 
+                //If the observe option is false, then the value is given and the connection is closed
+                else {
+                    if (lastChange === '') {
+                        res.end('No changes made so far')
+                    } else {
+                        res.end(lastChange.toISOString())
+                    }
+                }
             }
         }
-
-        if (segments[3] === 'lastChange') {
-            if (req.method === 'GET') {
-                res.end(lastChange)
-            }
+        else {
+            res.code = 405
+            res.end('Method Not Allowed')
         }
     }
 
-    if (segments[2] === 'actions' && req.method === 'POST') {
-        if (segments[3] === 'add') {
-            const parsedInput = parseInt(req.payload.toString())
 
-            if (isNaN(parsedInput)) {
-                res.code = 400
-                res.end('Input should be a valid integer')
-            } else {
-                result += parsedInput
-                lastChange = (new Date()).toLocaleTimeString()
-                res.end(result.toString())
+    if (segments[2] === 'actions') {
+        if (req.method === 'POST') {
+            if (segments[3] === 'add') {
+                const parsedInput = parseInt(req.payload.toString())
+
+                if (isNaN(parsedInput)) {
+                    res.code = 400
+                    res.end('Input should be a valid integer')
+                } else {
+                    result += parsedInput
+                    lastChange = new Date()
+                    res.end(result.toString())
+                }
+            }
+
+            if (segments[3] === 'subtract') {
+                const parsedInput = parseInt(req.payload.toString())
+
+                if (isNaN(parsedInput)) {
+                    res.code = 400
+                    res.end('Input should be a valid integer')
+                } else {
+                    result -= parsedInput
+                    lastChange = new Date()
+                    res.end(result.toString())
+                }
             }
         }
-
-        if (segments[3] === 'subtract') {
-            const parsedInput = parseInt(req.payload.toString())
-
-            if (isNaN(parsedInput)) {
-                res.code = 400
-                res.end('Input should be a valid integer')
-            } else {
-                result -= parsedInput
-                lastChange = (new Date()).toLocaleTimeString()
-                res.end(result.toString())
-            }
+        else {
+            res.code = 405
+            res.end('Method Not Allowed')
         }
     }
 
     if (segments[2] === 'events' && req.method === 'GET') {
         if (segments[3] === 'update') {
             if (req.headers.Observe === 0) {
-                console.log('Observing the change...')
+                console.log('Observing the update event...')
                 res.statusCode = 205
 
                 let oldResult = result
                 const changeInterval = setInterval(() => {
                     res.write('stay connected!')
                     if (oldResult !== result) {
-                        res.write(`result: ${result}`)
+                        res.write(`${result}`)
                         oldResult = result
                     }
                 }, 1000)
 
                 res.on('finish', () => {
+                    console.log('Client closed the connection');
                     clearInterval(changeInterval)
                 })
+
             } else {
-                res.end()
+                res.code = 402
+                res.end('Bad Option: Observe option should be set to true')
             }
         }
     }
