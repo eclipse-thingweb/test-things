@@ -185,7 +185,7 @@ for (const key in thingDescription['events']) {
 
 //Creating the TD for testing purposes
 try {
-  fs.writeFileSync('coap-calculator-thing-content-negotiation.td.jsonld', JSON.stringify(thingDescription, null, 2))
+  fs.writeFileSync('coap-content-negotiation-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
 } catch (err) {
   console.log(err);
 }
