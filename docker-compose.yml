@@ -24,8 +24,8 @@ services:
       dockerfile: ./mqtt/js/Dockerfile
   modbus-elevator:
     labels:
-      - traefik.tcp.routers.modbus-calculator.entrypoints=modbus-lift
-      - traefik.tcp.routers.modbus-calculator.rule=HostSNI(`*`)
+      - traefik.tcp.routers.modbus-elevator.entrypoints=modbus-elevator
+      - traefik.tcp.routers.modbus-elevator.rule=HostSNI(`*`)
     build:
       context: ./things/elevator/
       dockerfile: ./modbus/js/Dockerfile
@@ -36,7 +36,7 @@ services:
       - "--api.insecure=true" 
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.modbus-lift.address=:3179"
+      - "--entrypoints.modbus-elevator.address=:3179"
       - "--entrypoints.coap-calculator.address=:3179/udp"
     ports:
       - "80:80"
