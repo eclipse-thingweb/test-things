@@ -8,7 +8,6 @@ require('dotenv').config()
 const server = coap.createServer()
 const hostname = 'localhost'
 let portNumber = 5683
-
 const thingName = 'coap-calculator-simple'
 
 const { values: { port } } = parseArgs({
@@ -153,7 +152,7 @@ server.on('request', (req, res) => {
                         console.log('Client closed the connection');
                         clearInterval(changeInterval)
                     })
-                } 
+                }
                 //If the observe option is false, then the value is given and the connection is closed
                 else {
                     res.end(result.toString())
@@ -180,7 +179,7 @@ server.on('request', (req, res) => {
                         console.log('Client closed the connection');
                         clearInterval(changeInterval)
                     })
-                } 
+                }
                 //If the observe option is false, then the value is given and the connection is closed
                 else {
                     if (lastChange === '') {
@@ -252,7 +251,8 @@ server.on('request', (req, res) => {
                     clearInterval(changeInterval)
                 })
 
-            } else {
+            }
+            else {
                 res.code = 402
                 res.end('Bad Option: Observe option should be set to true')
             }

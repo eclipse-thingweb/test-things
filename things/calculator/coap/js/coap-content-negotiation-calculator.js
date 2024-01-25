@@ -38,8 +38,8 @@ placeholderReplacer.addVariableMap({
   THING_NAME: thingName,
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
-  RESULT_OBSERVABLE: false,
-  LAST_CHANGE_OBSERVABLE: false
+  RESULT_OBSERVABLE: true,
+  LAST_CHANGE_OBSERVABLE: true
 })
 
 /*****************************************/
@@ -73,24 +73,34 @@ for (const key in thingDescription['properties']) {
 
   thingDescription['properties'][key]['forms'] = []
 
-  const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `properties/${key}`
-  newForm['cov:method'] = 'GET'
-  newForm['op'] = 'readproperty'
+  const newFormRead = JSON.parse(JSON.stringify(defaultForm))
+  newFormRead['href'] = `properties/${key}`
+  newFormRead['cov:method'] = 'GET'
+  newFormRead['op'] = 'readproperty'
 
-  thingDescription['properties'][key]['forms'].push(newForm)
+  const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+  newFormObs['op'] = ['observeproperty', 'unobserveproperty']
+  newFormObs['subprotocol'] = 'cov:observe'
+
+  thingDescription['properties'][key]['forms'].push(newFormRead)
+  thingDescription['properties'][key]['forms'].push(newFormObs)
 
   const originalForm = thingDescription['properties'][key]['forms'][0]
 
   for (const identifier in formatIdentifiers) {
     if (originalForm['contentType'] !== identifier) {
-      const newForm = JSON.parse(JSON.stringify(originalForm))
-      newForm['contentType'] = identifier
-      newForm['cov:contentFormat'] = formatIdentifiers[identifier]
-      newForm['cov:accept'] = formatIdentifiers[identifier]
-      newForm['response']['contentType'] = identifier
-      newForm['response']['cov:contentFormat'] = formatIdentifiers[identifier]
-      thingDescription['properties'][key]['forms'].push(newForm)
+      const newFormRead = JSON.parse(JSON.stringify(originalForm))
+      newFormRead['contentType'] = identifier
+      newFormRead['cov:contentFormat'] = formatIdentifiers[identifier]
+      newFormRead['cov:accept'] = formatIdentifiers[identifier]
+      newFormRead['response']['contentType'] = identifier
+      newFormRead['response']['cov:contentFormat'] = formatIdentifiers[identifier]
+      thingDescription['properties'][key]['forms'].push(newFormRead)
+
+      const newFormObs = JSON.parse(JSON.stringify(newFormRead))
+      newFormObs['op'] = ['observeproperty', 'unobserveproperty']
+      newFormObs['subprotocol'] = 'cov:observe'
+      thingDescription['properties'][key]['forms'].push(newFormObs)
     }
   }
 }
@@ -162,9 +172,7 @@ for (const key in thingDescription['events']) {
   newForm['href'] = `events/${key}`
   newForm['cov:method'] = 'GET'
   newForm['op'] = ["subscribeevent", "unsubscribeevent"],
-
-  
-  newForm['subprotocol'] = 'cov:observe'
+    newForm['subprotocol'] = 'cov:observe'
 
   thingDescription['events'][key]['forms'].push(newForm)
 
@@ -194,7 +202,7 @@ try {
 /************** Main server functionality ****************/
 /*********************************************************/
 let result = 0
-let lastChange = 'No changes made so far'
+let lastChange = ''
 
 server.on('request', (req, res) => {
   const segments = req.url.split('/')
@@ -209,13 +217,8 @@ server.on('request', (req, res) => {
     if (!segments[2]) {
       //TODO: Fix the problem with block wise transfer to be able to pass the headers properly
       if (req.method === 'GET') {
-
-        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-          if (acceptHeaders === undefined) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify(thingDescription))
-          }
-          else if (acceptHeaders.includes('application/json')) {
+        if (supportedContentTypes.includes(acceptHeaders)) {
+          if (acceptHeaders.includes('application/json')) {
             res.setOption('Content-Format', 'application/json')
             res.end(JSON.stringify(thingDescription))
           }
@@ -230,186 +233,251 @@ server.on('request', (req, res) => {
           res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
+      else {
+        res.code = 405
+        res.end('Method Not Allowed')
+      }
     }
   }
 
   if (segments[2] === 'properties') {
-    if (segments[3] === 'result') {
-      if (req.method === 'GET') {
+    if (req.method === 'GET') {
+      if (supportedContentTypes.includes(acceptHeaders)) {
 
-        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-          if (acceptHeaders === undefined) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ 'result': result }))
-          }
-          else if (acceptHeaders.includes('application/json')) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ 'result': result }))
+        //Set the content-format header to the accepted header
+        res.setOption('Content-Format', acceptHeaders)
+
+        //Result Endpoint
+        if (segments[3] === 'result') {
+
+          //Start the observation of the property if observe attribute is set to true
+          if (req.headers.Observe === 0) {
+            console.log('Observing result property...')
+
+            let oldResult = result
+
+            const changeInterval = setInterval(() => {
+
+              if (acceptHeaders === 'application/json') {
+                res.write(JSON.stringify({ 'connectionMsg': 'Stay connected!' }))
+              }
+              else {
+                const cborData = cbor.encode('Stay connected!')
+                res.write(cborData)
+              }
+
+
+              if (oldResult !== result) {
+                res.statusCode = 205
+                if (acceptHeaders.includes('application/json')) {
+                  res.write(JSON.stringify({ 'Result': result }))
+                  oldResult = result
+                }
+                else {
+                  const cborData = cbor.encode(result)
+                  res.write(cborData)
+                  oldResult = result
+                }
+              }
+            }, 1000)
+
+            res.on('finish', () => {
+              clearInterval(changeInterval)
+            })
+
           }
           else {
-            const cborData = cbor.encode(result)
-            res.setOption('Content-Format', 'application/cbor')
-            res.end(cborData)
+
+            //If no observation is required, send only the result and close connection
+            if (acceptHeaders.includes('application/json')) {
+              res.end(JSON.stringify({ 'result': result }))
+            }
+            else {
+              const cborData = cbor.encode(result)
+              res.end(cborData)
+            }
+
           }
         }
-        else {
-          res.code = 406
-          res.end(`Not Acceptable: ${acceptHeaders}`)
+
+        //Last Change Endpoint
+        if (segments[3] === 'lastChange') {
+
+          //Start the observation of the property if observe attribute is set to true
+          if (req.headers.Observe === 0) {
+            console.log('Observing lastChange property...')
+
+            let oldDate = lastChange
+
+            const changeInterval = setInterval(() => {
+
+              if (acceptHeaders === 'application/json') {
+                res.write(JSON.stringify({ 'connectionMsg': 'Stay connected!' }))
+              }
+              else {
+                const cborData = cbor.encode('Stay connected!')
+                res.write(cborData)
+              }
+
+
+              if (oldDate !== lastChange) {
+                res.statusCode = 205
+                if (acceptHeaders.includes('application/json')) {
+                  res.write(JSON.stringify({ 'lastChange': lastChange.toISOString() }))
+                  oldDate = lastChange
+                }
+                else {
+                  const cborData = cbor.encode(lastChange.toISOString())
+                  res.write(cborData)
+                  oldDate = lastChange
+                }
+              }
+            }, 1000)
+
+            res.on('finish', () => {
+              clearInterval(changeInterval)
+            })
+
+          }
+          else {
+
+            //If no observation is required, send only the result and close connection
+            if (acceptHeaders.includes('application/json')) {
+              res.end(JSON.stringify({ 'lastChange': lastChange === '' ? 'No changes made so far' : lastChange.toISOString() }))
+            }
+            else {
+              const cborData = cbor.encode(lastChange === '' ? 'No changes made so far' : lastChange.toISOString())
+              res.end(cborData)
+            }
+
+          }
         }
+
+      }
+      else {
+        res.statusCode = 406
+        res.end(`Not Acceptable: ${acceptHeaders}`)
       }
     }
-
-    if (segments[3] === 'lastChange') {
-      if (req.method === 'GET') {
-
-        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-          if (acceptHeaders === undefined) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ 'lastChange': lastChange }))
-          }
-          else if (acceptHeaders.includes('application/json')) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify({ 'lastChange': lastChange }))
-          }
-          else {
-            const cborData = cbor.encode(lastChange)
-            res.setOption('Content-Format', 'application/cbor')
-            res.end(cborData)
-          }
-        }
-        else {
-          res.code = 406
-          res.end(`Not Acceptable: ${acceptHeaders}`)
-        }
-      }
+    else {
+      res.code = 405
+      res.end('Method Not Allowed')
     }
   }
 
-  if (segments[2] === 'actions' && req.method === 'POST') {
-    if (segments[3] === 'add') {
-
+  if (segments[2] === 'actions') {
+    if (req.method === 'POST') {
       if (supportedContentTypes.includes(reqContentType)) {
-        let numberToAdd
+        if (supportedContentTypes.includes(acceptHeaders)) {
 
-        if (reqContentType.includes('application/json')) {
-          numberToAdd = JSON.parse(req.payload.toString())['data']
-        }
-        else {
-          numberToAdd = cbor.decode(req.payload);
-        }
+          //Set the content-format header to the accepted header
+          res.setOption('Content-Format', acceptHeaders)
 
-        const parsedInput = parseInt(numberToAdd)
+          //Addition endpoint
+          if (segments[3] === 'add') {
+            let numberToAdd
 
-        if (isNaN(parsedInput)) {
-          res.code = 400
-          res.end('Input should be a valid integer')
-        }
-        else {
-          if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-            result += parsedInput
-            lastChange = (new Date()).toLocaleTimeString()
-
-            if (acceptHeaders === undefined) {
-              res.setOption('Content-Format', 'application/json')
-              res.end(JSON.stringify({ 'additionResult': result }))
-            }
-            else if (acceptHeaders.includes('application/json')) {
-              res.setOption('Content-Format', 'application/json')
-              res.end(JSON.stringify({ 'additionResult': result }))
+            if (reqContentType.includes('application/json')) {
+              numberToAdd = JSON.parse(req.payload.toString())['data']
             }
             else {
-              const cborData = cbor.encode(result)
-              res.setOption('Content-Format', 'application/cbor')
-              res.end(cborData)
+              numberToAdd = cbor.decode(req.payload);
+            }
+
+            if (typeof numberToAdd !== "number") {
+              res.code = 400
+              res.end('Input should be a valid integer')
+            }
+            else {
+              result += numberToAdd
+              lastChange = new Date()
+
+              if (acceptHeaders.includes('application/json')) {
+                res.end(JSON.stringify({ 'additionResult': result }))
+              }
+              else {
+                const cborData = cbor.encode(result)
+                res.end(cborData)
+              }
             }
           }
-          else {
-            res.code = 406
-            res.end(`Not Acceptable: ${acceptHeaders}`)
+
+
+          //Subtraction endpoint
+          if (segments[3] === 'subtract') {
+
+            let numberToSubtract
+
+            if (reqContentType.includes('application/json')) {
+              numberToSubtract = JSON.parse(req.payload.toString())['data']
+            }
+            else {
+              numberToSubtract = cbor.decode(req.payload);
+            }
+
+            if (typeof numberToSubtract !== "number") {
+              res.code = 400
+              res.end('Input should be a valid integer')
+            }
+            else {
+              result -= numberToSubtract
+              lastChange = new Date()
+
+              if (acceptHeaders.includes('application/json')) {
+                res.end(JSON.stringify({ 'subtractionResult': result }))
+              }
+              else {
+                const cborData = cbor.encode(result)
+                res.end(cborData)
+              }
+            }
           }
         }
-      } else {
+        else {
+          res.code = 406
+          res.end(`Not Acceptable: ${acceptHeaders}`)
+        }
+      }
+      else {
         res.code = 415
         res.end(`Unsupported Content-Format: ${reqContentType}`)
       }
     }
-
-    if (segments[3] === 'subtract') {
-
-      if (supportedContentTypes.includes(reqContentType)) {
-        let numberToSubtract
-
-        if (reqContentType.includes('application/json')) {
-          numberToSubtract = JSON.parse(req.payload.toString())['data']
-        }
-        else {
-          numberToSubtract = cbor.decode(req.payload);
-        }
-
-        const parsedInput = parseInt(numberToSubtract)
-
-        if (isNaN(parsedInput)) {
-          res.code = 400
-          res.end('Input should be a valid integer')
-        }
-        else {
-          if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-            result -= parsedInput
-            lastChange = (new Date()).toLocaleTimeString()
-
-            if (acceptHeaders === undefined) {
-              res.setOption('Content-Format', 'application/json')
-              res.end(JSON.stringify({ 'subtractionResult': result }))
-            }
-            else if (acceptHeaders.includes('application/json')) {
-              res.setOption('Content-Format', 'application/json')
-              res.end(JSON.stringify({ 'subtractionResult': result }))
-            }
-            else {
-              const cborData = cbor.encode(result)
-              res.setOption('Content-Format', 'application/cbor')
-              res.end(cborData)
-            }
-          }
-          else {
-            res.code = 406
-            res.end(`Not Acceptable: ${acceptHeaders}`)
-          }
-        }
-      } else {
-        res.code = 415
-        res.end(`Unsupported Content-Format: ${reqContentType}`)
-      }
+    else {
+      res.code = 405
+      res.end('Method Not Allowed')
     }
   }
 
   if (segments[2] === 'events' && req.method === 'GET') {
     if (segments[3] === 'update') {
       if (req.headers.Observe === 0) {
-        if (supportedContentTypes.includes(acceptHeaders) || acceptHeaders === undefined) {
-          console.log('Observing the change...')
+        if (supportedContentTypes.includes(acceptHeaders)) {
+          console.log('Observing update event...')
 
           let oldResult = result
 
           const changeInterval = setInterval(() => {
-            res.setOption('Content-Format', 'application/json')
-            res.write(JSON.stringify({ 'Result': 'Stay connected!' }))
+            //Set the content-format header to the accepted header
+            res.setOption('Content-Format', acceptHeaders)
+
+            if (acceptHeaders === 'application/json') {
+              res.write(JSON.stringify({ 'Result': 'Stay connected!' }))
+            }
+            else {
+              const cborData = cbor.encode('Stay connected!')
+              res.write(cborData)
+            }
+
 
             if (oldResult !== result) {
               res.statusCode = 205
-              if (acceptHeaders === undefined) {
-                res.setOption('Content-Format', 'application/json')
-                res.write(JSON.stringify({ 'Result': result }))
-                oldResult = result
-              }
-              else if (acceptHeaders.includes('application/json')) {
-                res.setOption('Content-Format', 'application/json')
+              if (acceptHeaders.includes('application/json')) {
                 res.write(JSON.stringify({ 'Result': result }))
                 oldResult = result
               }
               else {
                 const cborData = cbor.encode(result)
-                res.setOption('Content-Format', 'application/cbor')
                 res.write(cborData)
                 oldResult = result
               }
@@ -424,8 +492,10 @@ server.on('request', (req, res) => {
           res.statusCode = 406
           res.end(`Not Acceptable: ${acceptHeaders}`)
         }
-      } else {
-        res.end()
+      }
+      else {
+        res.code = 402
+        res.end('Bad Option: Observe option should be set to true')
       }
     }
   }
