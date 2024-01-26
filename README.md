@@ -1,8 +1,10 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/eclipse-thingweb/website/master/misc/thingweb_logo_for_dark_bg.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/eclipse-thingweb/website/master/misc/thingweb_logo.svg">
-  <img title="ThingWeb" alt="Thingweb logo" src="" width="300">
+<h1>
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/eclipse-thingweb/thingweb/master/brand/logos/test-things_for_dark_bg.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/eclipse-thingweb/thingweb/master/brand/logos/test-things.svg">
+  <img title="Eclipse Thingweb Test Things" alt="Thingweb logo with Test Things" src="https://raw.githubusercontent.com/eclipse-thingweb/thingweb/master/brand/logos/test-things.svg" width="300">
 </picture>
+</h1>
 
 ## Test Things
 
