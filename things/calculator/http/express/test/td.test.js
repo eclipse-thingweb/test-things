@@ -19,7 +19,7 @@ describe('Calculator HTTP JS', () => {
     const initiateMain = new Promise(async (resolve, reject) => {
       thingProcess = spawn(
         'node',
-        ['simple-calculator.js', '-p', `${port}`],
+        ['http-simple-calculator.js', '-p', `${port}`],
         { cwd: path.join(__dirname, '..') }
       )
       thingProcess.stdout.on('data', (data) => {
