@@ -45,6 +45,7 @@
     },
     "lastChange": {
       "type": "string",
+      "format": "date-time",
       "readOnly": true,
       "writeOnly": false,
       "observable": true,

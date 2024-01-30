@@ -24,7 +24,7 @@ const fullTDEndPoint = `/${thingName}`,
   updateEndPoint = `/${thingName}/events/update`
 
 let result = 0
-let lastChange = 'No changes made so far'
+let lastChange = ''
 
 const { values: { port } } = parseArgs({
   options: {
@@ -200,10 +200,7 @@ try {
 app.use((req, res, next) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader === undefined) {
-    next()
-  }
-  else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('*/*')) {
+  if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor')) {
     next()
   } else {
     res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
@@ -265,10 +262,7 @@ app.use(bodyParser.raw({ type: 'application/cbor' }));
 app.get(fullTDEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader === '*/*' || acceptHeader === undefined) {
-    res.json(thingDescription)
-  }
-  else if (acceptHeader.includes('application/json')) {
+  if (acceptHeader.includes('application/json')) {
     res.json(thingDescription)
   }
   else {
@@ -282,10 +276,7 @@ app.get(fullTDEndPoint, (req, res) => {
 app.get(resultEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader === '*/*' || acceptHeader === undefined) {
-    res.json(result)
-  }
-  else if (acceptHeader.includes('application/json')) {
+  if (acceptHeader.includes('application/json')) {
     res.json(result)
   }
   else {
@@ -303,40 +294,20 @@ app.get(resultEndPointObserve, (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.setHeader('Content-Type', 'text/event-stream')
 
+  console.log("Client is listening to result property")
   let oldResult = result
 
   const changeInterval = setInterval(() => {
-    res.write(`data: ${JSON.stringify({
-      'msg': 'Waiting for change..'
-    })}\n\n`);
 
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader === '*/*' || acceptHeader === undefined) {
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/json'
-          },
-          'data': result
-        })}\n\n`
-      }
-      else if (acceptHeader.includes('application/json')) {
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/json'
-          },
-          'data': result
-        })}\n\n`
+      if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {
         const cborData = cbor.encode(result)
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/cbor'
-          },
-          'data': cborData
-        })}\n\n`
+        message = `data: ${cborData}\n\n`
       }
 
       res.statusCode = 200
@@ -350,16 +321,17 @@ app.get(resultEndPointObserve, (req, res) => {
   res.on('finish', () => {
     clearInterval(changeInterval)
   })
+
+  res.on("close", () => {
+    console.log("Client stopped listening to result property");
+  })
 })
 
 // Get the time of the last change
 app.get(lastChangeEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader === '*/*' || acceptHeader === undefined) {
-    res.json(lastChange)
-  }
-  else if (acceptHeader.includes('application/json')) {
+  if (acceptHeader.includes('application/json')) {
     res.json(lastChange)
   }
   else {
@@ -377,40 +349,20 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.setHeader('Content-Type', 'text/event-stream')
 
+  console.log("Client is listening to lastChange property");
   let oldLastChange = lastChange
 
   const changeInterval = setInterval(() => {
-    res.write(`data: ${JSON.stringify({
-      'msg': 'Waiting for change..'
-    })}\n\n`);
 
     if (oldLastChange !== lastChange) {
       let message
 
-      if (acceptHeader === '*/*' || acceptHeader === undefined) {
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/json'
-          },
-          'data': lastChange
-        })}\n\n`
-      }
-      else if (acceptHeader.includes('application/json')) {
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/json'
-          },
-          'data': lastChange
-        })}\n\n`
+      if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify(lastChange.toISOString())}\n\n`
       }
       else {
-        const cborData = cbor.encode(lastChange)
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/cbor'
-          },
-          'data': cborData
-        })}\n\n`
+        const cborData = cbor.encode(lastChange.toISOString())
+        message = `data: ${cborData}\n\n`
       }
 
       res.statusCode = 200
@@ -423,6 +375,10 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 
   res.on('finish', () => {
     clearInterval(changeInterval)
+  })
+
+  res.on("close", () => {
+    console.log("Client stopped listening to lastChange property");
   })
 })
 
@@ -442,7 +398,7 @@ app.post(additionEndPoint, (req, res) => {
     bodyInput = decodedData
   }
   else {
-    bodyInput = req.body
+    bodyInput = JSON.parse(req.body)
   }
 
   /**Check if given input is a number, if not return an error message,
@@ -450,14 +406,9 @@ app.post(additionEndPoint, (req, res) => {
    * return the added number in the accepted format
    */
   if (typeof bodyInput !== 'number') {
-    res.status(400).json('Input should be a valid integer')
+    res.status(400).json('Input should be a valid number')
   } else {
-    if (acceptHeader === '*/*' || acceptHeader === undefined) {
-      result += bodyInput
-      lastChange = new Date()
-      res.json(result)
-    }
-    else if (acceptHeader.includes('application/json')) {
+    if (acceptHeader.includes('application/json')) {
       result += bodyInput
       lastChange = new Date()
       res.json(result)
@@ -466,7 +417,6 @@ app.post(additionEndPoint, (req, res) => {
       result += bodyInput
       lastChange = new Date()
       const cborData = cbor.encode(result)
-      res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
     }
   }
@@ -483,7 +433,7 @@ app.post(subtractionEndPoint, (req, res) => {
     bodyInput = decodedData
   }
   else {
-    bodyInput = req.body
+    bodyInput = JSON.parse(req.body)
   }
 
   /**Check  if given input is a valid number, if not return an error message,
@@ -491,14 +441,9 @@ app.post(subtractionEndPoint, (req, res) => {
    * return the added number in the accepted format
    */
   if (typeof bodyInput !== 'number') {
-    res.status(400).json('Input should be a valid integer')
+    res.status(400).json('Input should be a valid number')
   } else {
-    if (acceptHeader === '*/*' || acceptHeader === undefined) {
-      result -= bodyInput
-      lastChange = new Date()
-      res.json(result)
-    }
-    else if (acceptHeader.includes('application/json')) {
+    if (acceptHeader.includes('application/json')) {
       result -= bodyInput
       lastChange = new Date()
       res.json(result)
@@ -507,7 +452,6 @@ app.post(subtractionEndPoint, (req, res) => {
       result -= bodyInput
       lastChange = new Date()
       const cborData = cbor.encode(result)
-      res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
     }
   }
@@ -526,52 +470,34 @@ app.get(updateEndPoint, (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.setHeader('Content-Type', 'text/event-stream')
 
+  console.log("Client is listening to update event");
   let oldResult = result
 
   const changeInterval = setInterval(() => {
-    res.write(`data: ${JSON.stringify({
-      'msg': 'Waiting for change..'
-    })}\n\n`);
-
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader === '*/*' || acceptHeader === undefined) {
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/json'
-          },
-          'data': result
-        })}\n\n`
-      }
-      else if (acceptHeader.includes('application/json')) {
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/json'
-          },
-          'data': result
-        })}\n\n`
+      if (acceptHeader.includes('application/json')) {
+        message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {
         const cborData = cbor.encode(result)
-        message = `data: ${JSON.stringify({
-          'headers': {
-            'content-type': 'application/cbor'
-          },
-          'data': cborData
-        })}\n\n`
+        message = `data: ${cborData}\n\n`
       }
 
       res.statusCode = 200
       res.write(message)
       oldResult = result
     }
-
   }, 1000)
 
 
   res.on('finish', () => {
     clearInterval(changeInterval)
+  })
+
+  res.on("close", () => {
+    console.log("Client stopped listening to update event");
   })
 
 })

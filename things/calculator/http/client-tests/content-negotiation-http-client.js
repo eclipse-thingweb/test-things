@@ -73,7 +73,8 @@ async function getCurrentResult(acceptType) {
     }
     else if (acceptType === "cbor") {
         getHeaders.Accept = "application/cbor"
-    } else {
+    } 
+    else {
         getHeaders.Accept = acceptType;
     }
 
@@ -87,47 +88,49 @@ async function getCurrentResult(acceptType) {
     if (contentType.includes("application/json")) {
         return res.json()
     }
-    else if (contentType.includes("application/cbor")) {
+    else {
         const buffer = await res.arrayBuffer()
         const decodedData = cbor.decode(buffer);
         return decodedData
-    }
-    else {
-        throw new Error(`Unsupported content type: ${contentType}`);
     }
 }
 
 /**
  * Create an EventSource for the result observe property.
- * Uncomment to test the SSE functionality.
  */
-// const resultEventSource = new EventSource(url + resultEndPointObserve, {
-//     headers: {
-//         'Accept': 'application/json'
-//     }
-// });
+function listenToResultProperty(header) {
 
-// resultEventSource.onmessage = (e) => {
-//     const body = JSON.parse(e.data);
-    
-//     if (body.headers) {
-//         if (body.headers["content-type"] === 'application/cbor') {
-//             const buffer = Buffer.from(body.data);
-//             const decodedData = cbor.decode(buffer);
-//             console.log(decodedData);
-//         }
-//         else {
-//             console.log(body.data);
-//         }
-//     }
-//     else {
-//         console.log(body);
-//     }
-// };
+    const acceptHeader = `application/${header}`
+    const resultEventSource = new EventSource(url + resultEndPointObserve, {
+        headers: {
+            'Accept': acceptHeader
+        }
+    });
 
-// resultEventSource.onerror = (error) => {
-//     console.error('Error with SSE:', error);
-// };
+    resultEventSource.onmessage = (e) => {
+
+        const body = e.data;
+
+        if (header === 'json') {
+            console.log('Result SSE:', JSON.parse(body))
+        }
+        else {
+            const buffer = Buffer.from(body);
+            const decodedData = cbor.decode(buffer)
+            console.log('Result SSE:', decodedData);
+        }
+    };
+
+    resultEventSource.onerror = (error) => {
+        console.error('Error with Result property SSE:', error);
+    };
+
+    //Closing the event source after 6 seconds
+    setTimeout(() => {
+        resultEventSource.close()
+        console.log("- Closing Result Property SSE");
+    }, 6000)
+}
 
 /**
  * Fetches the last change made
@@ -159,48 +162,48 @@ async function getLatestChange(acceptType) {
     if (contentType.includes("application/json")) {
         return res.json()
     }
-    else if (contentType.includes("application/cbor")) {
+    else {
         const buffer = await res.arrayBuffer()
         const decodedData = cbor.decode(buffer);
         return decodedData
-    }
-    else {
-        // Handle unsupported content types or return an error
-        throw new Error(`Unsupported content type: ${contentType}`);
     }
 }
 
 /**
  * Create an EventSource for the last change observe property.
- * Uncomment to test the SSE functionality.
  */
-// const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve, {
-//     headers: {
-//         'Accept': 'application/cbor'
-//     }
-// });
+function listenToLastChangeProperty(header) {
 
-// lastChangeEventSource.onmessage = (e) => {
-//     const body = JSON.parse(e.data);
-    
-//     if (body.headers) {
-//         if (body.headers["content-type"] === 'application/cbor') {
-//             const buffer = Buffer.from(body.data);
-//             const decodedData = cbor.decode(buffer);
-//             console.log(decodedData);
-//         }
-//         else {
-//             console.log(body.data);
-//         }
-//     }
-//     else {
-//         console.log(body);
-//     }
-// };
+    const acceptHeader = `application/${header}`
+    const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve, {
+        headers: {
+            'Accept': acceptHeader
+        }
+    });
 
-// lastChangeEventSource.onerror = (error) => {
-//     console.error('Error with SSE:', error);
-// };
+    lastChangeEventSource.onmessage = (e) => {
+        const body = e.data;
+
+        if (header === 'json') {
+            console.log('lastChange SSE:', JSON.parse(body))
+        }
+        else {
+            const buffer = Buffer.from(body);
+            const decodedData = cbor.decode(buffer)
+            console.log('lastChange SSE:', decodedData);
+        }
+    };
+
+    lastChangeEventSource.onerror = (error) => {
+        console.error('Error with lastChange property SSE:', error);
+    };
+
+    //Closing the event source after 6 seconds
+    setTimeout(() => {
+        lastChangeEventSource.close()
+        console.log("- Closing lastChange Property SSE");
+    }, 6000)
+}
 
 /**
  * Adds a number to the current result
@@ -250,14 +253,10 @@ async function addNumber(number, contentType, acceptType) {
         if (contentType.includes("application/json")) {
             return res.json()
         }
-        else if (contentType.includes("application/cbor")) {
+        else {
             const buffer = await res.arrayBuffer()
             const decodedData = cbor.decode(buffer);
             return decodedData
-        }
-        else {
-            // Handle unsupported content types or return an error
-            throw new Error(`Unsupported content type: ${contentType}`);
         }
     } else {
         throw new Error(await res.text());
@@ -312,34 +311,81 @@ async function subtractNumber(number, contentType, acceptType) {
         if (contentType.includes("application/json")) {
             return res.json()
         }
-        else if (contentType.includes("application/cbor")) {
+        else {
             const buffer = await res.arrayBuffer()
             const decodedData = cbor.decode(buffer);
             return decodedData
-        }
-        else {
-            // Handle unsupported content types or return an error
-            throw new Error(`Unsupported content type: ${contentType}`);
         }
     } else {
         throw new Error(await res.text());
     }
 }
 
+/**
+* Create an EventSource for the update endpoint.
+*/
+function listenToUpdateEvent(header) {
+
+    const acceptHeader = `application/${header}`
+    const updateEventSource = new EventSource(url + updateEndPoint, {
+        headers: {
+            'Accept': acceptHeader
+        }
+    });
+
+    updateEventSource.onmessage = (e) => {
+
+        const body = e.data;
+
+        if (header === 'json') {
+            console.log('Update SSE:', JSON.parse(body));
+        }
+        else {
+            const buffer = Buffer.from(body);
+            const decodedData = cbor.decode(buffer);
+            console.log('Update SSE:', decodedData);
+        }
+    };
+
+    updateEventSource.onerror = (error) => {
+        console.error('Error with Update event SSE:', error);
+    };
+
+    //Closing the event source after 6 seconds
+    setTimeout(() => {
+        updateEventSource.close()
+        console.log("- Closing Update Event SSE");
+    }, 6000)
+}
+
 
 /**
  * Runs all the previous functions to test the full functionality of the calculator
  */
-async function runCalculator() {
+async function runCalculatorInteractions() {
 
     try {
+        console.log("-------- Basic functionality --------\n");
         console.log("Full thing: \n", await getFullTD("cbor"))
         console.log("Current number: ", await getCurrentResult("cbor"))
-        console.log("Last Change: ", await getLatestChange("cbor"));
-        console.log("Result of the addition is: ", await addNumber(10, "json", "cbor"))
-        console.log("Result of the subtraction is: ", await subtractNumber(5, "cbor", "json"))
+        console.log("Last Change: ", await getLatestChange("json"));
+        console.log("Result of the addition is: ", await addNumber(5, "json", "cbor"))
+        console.log("Result of the subtraction is: ", await subtractNumber(3, "cbor", "json"))
         console.log("Current number: ", await getCurrentResult("json"))
         console.log("Last Change: ", await getLatestChange("cbor"))
+
+        /**
+         * Start listening to the update event, result property and lastChange property.
+         */
+        console.log("\n-------- Start listening to properties and events --------\n");
+        listenToResultProperty("json")
+        listenToUpdateEvent("cbor")
+        listenToLastChangeProperty("json")
+
+        setTimeout(async () => {
+            await addNumber(1, "json", "cbor")
+        }, 2000)
+
 
     } catch (err) {
         console.log(err);
@@ -347,39 +393,4 @@ async function runCalculator() {
 
 }
 
-runCalculator()
-
-
-
-/**
- * Create an EventSource for the update endpoint.
- * Uncomment to test the SSE functionality.
- */
-
-// const updateEventSource = new EventSource(url + updateEndPoint, {
-//     headers: {
-//         'Accept': 'application/cbor'
-//     }
-// });
-
-// updateEventSource.onmessage = (e) => {
-//     const body = JSON.parse(e.data);
-    
-//     if (body.headers) {
-//         if (body.headers["content-type"] === 'application/cbor') {
-//             const buffer = Buffer.from(body.data);
-//             const decodedData = cbor.decode(buffer);
-//             console.log(decodedData);
-//         }
-//         else {
-//             console.log(body.data);
-//         }
-//     }
-//     else {
-//         console.log(body);
-//     }
-// };
-
-// updateEventSource.onerror = (error) => {
-//     console.error('Error with SSE:', error);
-// };
+runCalculatorInteractions()
