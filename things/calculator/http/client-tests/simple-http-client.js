@@ -39,16 +39,24 @@ async function getCurrentResult() {
  * Create an EventSource for the result observe endpoint.
  * Uncomment to test the SSE functionality.
  */
-// const resultEventSource = new EventSource(url + resultEndPointObserve);
+function listenToResult() {
+    const resultEventSource = new EventSource(url + resultEndPointObserve);
 
-// resultEventSource.onmessage = (e) => {
-//     const data = e.data;
-//     console.log(data);
-// };
+    resultEventSource.onmessage = (e) => {
+        const data = e.data;
+        console.log('Result SSE:', data);
+    };
 
-// resultEventSource.onerror = (error) => {
-//     console.error('Error with SSE:', error);
-// };
+    resultEventSource.onerror = (error) => {
+        console.error('Error with Result SSE:', error);
+    };
+
+    //Closing the event source after 6 seconds
+    setTimeout(() => {
+        resultEventSource.close()
+        console.log("- Closing Result Property SSE");
+    }, 6000)
+}
 
 /**
  * Fetches when the latest change was made 
@@ -64,16 +72,24 @@ async function getLatestChange() {
  * Create an EventSource for the result observe endpoint.
  * Uncomment to test the SSE functionality.
  */
-// const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve);
+function listenToLastChange() {
+    const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve);
 
-// lastChangeEventSource.onmessage = (e) => {
-//     const data = e.data;
-//     console.log(data);
-// };
+    lastChangeEventSource.onmessage = (e) => {
+        const data = e.data;
+        console.log('lastChange SSE:', data);
+    };
 
-// lastChangeEventSource.onerror = (error) => {
-//     console.error('Error with SSE:', error);
-// };
+    lastChangeEventSource.onerror = (error) => {
+        console.error('Error with lastChange SSE:', error);
+    };
+
+    //Closing the event source after 6 seconds
+    setTimeout(() => {
+        lastChangeEventSource.close()
+        console.log("- Closing lastChange Property SSE");
+    }, 6000)
+}
 
 /**
  * Adds a number to the current result
@@ -83,6 +99,9 @@ async function getLatestChange() {
 async function addNumber(number) {
     const res = await fetch(url + additionEndPoint, {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: number,
     });
 
@@ -97,6 +116,9 @@ async function addNumber(number) {
 async function subtractNumber(number) {
     const res = await fetch(url + subtractionEndPoint, {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: number,
     });
 
@@ -105,39 +127,59 @@ async function subtractNumber(number) {
 
 
 /**
+ * Create an EventSource for the update endpoint.
+ */
+function listenToUpdateEvent() {
+
+    // Listening to the update event
+    const updateEventSource = new EventSource(url + updateEndPoint);
+
+    updateEventSource.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        console.log('Update Event SSE:', data);
+    };
+
+    updateEventSource.onerror = (error) => {
+        console.error('Error with Update SSE:', error);
+    };
+
+    //Closing the event source after 6 seconds
+    setTimeout(() => {
+        updateEventSource.close()
+        console.log("- Closing Update Event SSE");
+    }, 6000)
+}
+
+
+/**
  * Runs all the previous functions to test the full functionality of the calculator
  */
-async function runCalculator() {
+async function runCalculatorInteractions() {
     try {
+        console.log("-------- Basic functionality --------\n");
         console.log("Full thing: \n", await getFullTD())
-        console.log("Current number: ", await getCurrentResult())
+        console.log("Current result: ", await getCurrentResult())
         console.log("Last Change: ", await getLatestChange());
         console.log("Result of the addition is: ", await addNumber(5))
-        console.log("Result of the subtraction is: ", await subtractNumber(10))
-        console.log("Current number: ", await getCurrentResult())
+        console.log("Result of the subtraction is: ", await subtractNumber(3))
+        console.log("Current result: ", await getCurrentResult())
         console.log("Last Change: ", await getLatestChange())
+
+        /**
+        * Start listening to the update event, result property and lastChange property.
+        */
+        console.log("\n-------- Start listening to properties and events --------\n");
+        listenToUpdateEvent()
+        listenToLastChange()
+        listenToResult()
+
+        setTimeout(async () => {
+            await addNumber(1)
+        }, 2000)
 
     } catch (err) {
         console.log(err);
     }
 }
 
-runCalculator()
-
-
-/**
- * Create an EventSource for the update endpoint.
- * Uncomment to test the SSE functionality.
- */
-
-//Listening to the update event
-// const updateEventSource = new EventSource(url + updateEndPoint);
-
-// updateEventSource.onmessage = (e) => {
-//     const data = JSON.parse(e.data);
-//     console.log(data);
-// };
-
-// updateEventSource.onerror = (error) => {
-//     console.error('Error with SSE:', error);
-// };
+runCalculatorInteractions()

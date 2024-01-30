@@ -116,7 +116,7 @@ try {
 const reqParser = bodyParser.text({ type: "*/*" });
 
 let result = 0;
-let lastChange = "No changes made";
+let lastChange = "";
 
 /******************************************/
 /************** Middleware ****************/
@@ -164,10 +164,10 @@ app.get(resultEndPointObserve, (req, res) => {
   res.setHeader("connection", "keep-alive");
   res.setHeader("Content-Type", "text/event-stream");
 
+  console.log("Client is listening to result property")
   let oldResult = result;
 
   const changeInterval = setInterval(() => {
-    res.write(`data: "Waiting for change.."\n\n`);
 
     if (oldResult !== result) {
       res.write(`data: ${result}\n\n`);
@@ -178,6 +178,10 @@ app.get(resultEndPointObserve, (req, res) => {
   res.on("finish", () => {
     clearInterval(changeInterval);
   });
+
+  res.on("close", () => {
+    console.log("Client stopped listening to result property");
+  })
 });
 
 app.get(lastChangeEndPoint, (req, res) => {
@@ -191,13 +195,13 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   res.setHeader("connection", "keep-alive");
   res.setHeader("Content-Type", "text/event-stream");
 
+  console.log("Client is listening to lastChange property");
   let oldLastChange = lastChange;
 
   const changeInterval = setInterval(() => {
-    res.write(`data: "Waiting for change.."\n\n`);
 
     if (oldLastChange !== lastChange) {
-      res.write(`data: ${lastChange}\n\n`);
+      res.write(`data: ${lastChange.toISOString()}\n\n`);
       oldLastChange = lastChange;
     }
   }, 1000);
@@ -205,13 +209,17 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   res.on("finish", () => {
     clearInterval(changeInterval);
   });
+
+  res.on("close", () => {
+    console.log("Client stopped listening to lastChange property");
+  })
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
-  const bodyInput = req.body
+  const bodyInput = JSON.parse(req.body)
 
   if(typeof bodyInput !== "number") {
-    res.status(400).json("Input should be a valid integer");
+    res.status(400).json("Input should be a valid number");
   } else {
     result += bodyInput;
     lastChange = new Date();
@@ -220,10 +228,10 @@ app.post(additionEndPoint, reqParser, (req, res) => {
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
-  const bodyInput = req.body
+  const bodyInput = JSON.parse(req.body)
 
   if(typeof bodyInput !== "number") {
-    res.status(400).json("Input should be a valid integer");
+    res.status(400).json("Input should be a valid number");
   } else {
     result -= bodyInput;
     lastChange = new Date();
@@ -239,6 +247,7 @@ app.get(updateEndPoint, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
 
   let oldResult = result;
+  console.log("Client is listening to update event");
 
   /**
    * The SSE specification defines the structure of SSE messages, and
@@ -247,7 +256,6 @@ app.get(updateEndPoint, (req, res) => {
    * interpreted correctly by the client, which could create empty values.
    */
   const changeInterval = setInterval(() => {
-    res.write(`data: "Waiting for change.."\n\n`);
 
     if (oldResult !== result) {
       res.write(`data: ${result}\n\n`);
@@ -258,6 +266,10 @@ app.get(updateEndPoint, (req, res) => {
   res.on("finish", () => {
     clearInterval(changeInterval);
   });
+
+  res.on("close", () => {
+    console.log("Client stopped listening to update event");
+  })
 });
 
 app.listen(portNumber, () => {
