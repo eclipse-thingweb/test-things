@@ -18,33 +18,36 @@ const fullTDEndpoint = `/${thingName}`,
 /****************************************/
 
 // GET request to retrieve thing description
-const TDEndpointHeader = {
-    "Accept": "application/cbor"
-}
-const getThingDescriptionMsg = coap.request({
-    method: 'GET',
-    host: hostname,
-    port: portNumber,
-    pathname: fullTDEndpoint,
-    headers: TDEndpointHeader
-})
+function getFullTD() {
 
-getThingDescriptionMsg.on('response', (res) => {
-    //TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
-    if (res.code === '2.05') {
-        if(TDEndpointHeader["Accept"] === "application/json"){
-            console.log('Thing Description:', JSON.parse(res.payload.toString()))
-        }
-        else {
-            const decodedData = cbor.decode(res.payload);
-            console.log('Thing Description: ', JSON.parse(decodedData))
-        }
-        
-    } else {
-        console.error(`Failed to get Thing Description: ${res.code} - ${res.payload.toString()}`)
+    const TDEndpointHeader = {
+        "Accept": "application/cbor"
     }
-})
-getThingDescriptionMsg.end()
+    const getThingDescription = coap.request({
+        method: 'GET',
+        host: hostname,
+        port: portNumber,
+        pathname: fullTDEndpoint,
+        headers: TDEndpointHeader
+    })
+
+    getThingDescription.on('response', (res) => {
+        //TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
+        if (res.code === '2.05') {
+            if (TDEndpointHeader["Accept"] === "application/json") {
+                console.log('Thing Description:', JSON.parse(res.payload.toString()))
+            }
+            else {
+                const decodedData = cbor.decode(res.payload);
+                console.log('Thing Description: ', JSON.parse(decodedData))
+            }
+
+        } else {
+            console.error(`Failed to get Thing Description: ${res.code} - ${res.payload.toString()}`)
+        }
+    })
+    getThingDescription.end()
+}
 
 
 /****************************************/
@@ -52,77 +55,81 @@ getThingDescriptionMsg.end()
 /****************************************/
 
 // GET request to retrieve a property (result)
-const getPropertyResult = coap.request({
-    method: 'GET',
-    host: hostname,
-    port: portNumber,
-    pathname: resultEndPoint,
-    headers: {
-        "Accept": "application/cbor"
-    }
-});
+function getResult() {
 
-getPropertyResult.on('response', (res) => {
-    const contentType = res.headers["Content-Type"]
-
-    if (res.code === '2.05') {
-        if (contentType.includes("application/json")) {
-            console.log("Result (json): ", JSON.parse(res.payload.toString()));
+    const getPropertyResult = coap.request({
+        method: 'GET',
+        host: hostname,
+        port: portNumber,
+        pathname: resultEndPoint,
+        headers: {
+            "Accept": "application/cbor"
         }
-        else if (contentType.includes("application/cbor")) {
-            const decodedData = cbor.decode(res.payload);
-            console.log("Result (cbor): ", decodedData);
+    });
+
+    getPropertyResult.on('response', (res) => {
+        const contentType = res.headers["Content-Type"]
+
+        if (res.code === '2.05') {
+            if (contentType.includes("application/json")) {
+                console.log("Result (json): ", JSON.parse(res.payload.toString()));
+            }
+            else if (contentType.includes("application/cbor")) {
+                const decodedData = cbor.decode(res.payload);
+                console.log("Result (cbor): ", decodedData);
+            }
+            else {
+                throw new Error(`Unsupported content type: ${contentType}`);
+            }
+        } else {
+            console.error(`Failed to get Property "result": ${res.code} - ${res.payload.toString()}`)
         }
-        else {
-            throw new Error(`Unsupported content type: ${contentType}`);
+    })
+    getPropertyResult.end()
+}
+
+/**
+ * GET request to observe the property result.
+ * Uncomment to test the update functionality.
+ */
+function observeResultProperty() {
+
+    const observeResult = coap.request({
+        method: 'GET',
+        observe: true,
+        host: hostname,
+        port: portNumber,
+        pathname: resultEndPoint,
+        headers: {
+            "Accept": "application/cbor"
         }
-    } else {
-        console.error(`Failed to get Property "result": ${res.code} - ${res.payload.toString()}`)
-    }
-})
-getPropertyResult.end()
+    });
 
+    observeResult.on('response', (res) => {
 
-// /**
-//  * GET request to observe the property result.
-//  * Uncomment to test the update functionality.
-//  */
+        res.on('data', function () {
+            const contentType = res.headers["Content-Type"]
 
-// const observeResult = coap.request({
-//     method: 'GET',
-//     observe: true,
-//     host: hostname,
-//     port: portNumber,
-//     pathname: resultEndPoint,
-//     headers: {
-//         "Accept": "application/cbor"
-//     }
-// });
+            if (res.code === '2.05') {
+                if (contentType.includes("application/json")) {
+                    console.log("Observe result property (json): ", JSON.parse(res.payload.toString()));
+                }
+                else if (contentType.includes("application/cbor")) {
+                    const decodedData = cbor.decode(res.payload);
+                    console.log("Observe result property (cbor): ", decodedData);
+                }
+                else {
+                    throw new Error(`Unsupported content type: ${contentType}`);
+                }
+            } else {
+                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+            }
+        })
 
-// observeResult.on('response', (res) => {
+    });
 
-//     res.on('data', function () {
-//         const contentType = res.headers["Content-Type"]
-
-//         if (res.code === '2.05') {
-//             if (contentType.includes("application/json")) {
-//                 console.log("Property result (json): ", JSON.parse(res.payload.toString()));
-//             }
-//             else if (contentType.includes("application/cbor")) {
-//                 const decodedData = cbor.decode(res.payload);
-//                 console.log("Property result (cbor): ", decodedData);
-//             }
-//             else {
-//                 throw new Error(`Unsupported content type: ${contentType}`);
-//             }
-//         } else {
-//             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
-//         }
-//     })
-
-// });
-
-// observeResult.end();
+    observeResult.end();
+}
 
 
 /****************************************/
@@ -130,75 +137,81 @@ getPropertyResult.end()
 /****************************************/
 
 // GET request to retrieve a property (lastChange)
-const getLastChange = coap.request({
-    method: 'GET',
-    host: hostname,
-    port: portNumber,
-    pathname: lastChangeEndPoint,
-    headers: {
-        "Accept": "application/json"
-    }
-})
-getLastChange.on('response', (res) => {
-    const contentType = res.headers["Content-Type"]
+function getLastChange() {
 
-    if (res.code === '2.05') {
-        if (contentType.includes("application/json")) {
-            console.log("Last Change (json): ", JSON.parse(res.payload.toString()));
+    const getPropertyLastChange = coap.request({
+        method: 'GET',
+        host: hostname,
+        port: portNumber,
+        pathname: lastChangeEndPoint,
+        headers: {
+            "Accept": "application/json"
         }
-        else if (contentType.includes("application/cbor")) {
-            const decodedData = cbor.decode(res.payload);
-            console.log("Last Change (cbor): ", decodedData);
+    })
+    getPropertyLastChange.on('response', (res) => {
+        const contentType = res.headers["Content-Type"]
+
+        if (res.code === '2.05') {
+            if (contentType.includes("application/json")) {
+                console.log("Last Change (json): ", JSON.parse(res.payload.toString()));
+            }
+            else if (contentType.includes("application/cbor")) {
+                const decodedData = cbor.decode(res.payload);
+                console.log("Last Change (cbor): ", decodedData);
+            }
+            else {
+                throw new Error(`Unsupported content type: ${contentType}`);
+            }
+        } else {
+            console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)
         }
-        else {
-            throw new Error(`Unsupported content type: ${contentType}`);
-        }
-    } else {
-        console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)
-    }
-})
-getLastChange.end()
+    })
+    getPropertyLastChange.end()
+}
+
 
 /**
  * GET request to observe the property result.
  * Uncomment to test the update functionality.
  */
+function observeLastChangeProperty() {
 
-// const observeLastChange = coap.request({
-//     method: 'GET',
-//     observe: true,
-//     host: hostname,
-//     port: portNumber,
-//     pathname: lastChangeEndPoint,
-//     headers: {
-//         "Accept": "application/json"
-//     }
-// });
+    const observeLastChange = coap.request({
+        method: 'GET',
+        observe: true,
+        host: hostname,
+        port: portNumber,
+        pathname: lastChangeEndPoint,
+        headers: {
+            "Accept": "application/json"
+        }
+    });
 
-// observeLastChange.on('response', (res) => {
+    observeLastChange.on('response', (res) => {
 
-//     res.on('data', function () {
-//         const contentType = res.headers["Content-Type"]
+        res.on('data', function () {
+            const contentType = res.headers["Content-Type"]
 
-//         if (res.code === '2.05') {
-//             if (contentType.includes("application/json")) {
-//                 console.log("Property lastChange (json): ", JSON.parse(res.payload.toString()));
-//             }
-//             else if (contentType.includes("application/cbor")) {
-//                 const decodedData = cbor.decode(res.payload);
-//                 console.log("Property lastChange (cbor): ", decodedData);
-//             }
-//             else {
-//                 throw new Error(`Unsupported content type: ${contentType}`);
-//             }
-//         } else {
-//             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
-//         }
-//     })
+            if (res.code === '2.05') {
+                if (contentType.includes("application/json")) {
+                    console.log("Observe lastChange property (json): ", JSON.parse(res.payload.toString()));
+                }
+                else if (contentType.includes("application/cbor")) {
+                    const decodedData = cbor.decode(res.payload);
+                    console.log("Observe lastChange property (cbor): ", decodedData);
+                }
+                else {
+                    throw new Error(`Unsupported content type: ${contentType}`);
+                }
+            } else {
+                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+            }
+        })
 
-// });
+    });
 
-// observeLastChange.end();
+    observeLastChange.end();
+}
 
 
 
@@ -206,43 +219,46 @@ getLastChange.end()
 /*********** Addition Endpoint **********/
 /****************************************/
 
-// Example POST request to perform an action (add)
-const addNumberReq = coap.request({
-    method: 'POST',
-    host: hostname,
-    port: portNumber,
-    pathname: additionEndPoint,
-    headers: {
-        "Accept": "application/json",
-        "Content-Format": "application/cbor"
-    }
-});
+// POST request to perform the addition action
+function addNumber() {
 
-// Set the payload with the input value
-const inputAddCBOR = cbor.encode(2)
-
-addNumberReq.write(inputAddCBOR)
-
-addNumberReq.on('response', (res) => {
-    const contentType = res.headers["Content-Type"]
-
-    if (res.code === '2.05') {
-        if (contentType.includes("application/json")) {
-            console.log("Addition result (json): ", JSON.parse(res.payload.toString()));
+    const addNumberReq = coap.request({
+        method: 'POST',
+        host: hostname,
+        port: portNumber,
+        pathname: additionEndPoint,
+        headers: {
+            "Accept": "application/json",
+            "Content-Format": "application/cbor"
         }
-        else if (contentType.includes("application/cbor")) {
-            const decodedData = cbor.decode(res.payload);
-            console.log("Addition result (cbor): ", decodedData);
-        }
-        else {
-            throw new Error(`Unsupported content type: ${contentType}`);
-        }
-    } else {
-        console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
+    });
 
-    }
-});
-addNumberReq.end();
+    // Set the payload with the input value
+    const inputAddCBOR = cbor.encode(2)
+
+    addNumberReq.write(inputAddCBOR)
+
+    addNumberReq.on('response', (res) => {
+        const contentType = res.headers["Content-Type"]
+
+        if (res.code === '2.05') {
+            if (contentType.includes("application/json")) {
+                console.log("Addition result (json): ", JSON.parse(res.payload.toString()));
+            }
+            else if (contentType.includes("application/cbor")) {
+                const decodedData = cbor.decode(res.payload);
+                console.log("Addition result (cbor): ", decodedData);
+            }
+            else {
+                throw new Error(`Unsupported content type: ${contentType}`);
+            }
+        } else {
+            console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
+
+        }
+    });
+    addNumberReq.end();
+}
 
 
 
@@ -250,42 +266,45 @@ addNumberReq.end();
 /********** Subtraction Endpoint ********/
 /****************************************/
 
-// Example POST request to perform an action (subtract)
-const subtractNumberReq = coap.request({
-    method: 'POST',
-    host: hostname,
-    port: portNumber,
-    pathname: subtractionEndPoint,
-    headers: {
-        "Accept": "application/cbor",
-        "Content-Format": "application/json"
-    }
-});
+// POST request to perform the subtract action
+function subtractNumber() {
 
-// Set the payload with the input value
-const inputSubtractJSON = JSON.stringify({ "data": 3 })
-
-subtractNumberReq.write(inputSubtractJSON)
-
-subtractNumberReq.on('response', (res) => {
-    const contentType = res.headers["Content-Type"]
-
-    if (res.code === '2.05') {
-        if (contentType.includes("application/json")) {
-            console.log("Subtraction result (json): ", JSON.parse(res.payload.toString()));
+    const subtractNumberReq = coap.request({
+        method: 'POST',
+        host: hostname,
+        port: portNumber,
+        pathname: subtractionEndPoint,
+        headers: {
+            "Accept": "application/cbor",
+            "Content-Format": "application/json"
         }
-        else if (contentType.includes("application/cbor")) {
-            const decodedData = cbor.decode(res.payload);
-            console.log("Subtraction result (cbor): ", decodedData);
+    });
+
+    // Set the payload with the input value
+    const inputSubtractJSON = JSON.stringify({ "data": 3 })
+
+    subtractNumberReq.write(inputSubtractJSON)
+
+    subtractNumberReq.on('response', (res) => {
+        const contentType = res.headers["Content-Type"]
+
+        if (res.code === '2.05') {
+            if (contentType.includes("application/json")) {
+                console.log("Subtraction result (json): ", JSON.parse(res.payload.toString()));
+            }
+            else if (contentType.includes("application/cbor")) {
+                const decodedData = cbor.decode(res.payload);
+                console.log("Subtraction result (cbor): ", decodedData);
+            }
+            else {
+                throw new Error(`Unsupported content type: ${contentType}`);
+            }
+        } else {
+            console.error(`Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`)
         }
-        else {
-            throw new Error(`Unsupported content type: ${contentType}`);
-        }
-    } else {
-        console.error(`Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`)
-    }
-});
-subtractNumberReq.end();
+    });
+    subtractNumberReq.end();
+}
 
 
 /****************************************/
@@ -296,40 +315,69 @@ subtractNumberReq.end();
  * GET request to observe an event (update).
  * Uncomment to test the update functionality.
  */
+function observeUpdateEvent() {
 
-// const observeEventChange = coap.request({
-//     method: 'GET',
-//     observe: true, // Enable observation
-//     host: hostname,
-//     port: portNumber,
-//     pathname: updateEndPoint,
-//     headers: {
-//         "Accept": "application/cbor"
-//     }
-// });
+    const observeUpdate = coap.request({
+        method: 'GET',
+        observe: true, // Enable observation
+        host: hostname,
+        port: portNumber,
+        pathname: updateEndPoint,
+        headers: {
+            "Accept": "application/cbor"
+        }
+    });
 
-// observeEventChange.on('response', (res) => {
+    observeUpdate.on('response', (res) => {
 
-//     res.on('data', function () {
-//         const contentType = res.headers["Content-Type"]
+        res.on('data', function () {
+            const contentType = res.headers["Content-Type"]
 
-//         if (res.code === '2.05') {
-//             if (contentType.includes("application/json")) {
-//                 console.log("Event update (json): ", JSON.parse(res.payload.toString()));
-//             }
-//             else if (contentType.includes("application/cbor")) {
-//                 const decodedData = cbor.decode(res.payload);
-//                 console.log("Event update (cbor): ", decodedData);
-//             }
-//             else {
-//                 throw new Error(`Unsupported content type: ${contentType}`);
-//             }
-//         } else {
-//             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
-//         }
-//     })
+            if (res.code === '2.05') {
+                if (contentType.includes("application/json")) {
+                    console.log("Observe update event (json): ", JSON.parse(res.payload.toString()));
+                }
+                else if (contentType.includes("application/cbor")) {
+                    const decodedData = cbor.decode(res.payload);
+                    console.log("Observe update event (cbor): ", decodedData);
+                }
+                else {
+                    throw new Error(`Unsupported content type: ${contentType}`);
+                }
+            } else {
+                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+            }
+        })
 
-// });
+    });
 
-// // Start observing
-// observeEventChange.end();
+    // Start observing
+    observeUpdate.end();
+}
+
+
+//Test the main functionality of the content-negotiation-calculator-thing
+function runCalculatorInteractions() {
+
+    //Main GET and POST requests
+    getFullTD()
+    getResult()
+    getLastChange()
+    addNumber()
+    subtractNumber()
+
+    //Observation of properties and events after 1 second
+    setTimeout(() => {
+        console.log("\n-------- Start observation --------\n");
+        observeResultProperty()
+        observeLastChangeProperty()
+        observeUpdateEvent()
+    }, 1000)
+
+    //Update the property result after 2.5 seconds to test the observation
+    setTimeout(() => {
+        addNumber()
+    }, 2500)
+}
+
+runCalculatorInteractions()

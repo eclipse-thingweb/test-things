@@ -141,7 +141,6 @@ server.on('request', (req, res) => {
 
                     let oldResult = result
                     const changeInterval = setInterval(() => {
-                        res.write('stay connected!')
                         if (oldResult !== result) {
                             res.write(`${result.toString()}`)
                             oldResult = result
@@ -149,7 +148,7 @@ server.on('request', (req, res) => {
                     }, 1000)
 
                     res.on('finish', () => {
-                        console.log('Client closed the connection');
+                        console.log('Client stopped the result observation')
                         clearInterval(changeInterval)
                     })
                 }
@@ -158,9 +157,7 @@ server.on('request', (req, res) => {
                     res.end(result.toString())
                 }
             }
-
-            //LastChange endpoint
-            if (segments[3] === 'lastChange') {
+            else if (segments[3] === 'lastChange') {
                 //Checking for the observe option
                 if (req.headers.Observe === 0) {
                     console.log('Observing the lastChange property...')
@@ -168,7 +165,6 @@ server.on('request', (req, res) => {
 
                     let oldDate = lastChange
                     const changeInterval = setInterval(() => {
-                        res.write('stay connected!')
                         if (oldDate !== lastChange) {
                             res.write(`${lastChange.toISOString()}`)
                             oldDate = lastChange
@@ -176,18 +172,22 @@ server.on('request', (req, res) => {
                     }, 1000)
 
                     res.on('finish', () => {
-                        console.log('Client closed the connection');
+                        console.log('Client stopped the lastChange observation');
                         clearInterval(changeInterval)
                     })
                 }
                 //If the observe option is false, then the value is given and the connection is closed
                 else {
                     if (lastChange === '') {
-                        res.end('No changes made so far')
+                        res.end(lastChange)
                     } else {
                         res.end(lastChange.toISOString())
                     }
                 }
+            }
+            else {
+                res.code = 404
+                res.end('Endpoint does not exist!')
             }
         }
         else {
@@ -211,8 +211,7 @@ server.on('request', (req, res) => {
                     res.end(result.toString())
                 }
             }
-
-            if (segments[3] === 'subtract') {
+            else if (segments[3] === 'subtract') {
                 const parsedInput = parseInt(req.payload.toString())
 
                 if (isNaN(parsedInput)) {
@@ -223,6 +222,10 @@ server.on('request', (req, res) => {
                     lastChange = new Date()
                     res.end(result.toString())
                 }
+            }
+            else {
+                res.code = 404
+                res.end('Endpoint does not exist!')
             }
         }
         else {
@@ -239,7 +242,6 @@ server.on('request', (req, res) => {
 
                 let oldResult = result
                 const changeInterval = setInterval(() => {
-                    res.write('stay connected!')
                     if (oldResult !== result) {
                         res.write(`${result}`)
                         oldResult = result
@@ -247,7 +249,7 @@ server.on('request', (req, res) => {
                 }, 1000)
 
                 res.on('finish', () => {
-                    console.log('Client closed the connection');
+                    console.log('Client stopped the update observation');
                     clearInterval(changeInterval)
                 })
 
@@ -256,6 +258,10 @@ server.on('request', (req, res) => {
                 res.code = 402
                 res.end('Bad Option: Observe option should be set to true')
             }
+        }
+        else {
+            res.code = 404
+            res.end('Endpoint does not exist!')
         }
     }
 })

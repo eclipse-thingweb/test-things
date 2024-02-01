@@ -171,8 +171,8 @@ for (const key in thingDescription['events']) {
   const newForm = JSON.parse(JSON.stringify(defaultForm))
   newForm['href'] = `events/${key}`
   newForm['cov:method'] = 'GET'
-  newForm['op'] = ["subscribeevent", "unsubscribeevent"],
-    newForm['subprotocol'] = 'cov:observe'
+  newForm['op'] = ["subscribeevent", "unsubscribeevent"]
+  newForm['subprotocol'] = 'cov:observe'
 
   thingDescription['events'][key]['forms'].push(newForm)
 
@@ -215,7 +215,6 @@ server.on('request', (req, res) => {
     res.end('Thing does not exist!')
   } else {
     if (!segments[2]) {
-      //TODO: Fix the problem with block wise transfer to be able to pass the headers properly
       if (req.method === 'GET') {
         if (supportedContentTypes.includes(acceptHeaders)) {
           if (acceptHeaders.includes('application/json')) {
@@ -258,15 +257,6 @@ server.on('request', (req, res) => {
 
             const changeInterval = setInterval(() => {
 
-              if (acceptHeaders === 'application/json') {
-                res.write(JSON.stringify({ 'connectionMsg': 'Stay connected!' }))
-              }
-              else {
-                const cborData = cbor.encode('Stay connected!')
-                res.write(cborData)
-              }
-
-
               if (oldResult !== result) {
                 res.statusCode = 205
                 if (acceptHeaders.includes('application/json')) {
@@ -299,9 +289,8 @@ server.on('request', (req, res) => {
 
           }
         }
-
         //Last Change Endpoint
-        if (segments[3] === 'lastChange') {
+        else if (segments[3] === 'lastChange') {
 
           //Start the observation of the property if observe attribute is set to true
           if (req.headers.Observe === 0) {
@@ -310,15 +299,6 @@ server.on('request', (req, res) => {
             let oldDate = lastChange
 
             const changeInterval = setInterval(() => {
-
-              if (acceptHeaders === 'application/json') {
-                res.write(JSON.stringify({ 'connectionMsg': 'Stay connected!' }))
-              }
-              else {
-                const cborData = cbor.encode('Stay connected!')
-                res.write(cborData)
-              }
-
 
               if (oldDate !== lastChange) {
                 res.statusCode = 205
@@ -343,14 +323,18 @@ server.on('request', (req, res) => {
 
             //If no observation is required, send only the result and close connection
             if (acceptHeaders.includes('application/json')) {
-              res.end(JSON.stringify({ 'lastChange': lastChange === '' ? 'No changes made so far' : lastChange.toISOString() }))
+              res.end(JSON.stringify({ 'lastChange': lastChange === '' ? '' : lastChange.toISOString() }))
             }
             else {
-              const cborData = cbor.encode(lastChange === '' ? 'No changes made so far' : lastChange.toISOString())
+              const cborData = cbor.encode(lastChange === '' ? '' : lastChange.toISOString())
               res.end(cborData)
             }
 
           }
+        }
+        else {
+          res.code = 404
+          res.end('Endpoint does not exist!')
         }
 
       }
@@ -401,10 +385,8 @@ server.on('request', (req, res) => {
               }
             }
           }
-
-
           //Subtraction endpoint
-          if (segments[3] === 'subtract') {
+          else if (segments[3] === 'subtract') {
 
             let numberToSubtract
 
@@ -431,6 +413,10 @@ server.on('request', (req, res) => {
                 res.end(cborData)
               }
             }
+          }
+          else {
+            res.code = 404
+            res.end('Endpoint does not exist!')
           }
         }
         else {
@@ -461,15 +447,6 @@ server.on('request', (req, res) => {
             //Set the content-format header to the accepted header
             res.setOption('Content-Format', acceptHeaders)
 
-            if (acceptHeaders === 'application/json') {
-              res.write(JSON.stringify({ 'Result': 'Stay connected!' }))
-            }
-            else {
-              const cborData = cbor.encode('Stay connected!')
-              res.write(cborData)
-            }
-
-
             if (oldResult !== result) {
               res.statusCode = 205
               if (acceptHeaders.includes('application/json')) {
@@ -497,6 +474,10 @@ server.on('request', (req, res) => {
         res.code = 402
         res.end('Bad Option: Observe option should be set to true')
       }
+    }
+    else {
+      res.code = 404
+      res.end('Endpoint does not exist!')
     }
   }
 })
