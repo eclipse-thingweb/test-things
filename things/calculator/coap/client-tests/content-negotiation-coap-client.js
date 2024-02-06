@@ -148,12 +148,9 @@ function getLastChange(acceptType) {
             if (contentType.includes("application/json")) {
                 console.log("Last Change (json): ", JSON.parse(res.payload.toString()));
             }
-            else if (contentType.includes("application/cbor")) {
+            else {
                 const decodedData = cbor.decode(res.payload);
                 console.log("Last Change (cbor): ", decodedData);
-            }
-            else {
-                throw new Error(`Unsupported content type: ${contentType}`);
             }
         } else {
             console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)

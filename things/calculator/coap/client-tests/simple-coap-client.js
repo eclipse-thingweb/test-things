@@ -164,9 +164,8 @@ function addNumber(numberToAdd) {
     addNumberAction.write(JSON.stringify(numberToAdd))
 
     addNumberAction.on('response', (res) => {
-
         if (res.code === '2.05') {
-            console.log(`Addition result: ${res.payload.toString()}`)
+            console.log('Addition result:', JSON.parse(res.payload.toString()))
         } else {
             console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
         }
@@ -223,15 +222,15 @@ function observeUpdateEvent() {
         pathname: updateEndPoint
     });
 
-    // observeEventChange.on('response', (res) => {
+    observeEventChange.on('response', (res) => {
 
-    //     res.on('data', function () {
-    //         if (res.code === '2.05') {
-    //             console.log(res.payload.toString())
-    //         } else {
-    //             console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
-    //         }
-    //     })
+        res.on('data', function () {
+            if (res.code === '2.05') {
+                console.log(res.payload.toString())
+            } else {
+                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+            }
+        })
 
 });
 
