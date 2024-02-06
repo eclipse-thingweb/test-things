@@ -49,9 +49,8 @@ function getResult() {
     });
 
     getPropertyResult.on('response', (res) => {
-
         if (res.code === '2.05') {
-            console.log(`Result: ${res.payload.toString()}`)
+            console.log('Result:', JSON.parse(res.payload.toString()))
         } else {
             console.error(`Failed to get Property "result": ${res.code} - ${res.payload.toString()}`)
         }
@@ -78,7 +77,7 @@ function observeResultProperty() {
     observeResult.on('response', (res) => {
         res.on('data', function () {
             if (res.code === '2.05') {
-                console.log('Observe result property:', res.payload.toString())
+                console.log('Observe result property:', JSON.parse(res.payload.toString()))
             } else {
                 console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
             }
@@ -104,9 +103,8 @@ function getLastChange() {
         pathname: lastChangeEndPoint
     })
     getPropertyLastChange.on('response', (res) => {
-
         if (res.code === '2.05') {
-            console.log(`Last Change: ${res.payload.toString()}`)
+            console.log('Last Change:', JSON.parse(res.payload.toString()))
         } else {
             console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)
         }
@@ -131,10 +129,9 @@ function observeLastChangeProperty() {
     });
 
     observeLastChange.on('response', (res) => {
-
         res.on('data', function () {
             if (res.code === '2.05') {
-                console.log('Observe lastChange property:', res.payload.toString())
+                console.log('Observe lastChange property:', JSON.parse(res.payload.toString()))
             } else {
                 console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
             }
@@ -151,23 +148,24 @@ function observeLastChangeProperty() {
 /*********** Addition Endpoint **********/
 /****************************************/
 
-function addNumber() {
+function addNumber(numberToAdd) {
     // POST request to perform an action (add)
     const addNumberAction = coap.request({
         method: 'POST',
         host: hostname,
         port: portNumber,
-        pathname: additionEndPoint
+        pathname: additionEndPoint,
+        headers: {
+            "Content-Format": "application/json"
+        }
     });
 
     // Set the payload with the input value
-    const numberToAdd = 2
-    addNumberAction.write(numberToAdd.toString())
+    addNumberAction.write(JSON.stringify(numberToAdd))
 
     addNumberAction.on('response', (res) => {
-
         if (res.code === '2.05') {
-            console.log(`Addition result: ${res.payload.toString()}`)
+            console.log('Addition result:', JSON.parse(res.payload.toString()))
         } else {
             console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
         }
@@ -181,23 +179,24 @@ function addNumber() {
 /********** Subtraction Endpoint ********/
 /****************************************/
 
-function subtractNumber() {
+function subtractNumber(numberToSubtract) {
     // POST request to perform an action (subtract)
     const subtractNumberAction = coap.request({
         method: 'POST',
         host: hostname,
         port: portNumber,
-        pathname: subtractionEndPoint
+        pathname: subtractionEndPoint,
+        headers: {
+            "Content-Format": "application/json"
+        }
     });
 
     // Set the payload with the input value
-    const numberToSubtract = 3
-    subtractNumberAction.write(numberToSubtract.toString())
+    subtractNumberAction.write(JSON.stringify(numberToSubtract))
 
     subtractNumberAction.on('response', (res) => {
-
         if (res.code === '2.05') {
-            console.log(`Subtraction result: ${res.payload.toString()}`)
+            console.log('Subtraction result:', JSON.parse(res.payload.toString()))
         } else {
             console.error(`Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`)
         }
@@ -225,10 +224,9 @@ function observeUpdateEvent() {
     });
 
     observeEventChange.on('response', (res) => {
-
         res.on('data', function () {
             if (res.code === '2.05') {
-                console.log('Observe update event:', res.payload.toString())
+                console.log('Observe update event:', JSON.parse(res.payload.toString()))
             } else {
                 console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
             }
@@ -246,8 +244,8 @@ function runCalculatorInteractions() {
     getThingDescription()
     getResult()
     getLastChange()
-    addNumber()
-    subtractNumber()
+    addNumber(3)
+    subtractNumber(2)
 
 
     //Start the observation of properties and events after 1 second
@@ -261,7 +259,7 @@ function runCalculatorInteractions() {
 
     //Update the property result after 2.5 seconds to test the observation
     setTimeout(() => {
-        addNumber()
+        addNumber(1)
     }, 2500)
 }
 

@@ -260,7 +260,7 @@ server.on('request', (req, res) => {
               if (oldResult !== result) {
                 res.statusCode = 205
                 if (acceptHeaders.includes('application/json')) {
-                  res.write(JSON.stringify({ 'Result': result }))
+                  res.write(JSON.stringify(result))
                   oldResult = result
                 }
                 else {
@@ -280,7 +280,7 @@ server.on('request', (req, res) => {
 
             //If no observation is required, send only the result and close connection
             if (acceptHeaders.includes('application/json')) {
-              res.end(JSON.stringify({ 'result': result }))
+              res.end(JSON.stringify(result))
             }
             else {
               const cborData = cbor.encode(result)
@@ -303,11 +303,12 @@ server.on('request', (req, res) => {
               if (oldDate !== lastChange) {
                 res.statusCode = 205
                 if (acceptHeaders.includes('application/json')) {
-                  res.write(JSON.stringify({ 'lastChange': lastChange.toISOString() }))
+                  res.write(JSON.stringify(lastChange))
                   oldDate = lastChange
                 }
                 else {
-                  const cborData = cbor.encode(lastChange.toISOString())
+                  const cborData = cbor.encode(lastChange)
+                  // const cborData = cbor.encode(lastChange.toISOString())
                   res.write(cborData)
                   oldDate = lastChange
                 }
@@ -323,10 +324,10 @@ server.on('request', (req, res) => {
 
             //If no observation is required, send only the result and close connection
             if (acceptHeaders.includes('application/json')) {
-              res.end(JSON.stringify({ 'lastChange': lastChange === '' ? '' : lastChange.toISOString() }))
+              res.end(JSON.stringify(lastChange))
             }
             else {
-              const cborData = cbor.encode(lastChange === '' ? '' : lastChange.toISOString())
+              const cborData = cbor.encode(lastChange)
               res.end(cborData)
             }
 
@@ -362,7 +363,7 @@ server.on('request', (req, res) => {
             let numberToAdd
 
             if (reqContentType.includes('application/json')) {
-              numberToAdd = JSON.parse(req.payload.toString())['data']
+              numberToAdd = JSON.parse(req.payload.toString())
             }
             else {
               numberToAdd = cbor.decode(req.payload);
@@ -377,7 +378,7 @@ server.on('request', (req, res) => {
               lastChange = new Date()
 
               if (acceptHeaders.includes('application/json')) {
-                res.end(JSON.stringify({ 'additionResult': result }))
+                res.end(JSON.stringify(result))
               }
               else {
                 const cborData = cbor.encode(result)
@@ -391,7 +392,7 @@ server.on('request', (req, res) => {
             let numberToSubtract
 
             if (reqContentType.includes('application/json')) {
-              numberToSubtract = JSON.parse(req.payload.toString())['data']
+              numberToSubtract = JSON.parse(req.payload.toString())
             }
             else {
               numberToSubtract = cbor.decode(req.payload);
@@ -406,7 +407,7 @@ server.on('request', (req, res) => {
               lastChange = new Date()
 
               if (acceptHeaders.includes('application/json')) {
-                res.end(JSON.stringify({ 'subtractionResult': result }))
+                res.end(JSON.stringify(result))
               }
               else {
                 const cborData = cbor.encode(result)
@@ -450,7 +451,7 @@ server.on('request', (req, res) => {
             if (oldResult !== result) {
               res.statusCode = 205
               if (acceptHeaders.includes('application/json')) {
-                res.write(JSON.stringify({ 'Result': result }))
+                res.write(JSON.stringify(result))
                 oldResult = result
               }
               else {
