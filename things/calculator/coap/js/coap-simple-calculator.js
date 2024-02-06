@@ -120,6 +120,7 @@ server.on('request', (req, res) => {
     } else {
         if (!segments[2]) {
             if (req.method === 'GET') {
+                res.setOption('Content-Format', "application/json")
                 res.end(JSON.stringify(thingDescription))
             }
             else {
@@ -134,6 +135,10 @@ server.on('request', (req, res) => {
 
             //Result endpoint
             if (segments[3] === 'result') {
+
+                //setting the content type header to json
+                res.setOption('Content-Format', "application/json")
+
                 //Checking for the observe option
                 if (req.headers.Observe === 0) {
                     console.log('Observing the result property...')
@@ -142,7 +147,7 @@ server.on('request', (req, res) => {
                     let oldResult = result
                     const changeInterval = setInterval(() => {
                         if (oldResult !== result) {
-                            res.write(`${result.toString()}`)
+                            res.write(`${JSON.stringify(result)}`)
                             oldResult = result
                         }
                     }, 1000)
@@ -154,10 +159,14 @@ server.on('request', (req, res) => {
                 }
                 //If the observe option is false, then the value is given and the connection is closed
                 else {
-                    res.end(result.toString())
+                    res.end(JSON.stringify(result))
                 }
             }
             else if (segments[3] === 'lastChange') {
+
+                //setting the content type header to json
+                res.setOption('Content-Format', "application/json")
+
                 //Checking for the observe option
                 if (req.headers.Observe === 0) {
                     console.log('Observing the lastChange property...')
@@ -166,7 +175,7 @@ server.on('request', (req, res) => {
                     let oldDate = lastChange
                     const changeInterval = setInterval(() => {
                         if (oldDate !== lastChange) {
-                            res.write(`${lastChange.toISOString()}`)
+                            res.write(`${JSON.stringify(lastChange)}`)
                             oldDate = lastChange
                         }
                     }, 1000)
@@ -178,11 +187,7 @@ server.on('request', (req, res) => {
                 }
                 //If the observe option is false, then the value is given and the connection is closed
                 else {
-                    if (lastChange === '') {
-                        res.end(lastChange)
-                    } else {
-                        res.end(lastChange.toISOString())
-                    }
+                    res.end(JSON.stringify(lastChange))
                 }
             }
             else {
@@ -200,27 +205,35 @@ server.on('request', (req, res) => {
     if (segments[2] === 'actions') {
         if (req.method === 'POST') {
             if (segments[3] === 'add') {
-                const parsedInput = parseInt(req.payload.toString())
 
-                if (isNaN(parsedInput)) {
+                //setting the content type header to json
+                res.setOption('Content-Format', "application/json")
+
+                const inputNumber = JSON.parse(req.payload.toString())
+
+                if (typeof inputNumber !== "number") {
                     res.code = 400
-                    res.end('Input should be a valid integer')
+                    res.end('Input should be a valid number')
                 } else {
-                    result += parsedInput
+                    result += inputNumber
                     lastChange = new Date()
-                    res.end(result.toString())
+                    res.end(JSON.stringify(result))
                 }
             }
             else if (segments[3] === 'subtract') {
-                const parsedInput = parseInt(req.payload.toString())
 
-                if (isNaN(parsedInput)) {
+                //setting the content type header to json
+                res.setOption('Content-Format', "application/json")
+
+                const inputNumber = JSON.parse(req.payload.toString())
+
+                if (typeof inputNumber !== "number") {
                     res.code = 400
-                    res.end('Input should be a valid integer')
+                    res.end('Input should be a valid number')
                 } else {
-                    result -= parsedInput
+                    result -= inputNumber
                     lastChange = new Date()
-                    res.end(result.toString())
+                    res.end(JSON.stringify(result))
                 }
             }
             else {
@@ -240,10 +253,13 @@ server.on('request', (req, res) => {
                 console.log('Observing the update event...')
                 res.statusCode = 205
 
+                //setting the content type header to json
+                res.setOption('Content-Format', "application/json")
+
                 let oldResult = result
                 const changeInterval = setInterval(() => {
                     if (oldResult !== result) {
-                        res.write(`${result}`)
+                        res.write(JSON.stringify(result))
                         oldResult = result
                     }
                 }, 1000)
