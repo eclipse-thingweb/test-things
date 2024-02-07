@@ -43,8 +43,7 @@ function listenToResult() {
     const resultEventSource = new EventSource(url + resultEndPointObserve);
 
     resultEventSource.onmessage = (e) => {
-        const data = e.data;
-        console.log('Result SSE:', data);
+        console.log('Result SSE:', JSON.parse(e.data));
     };
 
     resultEventSource.onerror = (error) => {
@@ -76,8 +75,7 @@ function listenToLastChange() {
     const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve);
 
     lastChangeEventSource.onmessage = (e) => {
-        const data = e.data;
-        console.log('lastChange SSE:', data);
+        console.log('lastChange SSE:', JSON.parse(e.data));
     };
 
     lastChangeEventSource.onerror = (error) => {
@@ -135,8 +133,7 @@ function listenToUpdateEvent() {
     const updateEventSource = new EventSource(url + updateEndPoint);
 
     updateEventSource.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        console.log('Update Event SSE:', data);
+        console.log('Update Event SSE:', JSON.parse(e.data));
     };
 
     updateEventSource.onerror = (error) => {

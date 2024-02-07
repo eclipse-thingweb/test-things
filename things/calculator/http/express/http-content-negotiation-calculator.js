@@ -200,7 +200,10 @@ try {
 app.use((req, res, next) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor')) {
+  if (acceptHeader === undefined) {
+    res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
+  }
+  else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor')) {
     next()
   } else {
     res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
@@ -215,7 +218,10 @@ app.use((req, res, next) => {
   const endpoint = req.url
 
   if (method === 'POST' && (endpoint === additionEndPoint || endpoint === subtractionEndPoint)) {
-    if (supportedContentTypes.includes(contentType)) {
+    if (supportedContentTypes === undefined) {
+      res.status(415).json('Unsupported Media Type: Supported Content-Types are application/json, and application/cbor');
+    }
+    else if (supportedContentTypes.includes(contentType)) {
       next()
     } else {
       res.status(415).json('Unsupported Media Type: Supported Content-Types are application/json, and application/cbor');
@@ -306,8 +312,7 @@ app.get(resultEndPointObserve, (req, res) => {
         message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {
-        const cborData = cbor.encode(result)
-        message = `data: ${cborData}\n\n`
+        message = `data: ${cbor.encode(result)}\n\n`
       }
 
       res.statusCode = 200
@@ -358,11 +363,10 @@ app.get(lastChangeEndPointObserve, (req, res) => {
       let message
 
       if (acceptHeader.includes('application/json')) {
-        message = `data: ${JSON.stringify(lastChange.toISOString())}\n\n`
+        message = `data: ${JSON.stringify(lastChange)}\n\n`
       }
       else {
-        const cborData = cbor.encode(lastChange.toISOString())
-        message = `data: ${cborData}\n\n`
+        message = `data: ${cbor.encode(lastChange.toISOString())}\n\n`
       }
 
       res.statusCode = 200
@@ -394,11 +398,19 @@ app.post(additionEndPoint, (req, res) => {
 
   //check if the data was sent as cbor or json and if not get the body normally
   if (req.get('Content-Type') === 'application/cbor') {
-    const decodedData = cbor.decode(req.body);
-    bodyInput = decodedData
+    try {
+      bodyInput = cbor.decode(req.body);
+    } catch (err) {
+      console.error("- Empty Buffer -");
+    }
   }
   else {
-    bodyInput = JSON.parse(req.body)
+    try {
+      bodyInput = JSON.parse(req.body)
+    } catch (err) {
+      console.error("- Empty JSON -");
+    }
+
   }
 
   /**Check if given input is a number, if not return an error message,
@@ -429,11 +441,18 @@ app.post(subtractionEndPoint, (req, res) => {
 
   //check if the data was sent as cbor, json or text, and if not get the body normally
   if (req.get('Content-Type') === 'application/cbor') {
-    const decodedData = cbor.decode(req.body);
-    bodyInput = decodedData
+    try {
+      bodyInput = cbor.decode(req.body);
+    } catch (err) {
+      console.error("- Empty Buffer");
+    }
   }
   else {
-    bodyInput = JSON.parse(req.body)
+    try {
+      bodyInput = JSON.parse(req.body)
+    } catch (err) {
+      console.error("- Empty JSON");
+    }
   }
 
   /**Check  if given input is a valid number, if not return an error message,
@@ -481,8 +500,7 @@ app.get(updateEndPoint, (req, res) => {
         message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {
-        const cborData = cbor.encode(result)
-        message = `data: ${cborData}\n\n`
+        message = `data: ${cbor.encode(result)}\n\n`
       }
 
       res.statusCode = 200

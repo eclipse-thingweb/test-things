@@ -23,22 +23,12 @@ const url = "http://localhost:3000/http-express-calculator-content-negotiation",
  * @returns Thing description as either a String, JSON or CBOR
  */
 async function getFullTD(acceptType) {
-    let getHeaders = {
-        "Accept": ""
-    }
-
-    if (acceptType === "json") {
-        getHeaders.Accept = "application/json"
-    }
-    else if (acceptType === "cbor") {
-        getHeaders.Accept = "application/cbor"
-    } else {
-        getHeaders.Accept = acceptType;
-    }
 
     const res = await fetch(url, {
         method: "GET",
-        headers: getHeaders
+        headers: {
+            "Accept": acceptType
+        }
     })
 
     const contentType = res.headers.get("content-type")
@@ -46,14 +36,10 @@ async function getFullTD(acceptType) {
     if (contentType.includes("application/json")) {
         return res.json()
     }
-    else if (contentType.includes("application/cbor")) {
+    else {
         const buffer = await res.arrayBuffer()
         const decodedData = cbor.decode(buffer);
         return decodedData
-    }
-    else {
-        // Handle unsupported content types or return an error
-        throw new Error(`Unsupported content type: ${contentType}`);
     }
 }
 
@@ -64,23 +50,11 @@ async function getFullTD(acceptType) {
  */
 async function getCurrentResult(acceptType) {
 
-    let getHeaders = {
-        "Accept": ""
-    }
-
-    if (acceptType === "json") {
-        getHeaders.Accept = "application/json"
-    }
-    else if (acceptType === "cbor") {
-        getHeaders.Accept = "application/cbor"
-    } 
-    else {
-        getHeaders.Accept = acceptType;
-    }
-
     const res = await fetch(url + resultEndPoint, {
         method: "GET",
-        headers: getHeaders
+        headers: {
+            "Accept": acceptType
+        }
     })
 
     const contentType = res.headers.get("content-type")
@@ -98,12 +72,11 @@ async function getCurrentResult(acceptType) {
 /**
  * Create an EventSource for the result observe property.
  */
-function listenToResultProperty(header) {
+function listenToResultProperty(acceptType) {
 
-    const acceptHeader = `application/${header}`
     const resultEventSource = new EventSource(url + resultEndPointObserve, {
         headers: {
-            'Accept': acceptHeader
+            'Accept': acceptType
         }
     });
 
@@ -111,7 +84,7 @@ function listenToResultProperty(header) {
 
         const body = e.data;
 
-        if (header === 'json') {
+        if (acceptType === 'application/json') {
             console.log('Result SSE:', JSON.parse(body))
         }
         else {
@@ -139,22 +112,11 @@ function listenToResultProperty(header) {
  */
 async function getLatestChange(acceptType) {
 
-    let getHeaders = {
-        "Accept": ""
-    }
-
-    if (acceptType === "json") {
-        getHeaders.Accept = "application/json"
-    }
-    else if (acceptType === "cbor") {
-        getHeaders.Accept = "application/cbor"
-    } else {
-        getHeaders.Accept = acceptType;
-    }
-
     const res = await fetch(url + lastChangeEndPoint, {
         method: "GET",
-        headers: getHeaders
+        headers: {
+            "Accept": acceptType
+        }
     })
 
     const contentType = res.headers.get("content-type")
@@ -172,19 +134,18 @@ async function getLatestChange(acceptType) {
 /**
  * Create an EventSource for the last change observe property.
  */
-function listenToLastChangeProperty(header) {
-
-    const acceptHeader = `application/${header}`
+function listenToLastChangeProperty(acceptType) {
+    
     const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve, {
         headers: {
-            'Accept': acceptHeader
+            'Accept': acceptType
         }
     });
 
     lastChangeEventSource.onmessage = (e) => {
         const body = e.data;
 
-        if (header === 'json') {
+        if (acceptType === 'application/json') {
             console.log('lastChange SSE:', JSON.parse(body))
         }
         else {
@@ -213,37 +174,15 @@ function listenToLastChangeProperty(header) {
  * @returns addedNumber - the number to be added to the calculator
  */
 async function addNumber(number, contentType, acceptType) {
-    let postHeaders = {
-        "Content-Type": "",
-        "Accept": "",
-    }
-
-    if (contentType === "json") {
-        inputNumber = JSON.stringify(number)
-        postHeaders['Content-Type'] = "application/json"
-    }
-    else if (contentType === "cbor") {
-        inputNumber = cbor.encode(number)
-        postHeaders['Content-Type'] = "application/cbor"
-    }
-    else {
-        inputNumber = number
-        postHeaders['Content-Type'] = contentType
-    }
-
-    if (acceptType === "json") {
-        postHeaders['Accept'] = "application/json"
-    }
-    else if (acceptType === "cbor") {
-        postHeaders['Accept'] = "application/cbor"
-    }
-    else {
-        postHeaders['Accept'] = acceptType
-    }
+    
+    const inputNumber = contentType === "application/json" ? JSON.stringify(number) : cbor.encode(number)
 
     const res = await fetch(url + additionEndPoint, {
         method: "POST",
-        headers: postHeaders,
+        headers: {
+            "Content-Type": contentType,
+            "Accept": acceptType,
+        },
         body: inputNumber,
     });
 
@@ -271,37 +210,15 @@ async function addNumber(number, contentType, acceptType) {
  * @returns subtractedNumber - the number to be added to the calculator
  */
 async function subtractNumber(number, contentType, acceptType) {
-    let postHeaders = {
-        "Content-Type": "",
-        "Accept": "",
-    }
-
-    if (contentType === "json") {
-        inputNumber = JSON.stringify(number)
-        postHeaders['Content-Type'] = "application/json"
-    }
-    else if (contentType === "cbor") {
-        inputNumber = cbor.encode(number)
-        postHeaders['Content-Type'] = "application/cbor"
-    }
-    else {
-        inputNumber = number
-        postHeaders['Content-Type'] = contentType
-    }
-
-    if (acceptType === "json") {
-        postHeaders['Accept'] = "application/json"
-    }
-    else if (acceptType === "cbor") {
-        postHeaders['Accept'] = "application/cbor"
-    }
-    else {
-        postHeaders['Accept'] = acceptType
-    }
+   
+    const inputNumber = contentType === "application/json" ? JSON.stringify(number) : cbor.encode(number)
 
     const res = await fetch(url + subtractionEndPoint, {
         method: "POST",
-        headers: postHeaders,
+        headers: {
+            "Content-Type": contentType,
+            "Accept": acceptType,
+        },
         body: inputNumber,
     });
 
@@ -324,12 +241,11 @@ async function subtractNumber(number, contentType, acceptType) {
 /**
 * Create an EventSource for the update endpoint.
 */
-function listenToUpdateEvent(header) {
+function listenToUpdateEvent(acceptType) {
 
-    const acceptHeader = `application/${header}`
     const updateEventSource = new EventSource(url + updateEndPoint, {
         headers: {
-            'Accept': acceptHeader
+            'Accept': acceptType
         }
     });
 
@@ -337,7 +253,7 @@ function listenToUpdateEvent(header) {
 
         const body = e.data;
 
-        if (header === 'json') {
+        if (acceptType === 'application/json') {
             console.log('Update SSE:', JSON.parse(body));
         }
         else {
@@ -366,24 +282,25 @@ async function runCalculatorInteractions() {
 
     try {
         console.log("-------- Basic functionality --------\n");
-        console.log("Full thing: \n", await getFullTD("cbor"))
-        console.log("Current number: ", await getCurrentResult("cbor"))
-        console.log("Last Change: ", await getLatestChange("json"));
-        console.log("Result of the addition is: ", await addNumber(5, "json", "cbor"))
-        console.log("Result of the subtraction is: ", await subtractNumber(3, "cbor", "json"))
-        console.log("Current number: ", await getCurrentResult("json"))
-        console.log("Last Change: ", await getLatestChange("cbor"))
+        console.log("Full thing: \n", await getFullTD("application/cbor"))
+        console.log("Current number: ", await getCurrentResult("application/json"))
+        console.log("Last Change: ", await getLatestChange("application/cbor"));
+        console.log("Result of the addition is: ", await addNumber(5, "application/cbor", "application/json"))
+        console.log("Result of the subtraction is: ", await subtractNumber(3, "application/json", "application/cbor"))
+        console.log("Current number: ", await getCurrentResult("application/cbor"))
+        console.log("Last Change: ", await getLatestChange("application/json"))
 
         /**
          * Start listening to the update event, result property and lastChange property.
          */
         console.log("\n-------- Start listening to properties and events --------\n");
-        listenToResultProperty("json")
-        listenToUpdateEvent("cbor")
-        listenToLastChangeProperty("json")
+        listenToResultProperty("application/cbor")
+        listenToUpdateEvent("application/json")
+        listenToLastChangeProperty("application/cbor")
 
         setTimeout(async () => {
-            await addNumber(1, "json", "cbor")
+            console.log("Adding 1 to test observation: ", await addNumber(1,"application/cbor", "application/json"), "\n")
+            
         }, 2000)
 
 

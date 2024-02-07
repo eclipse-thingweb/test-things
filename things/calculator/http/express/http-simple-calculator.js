@@ -170,7 +170,7 @@ app.get(resultEndPointObserve, (req, res) => {
   const changeInterval = setInterval(() => {
 
     if (oldResult !== result) {
-      res.write(`data: ${result}\n\n`);
+      res.write(`data: ${JSON.stringify(result)}\n\n`);
       oldResult = result;
     }
   }, 1000);
@@ -201,7 +201,7 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   const changeInterval = setInterval(() => {
 
     if (oldLastChange !== lastChange) {
-      res.write(`data: ${lastChange.toISOString()}\n\n`);
+      res.write(`data: ${JSON.stringify(lastChange)}\n\n`);
       oldLastChange = lastChange;
     }
   }, 1000);
