@@ -26,19 +26,19 @@ function getFullTD(acceptType) {
         port: portNumber,
         pathname: fullTDEndpoint,
         headers: {
-            "Accept": `application/${acceptType}`
+            "Accept": acceptType
         }
     })
 
     getThingDescription.on('response', (res) => {
         //TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
         if (res.code === '2.05') {
-            if (acceptType === "json") {
-                console.log('Thing Description (json):', JSON.parse(res.payload.toString()))
+            if (acceptType === "application/json") {
+                console.log('Thing Description (json):\n', JSON.parse(res.payload.toString()))
             }
             else {
                 const decodedData = cbor.decode(res.payload);
-                console.log('Thing Description (cbor): ', JSON.parse(decodedData))
+                console.log('Thing Description (cbor):\n', JSON.parse(decodedData))
             }
 
         } else {
@@ -62,7 +62,7 @@ function getResult(acceptType) {
         port: portNumber,
         pathname: resultEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`
+            "Accept": acceptType
         }
     });
 
@@ -97,7 +97,7 @@ function observeResultProperty(acceptType) {
         port: portNumber,
         pathname: resultEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`
+            "Accept": acceptType
         }
     });
 
@@ -138,7 +138,7 @@ function getLastChange(acceptType) {
         port: portNumber,
         pathname: lastChangeEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`
+            "Accept": acceptType
         }
     })
     getPropertyLastChange.on('response', (res) => {
@@ -173,7 +173,7 @@ function observeLastChangeProperty(acceptType) {
         port: portNumber,
         pathname: lastChangeEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`
+            "Accept": acceptType
         }
     });
 
@@ -215,13 +215,13 @@ function addNumber(acceptType, contentType, numberToAdd) {
         port: portNumber,
         pathname: additionEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`,
-            "Content-Format": `application/${contentType}`
+            "Accept": acceptType,
+            "Content-Format": contentType
         }
     });
 
     // Set the payload with the input value
-    addNumberReq.write(contentType === 'json' ? JSON.stringify(numberToAdd) : cbor.encode(numberToAdd))
+    addNumberReq.write(contentType === 'application/json' ? JSON.stringify(numberToAdd) : cbor.encode(numberToAdd))
 
     addNumberReq.on('response', (res) => {
         const contentType = res.headers["Content-Type"]
@@ -257,13 +257,13 @@ function subtractNumber(acceptType, contentType, numberToSubtract) {
         port: portNumber,
         pathname: subtractionEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`,
-            "Content-Format": `application/${contentType}`
+            "Accept": acceptType,
+            "Content-Format": contentType
         }
     });
 
     // Set the payload with the input value
-    subtractNumberReq.write(contentType === 'json' ? JSON.stringify(numberToSubtract) : cbor.encode(numberToSubtract))
+    subtractNumberReq.write(contentType === 'application/json' ? JSON.stringify(numberToSubtract) : cbor.encode(numberToSubtract))
 
     subtractNumberReq.on('response', (res) => {
         const contentType = res.headers["Content-Type"]
@@ -301,7 +301,7 @@ function observeUpdateEvent(acceptType) {
         port: portNumber,
         pathname: updateEndPoint,
         headers: {
-            "Accept": `application/${acceptType}`
+            "Accept": acceptType
         }
     });
 
@@ -334,23 +334,23 @@ function observeUpdateEvent(acceptType) {
 function runCalculatorInteractions() {
 
     //Main GET and POST requests
-    getFullTD("cbor")
-    getResult("json")
-    getLastChange("cbor")
-    addNumber("json", "cbor", 3)
-    subtractNumber("cbor", "json", 2)
+    getFullTD("application/cbor")
+    getResult("application/json")
+    getLastChange("application/cbor")
+    addNumber("application/json", "application/cbor", 3)
+    subtractNumber("application/cbor", "application/json", 2)
 
     //Observation of properties and events after 1 second
     setTimeout(() => {
         console.log("\n-------- Start observation --------\n");
-        observeResultProperty("json")
-        observeLastChangeProperty("cbor")
-        observeUpdateEvent("json")
+        observeResultProperty("application/json")
+        observeLastChangeProperty("application/cbor")
+        observeUpdateEvent("application/json")
     }, 1000)
 
     //Update the property result after 2.5 seconds to test the observation
     setTimeout(() => {
-        addNumber("cbor", "json", 1)
+        addNumber("application/cbor", "application/json", 1)
     }, 2500)
 }
 
