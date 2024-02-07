@@ -212,7 +212,6 @@ server.on('request', (req, res) => {
 
   if (segments[1] !== thingName) {
     res.code = 404
-    res.end('Thing does not exist!')
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
@@ -229,12 +228,10 @@ server.on('request', (req, res) => {
         }
         else {
           res.code = 406
-          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
       else {
         res.code = 405
-        res.end('Method Not Allowed')
       }
     }
   }
@@ -308,7 +305,6 @@ server.on('request', (req, res) => {
                 }
                 else {
                   const cborData = cbor.encode(lastChange)
-                  // const cborData = cbor.encode(lastChange.toISOString())
                   res.write(cborData)
                   oldDate = lastChange
                 }
@@ -335,18 +331,15 @@ server.on('request', (req, res) => {
         }
         else {
           res.code = 404
-          res.end('Endpoint does not exist!')
         }
 
       }
       else {
         res.statusCode = 406
-        res.end(`Not Acceptable: ${acceptHeaders}`)
       }
     }
     else {
       res.code = 405
-      res.end('Method Not Allowed')
     }
   }
 
@@ -371,7 +364,6 @@ server.on('request', (req, res) => {
 
             if (typeof numberToAdd !== "number") {
               res.code = 400
-              res.end('Input should be a valid integer')
             }
             else {
               result += numberToAdd
@@ -400,7 +392,6 @@ server.on('request', (req, res) => {
 
             if (typeof numberToSubtract !== "number") {
               res.code = 400
-              res.end('Input should be a valid integer')
             }
             else {
               result -= numberToSubtract
@@ -417,22 +408,18 @@ server.on('request', (req, res) => {
           }
           else {
             res.code = 404
-            res.end('Endpoint does not exist!')
           }
         }
         else {
           res.code = 406
-          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
       else {
         res.code = 415
-        res.end(`Unsupported Content-Format: ${reqContentType}`)
       }
     }
     else {
       res.code = 405
-      res.end('Method Not Allowed')
     }
   }
 
@@ -468,17 +455,14 @@ server.on('request', (req, res) => {
         }
         else {
           res.statusCode = 406
-          res.end(`Not Acceptable: ${acceptHeaders}`)
         }
       }
       else {
         res.code = 402
-        res.end('Bad Option: Observe option should be set to true')
       }
     }
     else {
       res.code = 404
-      res.end('Endpoint does not exist!')
     }
   }
 })
