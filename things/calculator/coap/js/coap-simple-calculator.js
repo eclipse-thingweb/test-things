@@ -193,10 +193,6 @@ server.on('request', (req, res) => {
                 res.code = 404
                 res.end()
             }
-            else {
-                res.code = 404
-                res.end('Endpoint does not exist!')
-            }
         }
         else {
             res.code = 405
