@@ -116,7 +116,6 @@ server.on('request', (req, res) => {
 
     if (segments[1] !== thingName) {
         res.code = 404
-        res.end('Thing does not exist!')
     } else {
         if (!segments[2]) {
             if (req.method === 'GET') {
@@ -125,7 +124,6 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 405
-                res.end('Method Not Allowed')
             }
         }
     }
@@ -192,12 +190,10 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 404
-                res.end('Endpoint does not exist!')
             }
         }
         else {
             res.code = 405
-            res.end('Method Not Allowed')
         }
     }
 
@@ -213,7 +209,6 @@ server.on('request', (req, res) => {
 
                 if (typeof inputNumber !== "number") {
                     res.code = 400
-                    res.end('Input should be a valid number')
                 } else {
                     result += inputNumber
                     lastChange = new Date()
@@ -229,7 +224,6 @@ server.on('request', (req, res) => {
 
                 if (typeof inputNumber !== "number") {
                     res.code = 400
-                    res.end('Input should be a valid number')
                 } else {
                     result -= inputNumber
                     lastChange = new Date()
@@ -238,12 +232,10 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 404
-                res.end('Endpoint does not exist!')
             }
         }
         else {
             res.code = 405
-            res.end('Method Not Allowed')
         }
     }
 
@@ -272,12 +264,10 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 402
-                res.end('Bad Option: Observe option should be set to true')
             }
         }
         else {
             res.code = 404
-            res.end('Endpoint does not exist!')
         }
     }
 })
