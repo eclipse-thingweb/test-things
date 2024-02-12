@@ -337,8 +337,8 @@ function runCalculatorInteractions() {
     getFullTD("application/cbor")
     getResult("application/json")
     getLastChange("application/cbor")
-    addNumber("application/json", "application/cbor", 3)
-    subtractNumber("application/cbor", "application/json", 2)
+    addNumber("application/cbor", "application/cbor", 3)
+    subtractNumber("application/json", "application/json", 2)
 
     //Observation of properties and events after 1 second
     setTimeout(() => {
