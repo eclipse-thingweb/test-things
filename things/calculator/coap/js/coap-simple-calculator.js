@@ -124,6 +124,7 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 405
+                res.end()
             }
         }
     }
@@ -190,10 +191,12 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 404
+                res.end()
             }
         }
         else {
             res.code = 405
+            res.end()
         }
     }
 
@@ -205,10 +208,17 @@ server.on('request', (req, res) => {
                 //setting the content type header to json
                 res.setOption('Content-Format', "application/json")
 
-                const inputNumber = JSON.parse(req.payload.toString())
+                let inputNumber
+                try {
+                    inputNumber = JSON.parse(req.payload.toString())
+                } catch (err) {
+                    res.code = 400
+                    res.end()
+                }
 
                 if (typeof inputNumber !== "number") {
                     res.code = 400
+                    res.end()
                 } else {
                     result += inputNumber
                     lastChange = new Date()
@@ -220,10 +230,17 @@ server.on('request', (req, res) => {
                 //setting the content type header to json
                 res.setOption('Content-Format', "application/json")
 
-                const inputNumber = JSON.parse(req.payload.toString())
+                let inputNumber
+                try {
+                    inputNumber = JSON.parse(req.payload.toString())
+                } catch (err) {
+                    res.code = 400
+                    res.end()
+                }
 
                 if (typeof inputNumber !== "number") {
                     res.code = 400
+                    res.end()
                 } else {
                     result -= inputNumber
                     lastChange = new Date()
@@ -232,10 +249,12 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 404
+                res.end()
             }
         }
         else {
             res.code = 405
+            res.end()
         }
     }
 
@@ -264,10 +283,12 @@ server.on('request', (req, res) => {
             }
             else {
                 res.code = 402
+                res.end()
             }
         }
         else {
             res.code = 404
+            res.end()
         }
     }
 })
