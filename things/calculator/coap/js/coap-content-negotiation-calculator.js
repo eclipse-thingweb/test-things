@@ -212,6 +212,7 @@ server.on('request', (req, res) => {
 
   if (segments[1] !== thingName) {
     res.code = 404
+    res.end()
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
@@ -228,10 +229,12 @@ server.on('request', (req, res) => {
         }
         else {
           res.code = 406
+          res.end()
         }
       }
       else {
         res.code = 405
+        res.end()
       }
     }
   }
@@ -331,15 +334,18 @@ server.on('request', (req, res) => {
         }
         else {
           res.code = 404
+          res.end()
         }
 
       }
       else {
         res.statusCode = 406
+        res.end()
       }
     }
     else {
       res.code = 405
+      res.end()
     }
   }
 
@@ -356,24 +362,15 @@ server.on('request', (req, res) => {
             let numberToAdd
 
             if (reqContentType.includes('application/json')) {
-              try {
-                numberToAdd = JSON.parse(req.payload.toString())
-              } catch (err) {
-                res.code = 400
-                res.end()
-              }
+              numberToAdd = JSON.parse(req.payload.toString())
             }
             else {
-              try {
-                numberToAdd = cbor.decode(req.payload);
-              } catch (err) {
-                res.code = 400
-                res.end()
-              }    
+              numberToAdd = cbor.decode(req.payload);   
             }
 
-            if (typeof numberToAdd !== "number") {
+            if (typeof numberToAdd !== "number" || !numberToAdd) {
               res.code = 400
+              res.end()
             }
             else {
               result += numberToAdd
@@ -394,24 +391,15 @@ server.on('request', (req, res) => {
             let numberToSubtract
 
             if (reqContentType.includes('application/json')) {
-              try {
-                numberToSubtract = JSON.parse(req.payload.toString())
-              } catch (err) {
-                res.code = 400
-                res.end()
-              }
+              numberToSubtract = JSON.parse(req.payload.toString())
             }
             else {
-              try {
-                numberToSubtract = cbor.decode(req.payload);
-              } catch (err) {
-                res.code = 400
-                res.end()
-              }    
+              numberToSubtract = cbor.decode(req.payload);  
             }
 
-            if (typeof numberToSubtract !== "number") {
+            if (typeof numberToSubtract !== "number" || !numberToSubtract) {
               res.code = 400
+              res.end()
             }
             else {
               result -= numberToSubtract
@@ -428,18 +416,22 @@ server.on('request', (req, res) => {
           }
           else {
             res.code = 404
+            res.end()
           }
         }
         else {
           res.code = 406
+          res.end()
         }
       }
       else {
         res.code = 415
+        res.end()
       }
     }
     else {
       res.code = 405
+      res.end()
     }
   }
 
@@ -475,14 +467,17 @@ server.on('request', (req, res) => {
         }
         else {
           res.statusCode = 406
+          res.end()
         }
       }
       else {
         res.code = 402
+        res.end()
       }
     }
     else {
       res.code = 404
+      res.end()
     }
   }
 })
