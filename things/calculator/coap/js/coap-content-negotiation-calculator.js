@@ -362,12 +362,7 @@ server.on('request', (req, res) => {
             let numberToAdd
 
             if (reqContentType.includes('application/json')) {
-              try {
-                numberToAdd = JSON.parse(req.payload.toString())
-              } catch (err) {
-                res.code = 400
-                res.end()
-              }
+              numberToAdd = JSON.parse(req.payload.toString())
             }
             else {
               numberToAdd = cbor.decode(req.payload);   
@@ -396,12 +391,7 @@ server.on('request', (req, res) => {
             let numberToSubtract
 
             if (reqContentType.includes('application/json')) {
-              try {
-                numberToSubtract = JSON.parse(req.payload.toString())
-              } catch (err) {
-                res.code = 400
-                res.end()
-              }
+              numberToSubtract = JSON.parse(req.payload.toString())
             }
             else {
               numberToSubtract = cbor.decode(req.payload);  
