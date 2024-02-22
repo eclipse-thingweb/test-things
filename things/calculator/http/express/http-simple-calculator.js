@@ -13,7 +13,7 @@ const hostname = "localhost";
 let portNumber = 3000;
 const thingName = "http-express-calculator-simple";
 
-const fullTDEndPoint = `/${thingName}`,
+const TDEndPoint = `/${thingName}`,
   resultEndPoint = `/${thingName}/properties/result`,
   resultEndPointObserve = `${resultEndPoint}/observe`,
   lastChangeEndPoint = `/${thingName}/properties/lastChange`,
@@ -21,6 +21,8 @@ const fullTDEndPoint = `/${thingName}`,
   additionEndPoint = `/${thingName}/actions/add`,
   subtractionEndPoint = `/${thingName}/actions/subtract`,
   updateEndPoint = `/${thingName}/events/update`
+
+const existingEndpoints = [TDEndPoint, resultEndPoint, resultEndPointObserve, lastChangeEndPoint, lastChangeEndPointObserve, additionEndPoint, subtractionEndPoint, updateEndPoint]
 
 const {
   values: { port },
@@ -102,7 +104,7 @@ for (const key in thingDescription['events']) {
   newForm['href'] = `events/${key}`
   newForm['op'] = ["subscribeevent", "unsubscribeevent"]
   newForm['subprotocol'] = "sse"
-                 
+
   thingDescription['events'][key]['forms'].push(newForm)
 }
 
@@ -122,12 +124,24 @@ let lastChange = "";
 /************** Middleware ****************/
 /******************************************/
 
+//Middleware to ensure the right endpoints are being called
+app.use((req, res, next) => {
+  const endpoint = req.url
+
+  if (!existingEndpoints.includes(endpoint)) {
+    res.status(404).json("Not Found")
+  }
+  else {
+    next()
+  }
+})
+
 //Middleware to ensure the right method is been used for each endpoint
 app.use((req, res, next) => {
   const method = req.method
   const endpoint = req.url
 
-  if (endpoint === fullTDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
+  if (endpoint === TDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
     if (method === 'GET') {
       next()
     } else {
@@ -142,6 +156,7 @@ app.use((req, res, next) => {
       res.status(405).json('Method Not Allowed');
     }
   }
+
 })
 
 
@@ -149,7 +164,7 @@ app.use((req, res, next) => {
 /*************** Endpoints ****************/
 /******************************************/
 
-app.get(fullTDEndPoint, (req, res) => {
+app.get(TDEndPoint, (req, res) => {
   res.json(thingDescription);
 });
 
@@ -216,26 +231,36 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
-  const bodyInput = JSON.parse(req.body)
 
-  if(typeof bodyInput !== "number") {
+  try {
+    const bodyInput = JSON.parse(req.body)
+
+    if (typeof bodyInput !== "number") {
+      res.status(400).json("Input should be a valid number");
+    } else {
+      result += bodyInput;
+      lastChange = new Date();
+      res.json(result);
+    }
+  } catch (error) {
     res.status(400).json("Input should be a valid number");
-  } else {
-    result += bodyInput;
-    lastChange = new Date();
-    res.json(result);
   }
+
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
-  const bodyInput = JSON.parse(req.body)
+  try {
+    const bodyInput = JSON.parse(req.body)
 
-  if(typeof bodyInput !== "number") {
+    if (typeof bodyInput !== "number") {
+      res.status(400).json("Input should be a valid number");
+    } else {
+      result -= bodyInput;
+      lastChange = new Date();
+      res.json(result);
+    }
+  } catch (error) {
     res.status(400).json("Input should be a valid number");
-  } else {
-    result -= bodyInput;
-    lastChange = new Date();
-    res.json(result);
   }
 });
 

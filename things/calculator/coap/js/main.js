@@ -43,10 +43,55 @@ placeholderReplacer.addVariableMap({
   ACTIONS,
   EVENTS,
   HOSTNAME: hostname,
-  PORT_NUMBER: portNumber
+  PORT_NUMBER: portNumber,
+  LAST_CHANGE_OBSERVABLE: true,
+  RESULT_OBSERVABLE: true
 })
 const thingDescription = placeholderReplacer.replace(thingModel)
 thingDescription['@type'] = 'Thing'
+
+//Modifying TD
+const defaultForm = {
+  "href": "",
+  "contentType": "application/json",
+  "op": []
+}
+
+for (const key in thingDescription['properties']) {
+
+  thingDescription['properties'][key]['forms'] = []
+
+  const newFormRead = JSON.parse(JSON.stringify(defaultForm))
+  newFormRead['href'] = `properties/${key}`
+  newFormRead['op'] = ["readproperty"]
+
+  thingDescription['properties'][key]['forms'].push(newFormRead)
+}
+
+//add actions forms
+for (const key in thingDescription['actions']) {
+
+  thingDescription['actions'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `actions/${key}`
+  newForm['op'] = ["invokeaction"]
+
+  thingDescription['actions'][key]['forms'].push(newForm)
+}
+
+//add events forms
+for (const key in thingDescription['events']) {
+
+  thingDescription['events'][key]['forms'] = []
+
+  const newForm = JSON.parse(JSON.stringify(defaultForm))
+  newForm['href'] = `events/${key}`
+  newForm['op'] = ["subscribeevent", "unsubscribeevent"]
+  newForm['subprotocol'] = "cov:observe"
+                 
+  thingDescription['events'][key]['forms'].push(newForm)
+}
 
 let result = 0
 let lastChange = ''

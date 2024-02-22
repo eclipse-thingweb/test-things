@@ -14,7 +14,7 @@ const hostname = 'localhost'
 let portNumber = 3000
 const thingName = 'http-express-calculator-content-negotiation'
 
-const fullTDEndPoint = `/${thingName}`,
+const TDEndPoint = `/${thingName}`,
   resultEndPoint = `/${thingName}/properties/result`,
   resultEndPointObserve = `${resultEndPoint}/observe`,
   lastChangeEndPoint = `/${thingName}/properties/lastChange`,
@@ -22,6 +22,8 @@ const fullTDEndPoint = `/${thingName}`,
   additionEndPoint = `/${thingName}/actions/add`,
   subtractionEndPoint = `/${thingName}/actions/subtract`,
   updateEndPoint = `/${thingName}/events/update`
+
+const existingEndpoints =  [TDEndPoint, resultEndPoint, resultEndPointObserve, lastChangeEndPoint, lastChangeEndPointObserve, additionEndPoint, subtractionEndPoint, updateEndPoint]
 
 let result = 0
 let lastChange = ''
@@ -196,6 +198,18 @@ try {
 /************** Middleware ****************/
 /******************************************/
 
+//Middleware to ensure the right endpoints are being called
+app.use((req, res, next) => {
+  const endpoint = req.url
+
+  if (!existingEndpoints.includes(endpoint)) {
+    res.status(404).json("Not Found")
+  }
+  else {
+    next()
+  }
+})
+
 // Middleware to check if supported 'Accept' values have been sent
 app.use((req, res, next) => {
   const acceptHeader = req.get('Accept')
@@ -203,7 +217,7 @@ app.use((req, res, next) => {
   if (acceptHeader === undefined) {
     res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
   }
-  else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor')) {
+  else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('application/td+json')) {
     next()
   } else {
     res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
@@ -237,7 +251,7 @@ app.use((req, res, next) => {
   const method = req.method
   const endpoint = req.url
 
-  if (endpoint === fullTDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
+  if (endpoint === TDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
     if (method === 'GET') {
       next()
     } else {
@@ -265,17 +279,10 @@ app.use(bodyParser.raw({ type: 'application/cbor' }));
 /*****************************************************/
 
 // Get full thing
-app.get(fullTDEndPoint, (req, res) => {
-  const acceptHeader = req.get('Accept')
+app.get(TDEndPoint, (req, res) => {
 
-  if (acceptHeader.includes('application/json')) {
-    res.json(thingDescription)
-  }
-  else {
-    const cborData = cbor.encode(thingDescription)
-    res.setHeader('Content-Type', 'application/cbor')
-    res.send(cborData)
-  }
+  res.json(thingDescription)
+
 })
 
 //Get current result

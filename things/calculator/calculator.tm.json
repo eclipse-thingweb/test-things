@@ -17,7 +17,7 @@
   "security":[
      "nosec_sc"
   ],
-  "base":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}",
+  "base":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/",
   "properties":{
      "result":{
         "type":"number",

@@ -17,7 +17,7 @@
   "security": [
     "nosec_sc"
   ],
-  "base": "http://localhost:3000/http-express-calculator-simple",
+  "base": "http://localhost:3000/http-express-calculator-simple/",
   "properties": {
     "result": {
       "type": "number",
