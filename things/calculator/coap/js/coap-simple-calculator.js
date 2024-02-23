@@ -116,6 +116,7 @@ server.on('request', (req, res) => {
 
     if (segments[1] !== thingName) {
         res.code = 404
+        res.end()
     } else {
         if (!segments[2]) {
             if (req.method === 'GET') {
