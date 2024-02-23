@@ -17,7 +17,7 @@
   "security": [
     "nosec_sc"
   ],
-  "base": "coap://localhost:5683/coap-calculator-simple",
+  "base": "coap://localhost:5683/coap-calculator-simple/",
   "properties": {
     "result": {
       "type": "number",
@@ -112,7 +112,7 @@
   "events": {
     "update": {
       "data": {
-        "type": "string"
+        "type": "number"
       },
       "forms": [
         {

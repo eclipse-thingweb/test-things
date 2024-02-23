@@ -8,7 +8,7 @@ require('dotenv').config()
 
 const server = coap.createServer()
 const hostname = 'localhost'
-let portNumber = 5683
+let portNumber = 5684
 const thingName = 'coap-calculator-content-negotiation'
 
 const { values: { port } } = parseArgs({
@@ -209,6 +209,10 @@ server.on('request', (req, res) => {
   const acceptHeaders = req.headers['Accept']
   const reqContentType = req.headers['Content-Type'] || req.headers['Content-Format']
 
+  console.log(segments);
+  // console.log("Accept:", acceptHeaders);
+  // console.log("content type:", reqContentType);
+
 
   if (segments[1] !== thingName) {
     res.code = 404
@@ -216,21 +220,7 @@ server.on('request', (req, res) => {
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
-        if (supportedContentTypes.includes(acceptHeaders)) {
-          if (acceptHeaders.includes('application/json')) {
-            res.setOption('Content-Format', 'application/json')
-            res.end(JSON.stringify(thingDescription))
-          }
-          else {
-            const cborData = cbor.encode(JSON.stringify(thingDescription))
-            res.setOption('Content-Format', 'application/cbor')
-            res.end(cborData)
-          }
-        }
-        else {
-          res.code = 406
-          res.end()
-        }
+        res.end(JSON.stringify(thingDescription))
       }
       else {
         res.code = 405
@@ -255,9 +245,11 @@ server.on('request', (req, res) => {
 
             let oldResult = result
 
+            //Todo: observation functionality should not happen inside a loop
             const changeInterval = setInterval(() => {
 
               if (oldResult !== result) {
+                console.log("entered result change");
                 res.statusCode = 205
                 if (acceptHeaders.includes('application/json')) {
                   res.write(JSON.stringify(result))
@@ -301,6 +293,7 @@ server.on('request', (req, res) => {
             const changeInterval = setInterval(() => {
 
               if (oldDate !== lastChange) {
+                console.log("Entering lastChange");
                 res.statusCode = 205
                 if (acceptHeaders.includes('application/json')) {
                   res.write(JSON.stringify(lastChange))
@@ -448,6 +441,7 @@ server.on('request', (req, res) => {
             res.setOption('Content-Format', acceptHeaders)
 
             if (oldResult !== result) {
+              console.log("entered update change");
               res.statusCode = 205
               if (acceptHeaders.includes('application/json')) {
                 res.write(JSON.stringify(result))

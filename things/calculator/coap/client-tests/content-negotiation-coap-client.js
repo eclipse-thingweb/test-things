@@ -1,7 +1,7 @@
 const coap = require('coap')
 const cbor = require('cbor')
 const hostname = 'localhost'
-const portNumber = 5683
+const portNumber = 5684
 const thingName = 'coap-calculator-content-negotiation'
 
 const fullTDEndpoint = `/${thingName}`,
