@@ -166,6 +166,8 @@ for (const key in thingDescription['actions']) {
 //Adding headers to the Events
 for (const key in thingDescription['events']) {
 
+  thingDescription['events'][key]['data']['type'] = "number"
+
   thingDescription['events'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
@@ -209,11 +211,6 @@ server.on('request', (req, res) => {
   const acceptHeaders = req.headers['Accept']
   const reqContentType = req.headers['Content-Type'] || req.headers['Content-Format']
 
-  console.log(segments);
-  // console.log("Accept:", acceptHeaders);
-  // console.log("content type:", reqContentType);
-
-
   if (segments[1] !== thingName) {
     res.code = 404
     res.end()
@@ -249,9 +246,8 @@ server.on('request', (req, res) => {
             const changeInterval = setInterval(() => {
 
               if (oldResult !== result) {
-                console.log("entered result change");
                 res.statusCode = 205
-                if (acceptHeaders.includes('application/json')) {
+                if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
                   res.write(JSON.stringify(result))
                   oldResult = result
                 }
@@ -271,7 +267,7 @@ server.on('request', (req, res) => {
           else {
 
             //If no observation is required, send only the result and close connection
-            if (acceptHeaders.includes('application/json')) {
+            if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
               res.end(JSON.stringify(result))
             }
             else {
@@ -293,9 +289,8 @@ server.on('request', (req, res) => {
             const changeInterval = setInterval(() => {
 
               if (oldDate !== lastChange) {
-                console.log("Entering lastChange");
                 res.statusCode = 205
-                if (acceptHeaders.includes('application/json')) {
+                if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
                   res.write(JSON.stringify(lastChange))
                   oldDate = lastChange
                 }
@@ -315,7 +310,7 @@ server.on('request', (req, res) => {
           else {
 
             //If no observation is required, send only the result and close connection
-            if (acceptHeaders.includes('application/json')) {
+            if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
               res.end(JSON.stringify(lastChange))
             }
             else {
@@ -369,7 +364,7 @@ server.on('request', (req, res) => {
               result += numberToAdd
               lastChange = new Date()
 
-              if (acceptHeaders.includes('application/json')) {
+              if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
                 res.end(JSON.stringify(result))
               }
               else {
@@ -398,7 +393,7 @@ server.on('request', (req, res) => {
               result -= numberToSubtract
               lastChange = new Date()
 
-              if (acceptHeaders.includes('application/json')) {
+              if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
                 res.end(JSON.stringify(result))
               }
               else {
@@ -441,9 +436,8 @@ server.on('request', (req, res) => {
             res.setOption('Content-Format', acceptHeaders)
 
             if (oldResult !== result) {
-              console.log("entered update change");
               res.statusCode = 205
-              if (acceptHeaders.includes('application/json')) {
+              if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
                 res.write(JSON.stringify(result))
                 oldResult = result
               }

@@ -20,5 +20,9 @@
     "ajv": "^8.12.0",
     "chai": "^4.3.7",
     "mocha": "^10.2.0"
+  },
+  "dependencies": {
+    "@node-wot/binding-coap": "^0.8.12",
+    "@node-wot/core": "^0.8.12"
   }
 }

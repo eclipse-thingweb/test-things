@@ -86,6 +86,8 @@ for (const key in thingDescription['actions']) {
 //add events forms
 for (const key in thingDescription['events']) {
 
+    thingDescription['events'][key]['data']['type'] = "number"
+
     thingDescription['events'][key]['forms'] = []
 
     const newForm = JSON.parse(JSON.stringify(defaultForm))
