@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@node-wot/binding-http": "^0.8.12",
+    "@node-wot/binding-coap": "^0.8.12",
     "@node-wot/core": "^0.8.12"
   }
 }
