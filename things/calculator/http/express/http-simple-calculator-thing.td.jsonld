@@ -112,7 +112,7 @@
   "events": {
     "update": {
       "data": {
-        "type": "string"
+        "type": "object"
       },
       "forms": [
         {

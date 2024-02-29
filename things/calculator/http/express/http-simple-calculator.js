@@ -4,6 +4,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const { parseArgs } = require("node:util");
 const { JsonPlaceholderReplacer } = require("json-placeholder-replacer");
+const { log } = require("console");
 require("dotenv").config();
 
 const app = express();
@@ -97,6 +98,8 @@ for (const key in thingDescription['actions']) {
 
 //add events forms
 for (const key in thingDescription['events']) {
+
+  thingDescription['events'][key]['data']['type'] = "object"
 
   thingDescription['events'][key]['forms'] = []
 

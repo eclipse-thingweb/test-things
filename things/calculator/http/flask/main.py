@@ -75,6 +75,9 @@ for key in thingDescription['actions']:
     thingDescription['actions'][key]['forms'].append(new_form_action)
 
 for key in thingDescription['events']:
+
+    thingDescription['events'][key]['data']['type'] = "string"
+    
     thingDescription['events'][key]['forms'] = []
 
     new_form_event = default_form.copy()

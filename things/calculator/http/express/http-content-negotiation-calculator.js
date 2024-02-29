@@ -163,6 +163,8 @@ for (const key in thingDescription['actions']) {
 
 for (const key in thingDescription['events']) {
 
+  thingDescription['events'][key]['data']['type'] = "object"
+
   thingDescription['events'][key]['forms'] = []
 
   const newForm = JSON.parse(JSON.stringify(defaultForm))
@@ -210,42 +212,6 @@ app.use((req, res, next) => {
   }
 })
 
-// Middleware to check if supported 'Accept' values have been sent
-app.use((req, res, next) => {
-  const acceptHeader = req.get('Accept')
-
-  if (acceptHeader === undefined) {
-    res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
-  }
-  else if (acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('application/td+json')) {
-    next()
-  } else {
-    res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
-  }
-});
-
-
-// Middleware to accept only the content-types: json and cbor
-app.use((req, res, next) => {
-  const contentType = req.get('Content-Type')
-  const method = req.method
-  const endpoint = req.url
-
-  if (method === 'POST' && (endpoint === additionEndPoint || endpoint === subtractionEndPoint)) {
-    if (supportedContentTypes === undefined) {
-      res.status(415).json('Unsupported Media Type: Supported Content-Types are application/json, and application/cbor');
-    }
-    else if (supportedContentTypes.includes(contentType)) {
-      next()
-    } else {
-      res.status(415).json('Unsupported Media Type: Supported Content-Types are application/json, and application/cbor');
-    }
-  }
-  else {
-    next()
-  }
-});
-
 //Middleware to ensure the right method is been used for each endpoint
 app.use((req, res, next) => {
   const method = req.method
@@ -268,6 +234,39 @@ app.use((req, res, next) => {
   }
 })
 
+// Middleware to check if supported 'Accept' values have been sent
+app.use((req, res, next) => {
+  const acceptHeader = req.get('Accept')
+
+  if (acceptHeader === undefined) {
+    res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
+  }
+  else if (acceptHeader.includes('*/*') || acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('application/td+json') || acceptHeader.includes('text/event-stream')) {
+    next()
+  } else {
+    res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
+  }
+});
+
+
+// Middleware to accept only the content-types: json and cbor
+app.use((req, res, next) => {
+  const contentType = req.get('Content-Type')
+  const method = req.method
+
+  if(contentType === undefined) {
+    if(method === 'POST') {
+      res.status(415).json('Unsupported Media Type');
+    }
+    else {
+      next()
+    }
+  }
+  else {
+    next()
+  }
+});
+
 // Use body-parser middleware to parse the request body
 app.use(bodyParser.text());
 app.use(bodyParser.json({ type: 'application/json' }));
@@ -289,7 +288,7 @@ app.get(TDEndPoint, (req, res) => {
 app.get(resultEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('application/json')) {
+  if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
     res.json(result)
   }
   else {
@@ -315,7 +314,7 @@ app.get(resultEndPointObserve, (req, res) => {
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader.includes('application/json')) {
+      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
         message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {
@@ -343,7 +342,7 @@ app.get(resultEndPointObserve, (req, res) => {
 app.get(lastChangeEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('application/json')) {
+  if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
     res.json(lastChange)
   }
   else {
@@ -369,7 +368,7 @@ app.get(lastChangeEndPointObserve, (req, res) => {
     if (oldLastChange !== lastChange) {
       let message
 
-      if (acceptHeader.includes('application/json')) {
+      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
         message = `data: ${JSON.stringify(lastChange)}\n\n`
       }
       else {
@@ -408,16 +407,15 @@ app.post(additionEndPoint, (req, res) => {
     try {
       bodyInput = cbor.decode(req.body);
     } catch (err) {
-      console.error("- Empty Buffer -");
+      res.status(400).json('Bad Request');
     }
   }
   else {
     try {
       bodyInput = JSON.parse(req.body)
     } catch (err) {
-      console.error("- Empty JSON -");
+      res.status(400).json('Bad Request');
     }
-
   }
 
   /**Check if given input is a number, if not return an error message,
@@ -427,7 +425,7 @@ app.post(additionEndPoint, (req, res) => {
   if (typeof bodyInput !== 'number') {
     res.status(400).json('Input should be a valid number')
   } else {
-    if (acceptHeader.includes('application/json')) {
+    if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
       result += bodyInput
       lastChange = new Date()
       res.json(result)
@@ -451,14 +449,14 @@ app.post(subtractionEndPoint, (req, res) => {
     try {
       bodyInput = cbor.decode(req.body);
     } catch (err) {
-      console.error("- Empty Buffer");
+      res.status(400).json('Bad Request');
     }
   }
   else {
     try {
       bodyInput = JSON.parse(req.body)
     } catch (err) {
-      console.error("- Empty JSON");
+      res.status(400).json('Bad Request');
     }
   }
 
@@ -469,7 +467,7 @@ app.post(subtractionEndPoint, (req, res) => {
   if (typeof bodyInput !== 'number') {
     res.status(400).json('Input should be a valid number')
   } else {
-    if (acceptHeader.includes('application/json')) {
+    if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
       result -= bodyInput
       lastChange = new Date()
       res.json(result)
@@ -503,7 +501,7 @@ app.get(updateEndPoint, (req, res) => {
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader.includes('application/json')) {
+      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
         message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {

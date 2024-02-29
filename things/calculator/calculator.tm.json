@@ -57,9 +57,7 @@
   },
   "events":{
      "update":{
-        "data":{
-           "type":"string"
-        }
+        "data":{}
      }
   }
 }
