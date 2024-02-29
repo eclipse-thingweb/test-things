@@ -19,7 +19,7 @@ describe('Calculator CoAP JS', () => {
     const initiateMain = new Promise(async (resolve, reject) => {
       thingProcess = spawn(
         'node',
-        ['simple-coap-calculator.js', '-p', `${port}`],
+        ['coap-simple-calculator.js', '-p', `${port}`],
         { cwd: path.join(__dirname, '..') }
       )
       thingProcess.stdout.on('data', (data) => {
