@@ -1,0 +1,381 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "@language": "en"
+    }
+  ],
+  "@type": "Thing",
+  "title": "http-express-calculator-content-negotiation",
+  "description": "Calculator Thing",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": [
+    "nosec_sc"
+  ],
+  "base": "http://localhost:3001/http-express-calculator-content-negotiation/",
+  "properties": {
+    "result": {
+      "type": "number",
+      "readOnly": true,
+      "writeOnly": false,
+      "observable": true,
+      "forms": [
+        {
+          "href": "properties/result",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "properties/result/observe",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        },
+        {
+          "href": "properties/result",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "properties/result/observe",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        }
+      ]
+    },
+    "lastChange": {
+      "type": "string",
+      "format": "date-time",
+      "readOnly": true,
+      "writeOnly": false,
+      "observable": true,
+      "forms": [
+        {
+          "href": "properties/lastChange",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "properties/lastChange/observe",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        },
+        {
+          "href": "properties/lastChange",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "properties/lastChange/observe",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": [
+            "observeproperty",
+            "unobserveproperty"
+          ],
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        }
+      ]
+    }
+  },
+  "actions": {
+    "add": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false,
+      "forms": [
+        {
+          "href": "actions/add",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "actions/add",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "actions/add",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "actions/add",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ]
+        }
+      ]
+    },
+    "subtract": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false,
+      "forms": [
+        {
+          "href": "actions/subtract",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "actions/subtract",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "actions/subtract",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ]
+        },
+        {
+          "href": "actions/subtract",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "events": {
+    "update": {
+      "data": {
+        "type": "object"
+      },
+      "forms": [
+        {
+          "href": "events/update",
+          "contentType": "application/json",
+          "response": {
+            "contentType": "application/json"
+          },
+          "op": "subscribeevent",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/json",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        },
+        {
+          "href": "events/update",
+          "contentType": "application/cbor",
+          "response": {
+            "contentType": "application/cbor"
+          },
+          "op": "subscribeevent",
+          "htv:methodName": "GET",
+          "htv:headers": [
+            {
+              "@type": "htv:RequestHeader",
+              "fieldValue": "application/cbor",
+              "fieldName": "Accept"
+            }
+          ],
+          "subprotocol": "sse"
+        }
+      ]
+    }
+  }
+}

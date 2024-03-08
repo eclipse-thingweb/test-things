@@ -8,6 +8,6 @@ RUN npm install
 
 ENV TM_PATH="./calculator.tm.json"
 
-CMD ["node", "main.js"]
+CMD ["node", "http-content-negotiation-calculator.js"]
 
-EXPOSE 3000
+EXPOSE 3001

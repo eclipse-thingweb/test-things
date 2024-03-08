@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request 
 from flask import Response
+from flask import jsonify
 import math
 from datetime import datetime
 import json
@@ -42,7 +43,49 @@ thingModel = thingModel.replace('{{PROPERTIES}}', PROPERTIES)
 thingModel = thingModel.replace('{{ACTIONS}}', ACTIONS)
 thingModel = thingModel.replace('{{EVENTS}}', EVENTS)
 thingModel = thingModel.replace('{{THING_NAME}}', thingName)
-thingDescription = thingModel.replace('{{PORT_NUMBER}}', str(portNumber))
+thingModel = thingModel.replace('{{PORT_NUMBER}}', str(portNumber))
+
+thingDescription = json.loads(thingModel)
+
+default_form = {
+    "href": "",
+    "contentType": "application/json",
+    "op": []
+}
+
+
+for key in thingDescription['properties']:
+
+    thingDescription['properties'][key]['observable'] = True
+    thingDescription['properties'][key]['forms'] = []
+
+    new_form_read = default_form.copy()
+    new_form_read['href'] = "properties/" + key
+    new_form_read['op'] = ["readproperty"]
+
+    thingDescription['properties'][key]['forms'].append(new_form_read)
+
+for key in thingDescription['actions']:
+    thingDescription['actions'][key]['forms'] = []
+
+    new_form_action = default_form.copy()
+    new_form_action['href'] = "actions/" + key
+    new_form_action['op'] = ["invokeaction"]
+
+    thingDescription['actions'][key]['forms'].append(new_form_action)
+
+for key in thingDescription['events']:
+
+    thingDescription['events'][key]['data']['type'] = "string"
+    
+    thingDescription['events'][key]['forms'] = []
+
+    new_form_event = default_form.copy()
+    new_form_event['href'] = "events/" + key
+    new_form_event['op'] = ["subscribeevent", "unsubscribeevent"]
+    new_form_event['subprotocol'] = "sse"
+
+    thingDescription['events'][key]['forms'].append(new_form_event)
 
 result = 0
 lastChange = ""
@@ -53,11 +96,11 @@ def getThingDescription():
 
 @app.route(f'/{thingName}/{PROPERTIES}/result', methods=['GET'])
 def getResult():
-    return str(result)
+    return jsonify(result)
 
 @app.route(f'/{thingName}/{PROPERTIES}/lastChange', methods=['GET'])
 def getLastChange():
-    return lastChange
+    return jsonify(lastChange)
 
 @app.route(f'/{thingName}/{ACTIONS}/add', methods=['POST'])
 def add():
@@ -70,7 +113,7 @@ def add():
         result += operand
         global lastChange
         lastChange = str(datetime.now())
-        return str(result)
+        return jsonify(result)
 
 @app.route(f'/{thingName}/{ACTIONS}/subtract', methods=['POST'])
 def subtract():
@@ -83,7 +126,7 @@ def subtract():
         result -= operand
         global lastChange
         lastChange = str(datetime.now())
-        return str(result)
+        return jsonify(result)
 
 @app.route(f'/{thingName}/{EVENTS}/change', methods=['GET'])
 def change():
