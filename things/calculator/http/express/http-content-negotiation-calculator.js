@@ -241,7 +241,7 @@ app.use((req, res, next) => {
   if (acceptHeader === undefined) {
     res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
   }
-  else if (acceptHeader.includes('*/*') || acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('application/td+json') || acceptHeader.includes('text/event-stream')) {
+  else if (acceptHeader.includes('*/*') || acceptHeader.includes('application/*') || acceptHeader.includes('application/json') || acceptHeader.includes('application/cbor') || acceptHeader.includes('application/td+json') || acceptHeader.includes('text/event-stream')) {
     next()
   } else {
     res.status(406).json('Not Acceptable: Supported formats are application/json, and application/cbor');
@@ -288,7 +288,8 @@ app.get(TDEndPoint, (req, res) => {
 app.get(resultEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+  //JSON media type is utilized as the default for the wild card
+  if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
     res.json(result)
   }
   else {
@@ -314,7 +315,7 @@ app.get(resultEndPointObserve, (req, res) => {
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
         message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {
@@ -342,7 +343,7 @@ app.get(resultEndPointObserve, (req, res) => {
 app.get(lastChangeEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
-  if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+  if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
     res.json(lastChange)
   }
   else {
@@ -368,7 +369,7 @@ app.get(lastChangeEndPointObserve, (req, res) => {
     if (oldLastChange !== lastChange) {
       let message
 
-      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
         message = `data: ${JSON.stringify(lastChange)}\n\n`
       }
       else {
@@ -425,7 +426,7 @@ app.post(additionEndPoint, (req, res) => {
   if (typeof bodyInput !== 'number') {
     res.status(400).json('Input should be a valid number')
   } else {
-    if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+    if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
       result += bodyInput
       lastChange = new Date()
       res.json(result)
@@ -467,7 +468,7 @@ app.post(subtractionEndPoint, (req, res) => {
   if (typeof bodyInput !== 'number') {
     res.status(400).json('Input should be a valid number')
   } else {
-    if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+    if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
       result -= bodyInput
       lastChange = new Date()
       res.json(result)
@@ -501,7 +502,7 @@ app.get(updateEndPoint, (req, res) => {
     if (oldResult !== result) {
       let message
 
-      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*')) {
+      if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
         message = `data: ${JSON.stringify(result)}\n\n`
       }
       else {

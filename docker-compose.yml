@@ -8,13 +8,13 @@ services:
       dockerfile: ./coap/js/Dockerfile
   http-express-calculator-simple:
     labels:
-      - traefik.http.routers.http-express-calculator.rule=PathPrefix(`/http-express-calculator-simple`)
+      - traefik.http.routers.http-express-calculator-simple.rule=PathPrefix(`/http-express-calculator-simple`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile-simple
   http-express-calculator-content-negotiation:
     labels:
-      - traefik.http.routers.http-express-calculator.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
+      - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile-contentneg
