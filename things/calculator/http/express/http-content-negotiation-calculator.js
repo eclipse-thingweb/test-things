@@ -23,7 +23,7 @@ const TDEndPoint = `/${thingName}`,
   subtractionEndPoint = `/${thingName}/actions/subtract`,
   updateEndPoint = `/${thingName}/events/update`
 
-const existingEndpoints =  [TDEndPoint, resultEndPoint, resultEndPointObserve, lastChangeEndPoint, lastChangeEndPointObserve, additionEndPoint, subtractionEndPoint, updateEndPoint]
+const existingEndpoints = [TDEndPoint, resultEndPoint, resultEndPointObserve, lastChangeEndPoint, lastChangeEndPointObserve, additionEndPoint, subtractionEndPoint, updateEndPoint]
 
 let result = 0
 let lastChange = ''
@@ -254,8 +254,8 @@ app.use((req, res, next) => {
   const contentType = req.get('Content-Type')
   const method = req.method
 
-  if(contentType === undefined) {
-    if(method === 'POST') {
+  if (contentType === undefined) {
+    if (method === 'POST') {
       res.status(415).json('Unsupported Media Type');
     }
     else {
@@ -279,9 +279,9 @@ app.use(bodyParser.raw({ type: 'application/cbor' }));
 
 // Get full thing
 app.get(TDEndPoint, (req, res) => {
-
-  res.json(thingDescription)
-
+  const jsonData = JSON.stringify(thingDescription)
+  res.setHeader('Content-Type', 'application/json')
+  res.send(jsonData)
 })
 
 //Get current result
@@ -290,7 +290,9 @@ app.get(resultEndPoint, (req, res) => {
 
   //JSON media type is utilized as the default for the wild card
   if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
-    res.json(result)
+    const jsonData = JSON.stringify(result)
+    res.setHeader('Content-Type', 'application/json')
+    res.send(jsonData)
   }
   else {
     const cborData = cbor.encode(result)
@@ -344,7 +346,9 @@ app.get(lastChangeEndPoint, (req, res) => {
   const acceptHeader = req.get('Accept')
 
   if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
-    res.json(lastChange)
+    const jsonData = JSON.stringify(lastChange)
+    res.setHeader('Content-Type', 'application/json')
+    res.send(jsonData)
   }
   else {
     const cborData = cbor.encode(lastChange)
@@ -429,12 +433,17 @@ app.post(additionEndPoint, (req, res) => {
     if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
       result += bodyInput
       lastChange = new Date()
-      res.json(result)
+      const jsonData = JSON.stringify(result)
+      res.setHeader('Content-Type', 'application/json')
+      res.send(jsonData)
     }
     else {
       result += bodyInput
       lastChange = new Date()
+      console.log("cbor before encoded: ", result);
       const cborData = cbor.encode(result)
+      console.log("cbor encoded: ", cborData);
+      res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
     }
   }
@@ -471,12 +480,15 @@ app.post(subtractionEndPoint, (req, res) => {
     if (acceptHeader.includes('application/json') || acceptHeader.includes('*/*') || acceptHeader.includes('application/*')) {
       result -= bodyInput
       lastChange = new Date()
-      res.json(result)
+      const jsonData = JSON.stringify(result)
+      res.setHeader('Content-Type', 'application/json')
+      res.send(jsonData)
     }
     else {
       result -= bodyInput
       lastChange = new Date()
       const cborData = cbor.encode(result)
+      res.setHeader('Content-Type', 'application/cbor')
       res.send(cborData)
     }
   }

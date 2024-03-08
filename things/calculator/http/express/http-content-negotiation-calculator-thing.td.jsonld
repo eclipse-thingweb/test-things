@@ -17,7 +17,7 @@
   "security": [
     "nosec_sc"
   ],
-  "base": "http://localhost:3000/http-express-calculator-content-negotiation/",
+  "base": "http://localhost:3001/http-express-calculator-content-negotiation/",
   "properties": {
     "result": {
       "type": "number",
