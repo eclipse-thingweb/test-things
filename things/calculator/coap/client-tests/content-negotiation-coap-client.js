@@ -156,7 +156,7 @@ function getLastChange(acceptType) {
             console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)
         }
     })
-    getLastChange.end()
+    getPropertyLastChange.end()
 }
 
 

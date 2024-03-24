@@ -170,8 +170,9 @@ function addNumber(numberToAdd) {
             console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
         }
     });
-    addNumberReq.end();
+    addNumberAction.end();
 }
+
 
 
 /****************************************/
@@ -223,16 +224,15 @@ function observeUpdateEvent() {
     });
 
     observeEventChange.on('response', (res) => {
-
         res.on('data', function () {
             if (res.code === '2.05') {
-                console.log(res.payload.toString())
+                console.log('Observe update event:', JSON.parse(res.payload.toString()))
             } else {
                 console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
             }
         })
 
-});
+    });
 
     // Start observing
     observeEventChange.end();
