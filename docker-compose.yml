@@ -1,11 +1,29 @@
 version: "3"
 services:
-  coap-calculator:
+  coap-calculator-simple:
     labels:
-      - traefik.udp.routers.coap-calculator.entrypoints=coap-calculator
+      - traefik.udp.routers.coap-calculator-simple.entrypoints=coap-calculator-simple
     build:
       context: ./things/calculator/
-      dockerfile: ./coap/js/Dockerfile
+      dockerfile: ./coap/js/Dockerfile-simple
+  coap-calculator-content-negotiation:
+    labels:
+      - traefik.udp.routers.coap-calculator-content-negotiation.entrypoints=coap-calculator-content-negotiation
+    build:
+      context: ./things/calculator/
+      dockerfile: ./coap/js/Dockerfile-contentneg
+  # coap-calculator-simple:
+  #   labels:
+  #     - traefik.udp.routers.coap-calculator-simple.rule=PathPrefix(`/coap-calculator-simple`)
+  #   build:
+  #     context: ./things/calculator/
+  #     dockerfile: ./coap/js/Dockerfile-simple
+  # coap-calculator-content-negotiation:
+  #   labels:
+  #     - traefik.udp.routers.coap-calculator-content-negotiation.rule=PathPrefix(`/coap-calculator-content-negotiation`)
+  #   build:
+  #     context: ./things/calculator/
+  #     dockerfile: ./coap/js/Dockerfile-contentneg
   http-express-calculator-simple:
     labels:
       - traefik.http.routers.http-express-calculator-simple.rule=PathPrefix(`/http-express-calculator-simple`)
@@ -43,11 +61,13 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.modbus-elevator.address=:3179"
-      - "--entrypoints.coap-calculator.address=:3179/udp"
+      - "--entrypoints.coap-calculator-simple.address=:3179/udp"
+      - "--entrypoints.coap-calculator-content-negotiation.address=:3180/udp"
     ports:
       - "80:80"
       - "3179:3179"
       - "3179:3179/udp"
+      - "3180:3180/udp"
       - "8080:8080"
     volumes:
       # So that Traefik can listen to the Docker events
