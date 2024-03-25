@@ -1,4 +1,3 @@
-// example-client.js
 const { Servient } = require("@node-wot/core");
 const { CoapClientFactory } = require("@node-wot/binding-coap");
 

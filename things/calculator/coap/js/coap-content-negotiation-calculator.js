@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 const cbor = require('cbor')
+const { finished } = require('node:stream')
 require('dotenv').config()
 
 const server = coap.createServer()
@@ -217,7 +218,19 @@ server.on('request', (req, res) => {
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
-        res.end(JSON.stringify(thingDescription))
+        if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/td+json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
+          res.setOption('Content-Format', 'application/json')
+          res.end(JSON.stringify(thingDescription))
+        }
+        else if (acceptHeaders.includes('application/cbor')) {
+          const cborData = cbor.encode(JSON.stringify(thingDescription))
+          res.setOption('Content-Format', 'application/cbor')
+          res.end(cborData)
+        }
+        else {
+          res.code = 406
+          res.end()
+        }
       }
       else {
         res.code = 405
@@ -235,7 +248,6 @@ server.on('request', (req, res) => {
 
         //Result Endpoint
         if (segments[3] === 'result') {
-
           //Start the observation of the property if observe attribute is set to true
           if (req.headers.Observe === 0) {
             console.log('Observing result property...')
@@ -247,7 +259,7 @@ server.on('request', (req, res) => {
 
               if (oldResult !== result) {
                 res.statusCode = 205
-                if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+                if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
                   res.write(JSON.stringify(result))
                   oldResult = result
                 }
@@ -260,14 +272,14 @@ server.on('request', (req, res) => {
             }, 1000)
 
             res.on('finish', () => {
+              console.log("Result property observation has been closed");
               clearInterval(changeInterval)
             })
 
           }
           else {
-
             //If no observation is required, send only the result and close connection
-            if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+            if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
               res.end(JSON.stringify(result))
             }
             else {
@@ -290,7 +302,7 @@ server.on('request', (req, res) => {
 
               if (oldDate !== lastChange) {
                 res.statusCode = 205
-                if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+                if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
                   res.write(JSON.stringify(lastChange))
                   oldDate = lastChange
                 }
@@ -303,6 +315,7 @@ server.on('request', (req, res) => {
             }, 1000)
 
             res.on('finish', () => {
+              console.log("lastChange property observation has been closed");
               clearInterval(changeInterval)
             })
 
@@ -310,7 +323,7 @@ server.on('request', (req, res) => {
           else {
 
             //If no observation is required, send only the result and close connection
-            if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+            if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
               res.end(JSON.stringify(lastChange))
             }
             else {
@@ -353,7 +366,7 @@ server.on('request', (req, res) => {
               numberToAdd = JSON.parse(req.payload.toString())
             }
             else {
-              numberToAdd = cbor.decode(req.payload);   
+              numberToAdd = cbor.decode(req.payload);
             }
 
             if (typeof numberToAdd !== "number" || !numberToAdd) {
@@ -364,7 +377,7 @@ server.on('request', (req, res) => {
               result += numberToAdd
               lastChange = new Date()
 
-              if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+              if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
                 res.end(JSON.stringify(result))
               }
               else {
@@ -382,7 +395,7 @@ server.on('request', (req, res) => {
               numberToSubtract = JSON.parse(req.payload.toString())
             }
             else {
-              numberToSubtract = cbor.decode(req.payload);  
+              numberToSubtract = cbor.decode(req.payload);
             }
 
             if (typeof numberToSubtract !== "number" || !numberToSubtract) {
@@ -393,7 +406,7 @@ server.on('request', (req, res) => {
               result -= numberToSubtract
               lastChange = new Date()
 
-              if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+              if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
                 res.end(JSON.stringify(result))
               }
               else {
@@ -437,7 +450,7 @@ server.on('request', (req, res) => {
 
             if (oldResult !== result) {
               res.statusCode = 205
-              if (acceptHeaders.includes('application/json') || acceptHeaders === '*/*') {
+              if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
                 res.write(JSON.stringify(result))
                 oldResult = result
               }

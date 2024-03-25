@@ -33,7 +33,7 @@ function getFullTD(acceptType) {
     getThingDescription.on('response', (res) => {
         //TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
         if (res.code === '2.05') {
-            if (acceptType === "application/json") {
+            if (acceptType === "application/json" || acceptType === "application/td+json") {
                 console.log('Thing Description (json):\n', JSON.parse(res.payload.toString()))
             }
             else {
@@ -42,7 +42,7 @@ function getFullTD(acceptType) {
             }
 
         } else {
-            console.error(`Failed to get Thing Description: ${res.code} - ${res.payload.toString()}`)
+            console.error(`Failed to get Thing Description: ${res.code}`)
         }
     })
     getThingDescription.end()
@@ -78,7 +78,7 @@ function getResult(acceptType) {
                 console.log("Result (cbor): ", decodedData);
             }
         } else {
-            console.error(`Failed to get Property "result": ${res.code} - ${res.payload.toString()}`)
+            console.error(`Failed to get Property "result": ${res.code}`)
         }
     })
     getPropertyResult.end()
@@ -115,10 +115,9 @@ function observeResultProperty(acceptType) {
                     console.log("Observe result property (cbor): ", decodedData);
                 }
             } else {
-                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+                console.error(`Failed to observe Event "update": ${res.code}`);
             }
         })
-
     });
 
     observeResult.end();
@@ -153,7 +152,7 @@ function getLastChange(acceptType) {
                 console.log("Last Change (cbor): ", decodedData);
             }
         } else {
-            console.error(`Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`)
+            console.error(`Failed to get Property "lastChange": ${res.code}`)
         }
     })
     getPropertyLastChange.end()
@@ -191,7 +190,7 @@ function observeLastChangeProperty(acceptType) {
                     console.log("Observe lastChange property (cbor): ", decodedData);
                 }
             } else {
-                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+                console.error(`Failed to observe Event "update": ${res.code}`);
             }
         })
 
@@ -235,7 +234,7 @@ function addNumber(acceptType, contentType, numberToAdd) {
                 console.log("Addition result (cbor): ", decodedData);
             }
         } else {
-            console.error(`Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`)
+            console.error(`Failed to call the Action "add": ${res.code}`)
 
         }
     });
@@ -277,7 +276,7 @@ function subtractNumber(acceptType, contentType, numberToSubtract) {
                 console.log("Subtraction result (cbor): ", decodedData);
             }
         } else {
-            console.error(`Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`)
+            console.error(`Failed to call the Action "subtract": ${res.code}`)
         }
     });
     subtractNumberReq.end();
@@ -319,7 +318,7 @@ function observeUpdateEvent(acceptType) {
                     console.log("Observe update event (cbor): ", decodedData);
                 }
             } else {
-                console.error(`Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`);
+                console.error(`Failed to observe Event "update": ${res.code}`);
             }
         })
 
@@ -334,9 +333,9 @@ function observeUpdateEvent(acceptType) {
 function runCalculatorInteractions() {
 
     //Main GET and POST requests
-    getFullTD("application/cbor")
-    getResult("application/json")
-    getLastChange("application/cbor")
+    getFullTD("application/json")
+    getResult("application/cbor")
+    getLastChange("application/json")
     addNumber("application/cbor", "application/cbor", 3)
     subtractNumber("application/json", "application/json", 2)
 
