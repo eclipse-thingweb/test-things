@@ -4,7 +4,6 @@ const fs = require('fs')
 const path = require('path')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 const cbor = require('cbor')
-const { finished } = require('node:stream')
 require('dotenv').config()
 
 const server = coap.createServer()
@@ -205,7 +204,7 @@ try {
 /************** Main server functionality ****************/
 /*********************************************************/
 let result = 0
-let lastChange = ''
+let lastChange = new Date().toISOString()
 
 server.on('request', (req, res) => {
   const segments = req.url.split('/')

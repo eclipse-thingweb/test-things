@@ -22,8 +22,8 @@
     "mocha": "^10.2.0"
   },
   "dependencies": {
-    "@node-wot/binding-http": "^0.8.12",
-    "@node-wot/binding-coap": "^0.8.12",
-    "@node-wot/core": "^0.8.12"
+    "@node-wot/binding-http": "0.8.13",
+    "@node-wot/binding-coap": "0.8.13",
+    "@node-wot/core": "0.8.13"
   }
 }

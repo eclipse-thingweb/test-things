@@ -19,7 +19,7 @@ servient
             console.log("result: ", await result.value());
 
             // read property lastChange
-            let lastChange = await thing.readProperty("lastChange", { formIndex: 0 });
+            let lastChange = await thing.readProperty("lastChange", { formIndex: 2 });
             console.log("lastChange: ", await lastChange.value());
 
             console.log('\n ---------- \n');
