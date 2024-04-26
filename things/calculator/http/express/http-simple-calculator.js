@@ -4,7 +4,6 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const { parseArgs } = require("node:util");
 const { JsonPlaceholderReplacer } = require("json-placeholder-replacer");
-const { log } = require("console");
 require("dotenv").config();
 
 const app = express();
@@ -121,7 +120,7 @@ try {
 const reqParser = bodyParser.text({ type: "*/*" });
 
 let result = 0;
-let lastChange = "";
+let lastChange = new Date().toISOString();
 
 /******************************************/
 /************** Middleware ****************/
