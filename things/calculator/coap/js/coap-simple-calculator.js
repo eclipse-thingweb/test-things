@@ -111,7 +111,7 @@ try {
 /*********************************************************/
 
 let result = 0
-let lastChange = ''
+let lastChange = new Date().toISOString()
 
 server.on('request', (req, res) => {
     const segments = req.url.split('/')
