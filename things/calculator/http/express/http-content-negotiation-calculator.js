@@ -26,7 +26,7 @@ const TDEndPoint = `/${thingName}`,
 const existingEndpoints = [TDEndPoint, resultEndPoint, resultEndPointObserve, lastChangeEndPoint, lastChangeEndPointObserve, additionEndPoint, subtractionEndPoint, updateEndPoint]
 
 let result = 0
-let lastChange = ''
+let lastChange = new Date().toISOString();
 
 const { values: { port } } = parseArgs({
   options: {
