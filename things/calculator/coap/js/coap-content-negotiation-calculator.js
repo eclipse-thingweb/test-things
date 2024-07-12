@@ -7,8 +7,8 @@ const cbor = require('cbor')
 require('dotenv').config()
 
 const server = coap.createServer()
-const hostname = 'localhost'
-let portNumber = 5684
+const hostname = process.env.HOSTNAME ?? 'localhost'
+let portNumber = process.env.PORT ?? 5684
 const thingName = 'coap-calculator-content-negotiation'
 
 const { values: { port } } = parseArgs({

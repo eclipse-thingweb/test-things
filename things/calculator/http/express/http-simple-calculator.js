@@ -9,8 +9,8 @@ require("dotenv").config();
 const app = express();
 app.use(express.json({ strict: false }));
 
-const hostname = "localhost";
-let portNumber = 3000;
+const hostname = process.env.HOSTNAME ?? "localhost";
+let portNumber = process.env.PORT ?? 3000;
 const thingName = "http-express-calculator-simple";
 
 const TDEndPoint = `/${thingName}`,
