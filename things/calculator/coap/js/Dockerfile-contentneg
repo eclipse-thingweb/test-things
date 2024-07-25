@@ -6,8 +6,10 @@ COPY ./coap/js .
 
 RUN npm install
 
+ARG PORT_ARG=5684
+ENV PORT=${PORT_ARG}
 ENV TM_PATH="./calculator.tm.json"
 
 CMD ["node", "coap-content-negotiation-calculator.js"]
 
-EXPOSE 5684/udp
+EXPOSE ${PORT}/udp

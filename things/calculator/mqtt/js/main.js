@@ -5,7 +5,7 @@ const path = require('path')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 require('dotenv').config()
 
-const hostname = process.env.HOSTNAME ?? 'test.mosquitto.org'
+const hostname = process.env.BROKER_URI ?? 'test.mosquitto.org'
 let portNumber = process.env.PORT ?? 1883
 
 const { values: { port } } = parseArgs({

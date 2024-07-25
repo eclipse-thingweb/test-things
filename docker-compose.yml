@@ -6,30 +6,50 @@ services:
     build:
       context: ./things/calculator/
       dockerfile: ./coap/js/Dockerfile-simple
+      args:
+        - PORT_ARG=${COAP_SIMPLE_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   coap-calculator-content-negotiation:
     labels:
       - traefik.udp.routers.coap-calculator-content-negotiation.entrypoints=coap-calculator-content-negotiation
     build:
       context: ./things/calculator/
       dockerfile: ./coap/js/Dockerfile-contentneg
+      args:
+        - PORT_ARG=${COAP_NEGOTIATION_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   http-express-calculator-simple:
     labels:
       - traefik.http.routers.http-express-calculator-simple.rule=PathPrefix(`/http-express-calculator-simple`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile-simple
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   http-express-calculator-content-negotiation:
     labels:
       - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile-contentneg
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   http-flask-calculator:
     labels:
       - traefik.http.routers.http-flask-calculator.rule=PathPrefix(`/http-flask-calculator`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/flask/Dockerfile
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   mqtt-calculator:
     build:
       context: ./things/calculator/
@@ -38,9 +58,13 @@ services:
     labels:
       - traefik.tcp.routers.modbus-elevator.entrypoints=modbus-elevator
       - traefik.tcp.routers.modbus-elevator.rule=HostSNI(`*`)
+    environment:
+      - BROKER_URI=${BROKER_URI}
     build:
       context: ./things/elevator/
       dockerfile: ./modbus/js/Dockerfile
+      args:
+        - PORT_ARG=${MODBUS_ELEVATOR_PORT_OUT}
   reverse-proxy:
     image: traefik:v3.0
     command: 

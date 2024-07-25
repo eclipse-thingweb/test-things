@@ -217,6 +217,7 @@ server.on('request', (req, res) => {
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
+        //FIXME: No null check for acceptHeaders
         if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/td+json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
           res.setOption('Content-Format', 'application/json')
           res.end(JSON.stringify(thingDescription))
