@@ -81,8 +81,21 @@ Elevator is a simple device, which has three variables `lightSwitch`, `floorNumb
 
 ## How to Run
 
+### Using docker-compose
 You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
 
+After the run, as default, the devices are accessible at:
+- coap-calculator-simple -> coap://localhost:5683/coap-calculator-simple
+- coap-calculator-content-negotiation -> coap://localhost:5684/coap-calculator-content-negotiation
+- http-express-calculator-simple -> http://localhost/http-express-calculator-simple
+- http-express-calculator-content-negotiation -> http://localhost/http-express-calculator-content-negotiation
+- http-flask-calculator -> http://localhost/http-flask-calculator
+- mqtt-calculator -> mqtt://test.mosquitto.org:1883/mqtt-calculator
+- modbus-elevator -> modbus+tcp://localhost:3179/1
+
+Hostname and ports can be changed from .env file in the root directory. Therefore the links for devices would change accordingly.
+
+### Running separately
 For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able copy `tm.json` into the container.
 
 For Node.js based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
