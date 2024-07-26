@@ -6,6 +6,7 @@ const { parseArgs } = require('node:util')
 require('dotenv').config()
 
 const thingName = "modbus-elevator"
+// The following is needed since the modbus library we use does not support localhost but does support 0.0.0.0
 const hostname = process.env.HOSTNAME 
     ? process.env.HOSTNAME === "localhost" ? "0.0.0.0" : process.env.HOSTNAME   
     : "0.0.0.0"
