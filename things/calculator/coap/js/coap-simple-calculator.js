@@ -6,8 +6,8 @@ const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 require('dotenv').config()
 
 const server = coap.createServer()
-const hostname = 'localhost'
-let portNumber = 5683
+const hostname = process.env.HOSTNAME ?? 'localhost'
+let portNumber = process.env.PORT ?? 5683
 const thingName = 'coap-calculator-simple'
 
 const { values: { port } } = parseArgs({

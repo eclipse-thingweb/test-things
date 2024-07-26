@@ -7,8 +7,8 @@ const cbor = require('cbor')
 require('dotenv').config()
 
 const server = coap.createServer()
-const hostname = 'localhost'
-let portNumber = 5684
+const hostname = process.env.HOSTNAME ?? 'localhost'
+let portNumber = process.env.PORT ?? 5684
 const thingName = 'coap-calculator-content-negotiation'
 
 const { values: { port } } = parseArgs({
@@ -217,6 +217,7 @@ server.on('request', (req, res) => {
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
+        //FIXME: No null check for acceptHeaders
         if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/td+json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
           res.setOption('Content-Format', 'application/json')
           res.end(JSON.stringify(thingDescription))

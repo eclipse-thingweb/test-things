@@ -5,8 +5,8 @@ const path = require('path')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 require('dotenv').config()
 
-const hostname = 'test.mosquitto.org'
-let portNumber = 1883
+const brokerURI = process.env.BROKER_URI ?? 'test.mosquitto.org'
+let portNumber = process.env.PORT ?? 1883
 
 const { values: { port } } = parseArgs({
   options: {
@@ -26,7 +26,7 @@ const PROPERTIES = 'properties'
 const ACTIONS = 'actions'
 const EVENTS = 'events'
 
-const broker = mqtt.connect(`mqtt://${hostname}`, { port: portNumber })
+const broker = mqtt.connect(`mqtt://${brokerURI}`, { port: portNumber })
 
 const tmPath = process.env.TM_PATH
 
@@ -43,7 +43,7 @@ placeholderReplacer.addVariableMap({
   PROPERTIES,
   ACTIONS,
   EVENTS,
-  HOSTNAME: hostname,
+  HOSTNAME: brokerURI,
   PORT_NUMBER: portNumber,
   RESULT_OBSERVABLE: true,
   LAST_CHANGE_OBSERVABLE: true

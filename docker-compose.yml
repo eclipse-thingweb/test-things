@@ -6,30 +6,50 @@ services:
     build:
       context: ./things/calculator/
       dockerfile: ./coap/js/Dockerfile-simple
+      args:
+        - PORT_ARG=${COAP_SIMPLE_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   coap-calculator-content-negotiation:
     labels:
       - traefik.udp.routers.coap-calculator-content-negotiation.entrypoints=coap-calculator-content-negotiation
     build:
       context: ./things/calculator/
       dockerfile: ./coap/js/Dockerfile-contentneg
+      args:
+        - PORT_ARG=${COAP_NEGOTIATION_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   http-express-calculator-simple:
     labels:
       - traefik.http.routers.http-express-calculator-simple.rule=PathPrefix(`/http-express-calculator-simple`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile-simple
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   http-express-calculator-content-negotiation:
     labels:
       - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/express/Dockerfile-contentneg
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   http-flask-calculator:
     labels:
       - traefik.http.routers.http-flask-calculator.rule=PathPrefix(`/http-flask-calculator`)
     build:
       context: ./things/calculator/
       dockerfile: ./http/flask/Dockerfile
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
   mqtt-calculator:
     build:
       context: ./things/calculator/
@@ -38,25 +58,29 @@ services:
     labels:
       - traefik.tcp.routers.modbus-elevator.entrypoints=modbus-elevator
       - traefik.tcp.routers.modbus-elevator.rule=HostSNI(`*`)
+    environment:
+      - BROKER_URI=${BROKER_URI}
     build:
       context: ./things/elevator/
       dockerfile: ./modbus/js/Dockerfile
+      args:
+        - PORT_ARG=${MODBUS_ELEVATOR_PORT_OUT}
   reverse-proxy:
     image: traefik:v3.0
     command: 
       - "--log.level=DEBUG"
       - "--api.insecure=true" 
       - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.modbus-elevator.address=:3179"
-      - "--entrypoints.coap-calculator-simple.address=:5683/udp"
-      - "--entrypoints.coap-calculator-content-negotiation.address=:5684/udp"
+      - "--entrypoints.web.address=:${WEB_PORT_IN}"
+      - "--entrypoints.modbus-elevator.address=:${MODBUS_ELEVATOR_PORT_IN}"
+      - "--entrypoints.coap-calculator-simple.address=:${COAP_SIMPLE_PORT_IN}/udp"
+      - "--entrypoints.coap-calculator-content-negotiation.address=:${COAP_NEGOTIATION_PORT_IN}/udp"
     ports:
-      - "80:80"
-      - "3179:3179"
-      - "5683:5683/udp"
-      - "5684:5684/udp"
-      - "8080:8080"
+      - "${WEB_PORT_OUT}:${WEB_PORT_IN}"
+      - "${MODBUS_ELEVATOR_PORT_OUT}:${MODBUS_ELEVATOR_PORT_IN}"
+      - "${COAP_SIMPLE_PORT_OUT}:${COAP_SIMPLE_PORT_IN}/udp"
+      - "${COAP_NEGOTIATION_PORT_OUT}:${COAP_NEGOTIATION_PORT_IN}/udp"
+      - "${TRAEFIK_DASHBOARD_PORT_OUT}:${TRAEFIK_DASHBOARD_PORT_IN}"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock

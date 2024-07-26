@@ -25,6 +25,12 @@ cli.show_server_banner = lambda *x: click.echo("ThingIsReady")
 hostname = "0.0.0.0"
 portNumber = 5000
 
+if "HOSTNAME" in os.environ:
+    hostname = os.environ["HOSTNAME"]
+
+if "PORT" in os.environ:
+    portNumber = os.environ["PORT"]
+
 thingName = "http-flask-calculator"
 PROPERTIES = "properties"
 ACTIONS = "actions"

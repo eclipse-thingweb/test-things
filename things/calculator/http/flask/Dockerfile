@@ -7,10 +7,12 @@ WORKDIR /app
 COPY ./calculator.tm.json .
 COPY ./http/flask .
 
+ARG PORT_ARG=5000
+ENV PORT=${PORT_ARG}
 ENV TM_PATH=./calculator.tm.json 
 
 RUN poetry install
 
 CMD [ "poetry", "run", "python", "main.py" ]
 
-EXPOSE 5000
+EXPOSE ${PORT}
