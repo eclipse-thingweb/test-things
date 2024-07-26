@@ -6,7 +6,9 @@ const { parseArgs } = require('node:util')
 require('dotenv').config()
 
 const thingName = "modbus-elevator"
-const hostname = process.env.HOSTNAME ?? "0.0.0.0"
+const hostname = process.env.HOSTNAME 
+    ? process.env.HOSTNAME === "localhost" ? "0.0.0.0" : process.env.HOSTNAME   
+    : "0.0.0.0"
 let portNumber = process.env.PORT ?? "8502"
 const thingUnitID = 1
 
