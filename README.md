@@ -82,7 +82,10 @@ Elevator is a simple device, which has three variables `lightSwitch`, `floorNumb
 ## How to Run
 
 ### Using docker-compose
-You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
+You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose.yml up` at the root directory builds and runs the containers. For custom configuration, take look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
+
+[docker-compose.yml](./docker-compose.yml) consists of the docker configuration of the things.
+[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana and cadvisor.  
 
 After the run, as default, the devices are accessible at:
 - coap-calculator-simple -> coap://localhost:5683/coap-calculator-simple
@@ -92,6 +95,12 @@ After the run, as default, the devices are accessible at:
 - http-flask-calculator -> http://localhost/http-flask-calculator
 - mqtt-calculator -> mqtt://test.mosquitto.org:1883/mqtt-calculator
 - modbus-elevator -> modbus+tcp://localhost:3179/1
+
+To be able to access additional tools, the user must have a basic username password pair. The services are accessible at:
+- Traefik dashboard ->  dashboard.localhost
+- Prometheus -> prometheus.localhost
+- Grafana -> grafana.localhost
+- cAdvisor -> cadvisor.localhost
 
 Hostname and ports can be changed from .env file in the root directory. Therefore the links for devices would change accordingly.
 

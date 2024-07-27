@@ -10,6 +10,14 @@ services:
         - PORT_ARG=${COAP_SIMPLE_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
   coap-calculator-content-negotiation:
     labels:
       - traefik.udp.routers.coap-calculator-content-negotiation.entrypoints=coap-calculator-content-negotiation
@@ -20,6 +28,14 @@ services:
         - PORT_ARG=${COAP_NEGOTIATION_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
   http-express-calculator-simple:
     labels:
       - traefik.http.routers.http-express-calculator-simple.rule=PathPrefix(`/http-express-calculator-simple`)
@@ -30,6 +46,14 @@ services:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
   http-express-calculator-content-negotiation:
     labels:
       - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
@@ -40,6 +64,14 @@ services:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
   http-flask-calculator:
     labels:
       - traefik.http.routers.http-flask-calculator.rule=PathPrefix(`/http-flask-calculator`)
@@ -50,10 +82,26 @@ services:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
   mqtt-calculator:
     build:
       context: ./things/calculator/
       dockerfile: ./mqtt/js/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
   modbus-elevator:
     labels:
       - traefik.tcp.routers.modbus-elevator.entrypoints=modbus-elevator
@@ -65,22 +113,12 @@ services:
       dockerfile: ./modbus/js/Dockerfile
       args:
         - PORT_ARG=${MODBUS_ELEVATOR_PORT_OUT}
-  reverse-proxy:
-    image: traefik:v3.0
-    command: 
-      - "--log.level=DEBUG"
-      - "--api.insecure=true" 
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:${WEB_PORT_IN}"
-      - "--entrypoints.modbus-elevator.address=:${MODBUS_ELEVATOR_PORT_IN}"
-      - "--entrypoints.coap-calculator-simple.address=:${COAP_SIMPLE_PORT_IN}/udp"
-      - "--entrypoints.coap-calculator-content-negotiation.address=:${COAP_NEGOTIATION_PORT_IN}/udp"
-    ports:
-      - "${WEB_PORT_OUT}:${WEB_PORT_IN}"
-      - "${MODBUS_ELEVATOR_PORT_OUT}:${MODBUS_ELEVATOR_PORT_IN}"
-      - "${COAP_SIMPLE_PORT_OUT}:${COAP_SIMPLE_PORT_IN}/udp"
-      - "${COAP_NEGOTIATION_PORT_OUT}:${COAP_NEGOTIATION_PORT_IN}/udp"
-      - "${TRAEFIK_DASHBOARD_PORT_OUT}:${TRAEFIK_DASHBOARD_PORT_IN}"
-    volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          cpus: '0.01'
+          memory: 50M
+        reservations:
+          cpus: '0.001'
+          memory: 25M
+      
