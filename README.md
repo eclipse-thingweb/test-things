@@ -82,9 +82,9 @@ Elevator is a simple device, which has three variables `lightSwitch`, `floorNumb
 ## How to Run
 
 ### Using docker-compose
-You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose.yml up` at the root directory builds and runs the containers. For custom configuration, take look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
+You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose-things.yml up` at the root directory builds and runs the containers. For custom configuration, take look at the `Dockerfile` of each device or [docker-compose-things.yml](./docker-compose-things.yml).
 
-[docker-compose.yml](./docker-compose.yml) consists of the docker configuration of the things.
+[docker-compose-things.yml](./docker-compose-things.yml) consists of the docker configuration of the things.
 [docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana and cadvisor.  
 
 After the run, as default, the devices are accessible at:
