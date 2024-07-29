@@ -7,7 +7,7 @@ require('dotenv').config()
 
 const server = coap.createServer()
 const hostname = process.env.HOSTNAME ?? 'localhost'
-let portNumber = process.env.PORT ?? 5683
+let portNumber = Number(process.env.PORT ?? 5683)
 const thingName = 'coap-calculator-simple'
 
 const { values: { port } } = parseArgs({

@@ -8,7 +8,7 @@ require('dotenv').config()
 
 const server = coap.createServer()
 const hostname = process.env.HOSTNAME ?? 'localhost'
-let portNumber = process.env.PORT ?? 5684
+let portNumber = Number(process.env.PORT ?? 5684)
 const thingName = 'coap-calculator-content-negotiation'
 
 const { values: { port } } = parseArgs({
@@ -208,8 +208,8 @@ let lastChange = new Date().toISOString()
 
 server.on('request', (req, res) => {
   const segments = req.url.split('/')
-  const acceptHeaders = req.headers['Accept']
-  const reqContentType = req.headers['Content-Type'] || req.headers['Content-Format']
+  const acceptHeaders = req.headers['Accept'] || []
+  const reqContentType = req.headers['Content-Type'] || req.headers['Content-Format'] || []
 
   if (segments[1] !== thingName) {
     res.code = 404
@@ -217,7 +217,6 @@ server.on('request', (req, res) => {
   } else {
     if (!segments[2]) {
       if (req.method === 'GET') {
-        //FIXME: No null check for acceptHeaders
         if (acceptHeaders.includes('application/json') || acceptHeaders.includes('application/td+json') || acceptHeaders.includes('application/*') || acceptHeaders === '*/*') {
           res.setOption('Content-Format', 'application/json')
           res.end(JSON.stringify(thingDescription))
