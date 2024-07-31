@@ -4,7 +4,7 @@ services:
     image: traefik:v3.0
     labels:
       - traefik.enable=true
-      - traefik.http.routers.mydashboard.rule=Host(`dashboard.localhost`)
+      - traefik.http.routers.mydashboard.rule=Host(`traefik.localhost`)
       - traefik.http.routers.mydashboard.service=api@internal
       - traefik.http.routers.mydashboard.middlewares=test-things-auth
       - "traefik.http.middlewares.test-things-auth.basicauth.users=${TRAEFIK_DASHBOARD_USER}:${TRAEFIK_DASHBOARD_PASS}"
