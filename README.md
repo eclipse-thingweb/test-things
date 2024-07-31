@@ -106,6 +106,11 @@ To be able to access additional tools, the user must have a basic username and p
 - cAdvisor -> cadvisor.localhost
 
 Hostname and ports can be changed from `.env` file in the root directory. Therefore the links for devices would change accordingly.
+A username and password should be generated for running the services. To do so:
+
+  1. Choose a username, e.g. `myuser`, and run the following command in the command line: `echo $(htpasswd -nB USERNAMECHOICE) | sed -e s/\\$/\\$\\$/g`
+  2. Enter the username and the generated password (hashed) in the `.env` file under `TRAEFIK_DASHBOARD_USER` and `TRAEFIK_DASHBOARD_PASS`, respectively.
+  3. Use the username and the password you have types (not the hashed one) when logging in at any service but Portainer.
 
 ### Running separately
 
