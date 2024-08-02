@@ -1,0 +1,129 @@
+version: "3"
+services:
+  reverse-proxy:
+    image: traefik:v3.0
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mydashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.mydashboard.service=api@internal
+      - traefik.http.routers.mydashboard.middlewares=test-things-auth
+      - "traefik.http.middlewares.test-things-auth.basicauth.users=${TRAEFIK_DASHBOARD_USER}:${TRAEFIK_DASHBOARD_PASS}"
+      - “traefik.http.middlewares.test-things-auth.basicauth.removeheader=true”
+    command:
+      - "--log.level=DEBUG"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.watch"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--entrypoints.web.address=:${WEB_PORT_IN}"
+      - "--entrypoints.modbus-elevator.address=:${MODBUS_ELEVATOR_PORT_IN}"
+      - "--entrypoints.coap-calculator-simple.address=:${COAP_SIMPLE_PORT_IN}/udp"
+      - "--entrypoints.coap-calculator-content-negotiation.address=:${COAP_NEGOTIATION_PORT_IN}/udp"
+    ports:
+      - "${WEB_PORT_OUT}:${WEB_PORT_IN}"
+      - "${MODBUS_ELEVATOR_PORT_OUT}:${MODBUS_ELEVATOR_PORT_IN}"
+      - "${COAP_SIMPLE_PORT_OUT}:${COAP_SIMPLE_PORT_IN}/udp"
+      - "${COAP_NEGOTIATION_PORT_OUT}:${COAP_NEGOTIATION_PORT_IN}/udp"
+      - "${TRAEFIK_DASHBOARD_PORT_OUT}:${TRAEFIK_DASHBOARD_PORT_IN}"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          cpus: '0.08'
+          memory: 100M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "prometheus_data:/prometheus"
+      - "./conf/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    labels:
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${HOSTNAME}`)"
+      - "traefik.http.routers.prometheus.service=prometheus"
+      - "traefik.http.routers.prometheus.middlewares=test-things-auth"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=${PROMETHEUS_PORT}"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.08'
+          memory: 200M
+        reservations:
+          cpus: '0.05'
+          memory: 100M
+    depends_on:
+      - cadvisor
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:  
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    labels:
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${HOSTNAME}`)"
+      - "traefik.http.routers.grafana.service=grafana"
+      - "traefik.http.routers.grafana.middlewares=test-things-auth"
+      - "traefik.http.services.grafana.loadbalancer.server.port=${GRAFANA_PORT}"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.08'
+          memory: 100M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    depends_on:
+      - prometheus
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    labels:
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${HOSTNAME}`)"
+      - "traefik.http.routers.cadvisor.service=cadvisor"
+      - "traefik.http.routers.cadvisor.middlewares=test-things-auth"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=${CADVISOR_PORT}"
+    volumes:
+    - /:/rootfs:ro
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 200M
+        reservations:
+          cpus: '0.05'
+          memory: 100M
+    depends_on:
+    - coap-calculator-simple
+    - coap-calculator-content-negotiation
+    - http-express-calculator-simple
+    - http-express-calculator-content-negotiation
+    - http-flask-calculator
+    - mqtt-calculator
+    - modbus-elevator
+  portainer:
+    image: portainer/portainer-ce:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${HOSTNAME}`)"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.services.portainer.loadbalancer.server.port=${PORTAINER_PORT}"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.08'
+          memory: 50M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+volumes:
+  grafana_data:
+  prometheus_data:
+  portainer_data:
