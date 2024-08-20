@@ -1,0 +1,22 @@
+{
+  "name": "smart-home",
+  "version": "1.0.0",
+  "description": "Smart Home Mashup",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+  "license": "EPL-2.0 OR W3C-20150513",
+  "dependencies": {
+    "@node-wot/binding-coap": "^0.8.15",
+    "@node-wot/binding-http": "^0.8.15",
+    "@node-wot/binding-mqtt": "^0.8.15",
+    "@node-wot/core": "^0.8.15"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/node-fetch": "^2.6.11"
+  }
+}
