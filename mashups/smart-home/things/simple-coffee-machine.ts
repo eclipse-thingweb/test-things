@@ -23,9 +23,6 @@ dotenv.config()
 
 // create Servient add HTTP binding with port configuration
 const servient = new Servient();
-
-// const staticAddress = "plugfest.thingweb.io";
-const staticAddress = "localhost"; // use this for testing locally
 const hostname = process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME ?? 'localhost';
 const httpPort = process.env.SIMPLE_COFFEE_MACHINE_PORT ?? '8081';
 servient.addServer(
@@ -34,8 +31,6 @@ servient.addServer(
         port: parseInt(httpPort),
     })
 );
-
-// Helpers.setStaticAddress(staticAddress);
 
 let waterAmount = 1000;
 let beansAmount = 1000;
@@ -48,7 +43,7 @@ function timeout(ms: number) {
 
 servient.start().then((WoT) => {
     WoT.produce({
-        title: "Coffee Machine",
+        title: "smart-home-simple-coffee-machine",
         description: "A simple coffee machine that can be interacted over the Internet",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",
@@ -209,7 +204,7 @@ servient.start().then((WoT) => {
             // expose the thing
             thing.expose().then(() => {
                 console.info(thing.getThingDescription().title + " ready");
-                console.info("TD available at http://" + staticAddress + ":" + httpPort);
+                console.info("TD available at http://" + hostname + ":" + httpPort);
             });
         })
         .catch((e) => {

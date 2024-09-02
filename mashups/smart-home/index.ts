@@ -18,17 +18,20 @@ let wotHelper = new Helpers(servient);
 (async () => {
   const WoT = await servient.start();
 
+  const coffeeMachineURL = process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME === 'smart-home-simple-coffee-machine' ? 
+    `http://${process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME}/smart-home-simple-coffee-machine` :
+    `http://${process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME}:${process.env.SIMPLE_COFFEE_MACHINE_PORT}/smart-home-simple-coffee-machine`
+
   // we will fetch the TDs of the devices
-  const coffeeMachineTD = await wotHelper.fetch(
-     `http://${process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME}:${process.env.SIMPLE_COFFEE_MACHINE_PORT}/coffee-machine`
-  ) as WoT.ThingDescription
+  const coffeeMachineTD = await wotHelper.fetch(coffeeMachineURL) as WoT.ThingDescription
   // Alternatively, this Thing self-hosts its TD at http://plugfest.thingweb.io:8081/coffee-machine that you can fetch
   const presenceSensorTD = await wotHelper.fetch(
-    `mqtt://${process.env.PRESENCE_SENSOR_BROKER_URI}/PresenceSensor`
+    `mqtt://${process.env.PRESENCE_SENSOR_BROKER_URI}/smart-home-presence-sensor`
   ) as WoT.ThingDescription
   const smartClockTD = await wotHelper.fetch(
-    `coap://${process.env.SMART_CLOCK_HOSTNAME}:${process.env.SMART_CLOCK_PORT}/smart-clock`
+    `coap://${process.env.SMART_CLOCK_HOSTNAME}:${process.env.SMART_CLOCK_PORT}/smart-home-smart-clock`
   ) as WoT.ThingDescription
+  console.log(smartClockTD)
 
   // consuming TDs allows creates a software object, which allows us to execute functions on them
   const coffeeMachineThing = await WoT.consume(coffeeMachineTD);

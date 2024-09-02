@@ -20,11 +20,13 @@ services:
       - "--entrypoints.modbus-elevator.address=:${MODBUS_ELEVATOR_PORT_IN}"
       - "--entrypoints.coap-calculator-simple.address=:${COAP_SIMPLE_PORT_IN}/udp"
       - "--entrypoints.coap-calculator-content-negotiation.address=:${COAP_NEGOTIATION_PORT_IN}/udp"
+      - "--entrypoints.smart-home-smart-clock.address=:${SMART_HOME_SMART_CLOCK_PORT_IN}/udp"
     ports:
       - "${WEB_PORT_OUT}:${WEB_PORT_IN}"
       - "${MODBUS_ELEVATOR_PORT_OUT}:${MODBUS_ELEVATOR_PORT_IN}"
       - "${COAP_SIMPLE_PORT_OUT}:${COAP_SIMPLE_PORT_IN}/udp"
       - "${COAP_NEGOTIATION_PORT_OUT}:${COAP_NEGOTIATION_PORT_IN}/udp"
+      - "${SMART_HOME_SMART_CLOCK_PORT_OUT}:${SMART_HOME_SMART_CLOCK_PORT_IN}/udp"
       - "${TRAEFIK_DASHBOARD_PORT_OUT}:${TRAEFIK_DASHBOARD_PORT_IN}"
     volumes:
       # So that Traefik can listen to the Docker events
@@ -107,6 +109,8 @@ services:
     - http-flask-calculator
     - mqtt-calculator
     - modbus-elevator
+    - http-advanced-coffee-machine
+    - http-test-thing
   portainer:
     image: portainer/portainer-ce:latest
     volumes:

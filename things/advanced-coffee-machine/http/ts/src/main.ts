@@ -23,6 +23,7 @@ const path = require("path")
 const { parseArgs } = require("node:util")
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 require("dotenv").config()
+
 const WotCore = require("@node-wot/core");
 const HttpServer = require("@node-wot/binding-http").HttpServer
 

@@ -31,10 +31,8 @@ servient.addServer(
     }
 ));
 
-// Helpers.setStaticAddress("plugfest.thingweb.io"); // comment this out if you are testing locally
-
 let minuteCounter = 0;
-let hourCounter = 0;
+let hourCounter = 5;
 
 async function timeCount(thing: WoT.ExposedThing) {
     for (minuteCounter = 0; minuteCounter < 59; minuteCounter++) {
@@ -55,7 +53,7 @@ async function timeCount(thing: WoT.ExposedThing) {
 
 servient.start().then((WoT) => {
     WoT.produce({
-        title: "Smart Clock",
+        title: "smart-home-smart-clock",
         description: "a smart clock that runs 60 times faster than real time, where 1 hour happens in 1 minute.",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",

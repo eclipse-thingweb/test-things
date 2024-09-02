@@ -28,7 +28,7 @@ servient.addServer(new MqttBrokerServer({ uri: brokerUri }));
 
 servient.start().then((WoT) => {
     WoT.produce({
-        title: "PresenceSensor",
+        title: "smart-home-presence-sensor",
         description: "Thing that can detect presence of human nearby",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",
