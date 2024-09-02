@@ -19,22 +19,22 @@ The protocols you can currently test are:
 
 ## Dependencies
 
-The project has several dependencies. Currently `JavaScript` and `Python` is used for simulating different devices. Every device has its own dependencies and they should be handled separately. For that reason, `Node.js` is used for JS code and `poetry` is used for Python code to run the scripts and handle the dependencies.
+The project has several dependencies. Currently, `JavaScript` and `Python` are used for simulating different devices. Every device has its own dependencies and they should be handled separately. For that reason, `Node.js` is used for JS code, and `poetry` is used for Python code to run the scripts and handle the dependencies.
 
 ## Testing
 
 For testing JavaScript Testing Framework `mocha` is used. Therefore, the tests are written in JavaScript.
 Every Thing should have its Thing Model and Thing Description validation test.
 Thing Model validation test should be put under Thing's main directory and named as `tm.test.json`.
-Thing Description validation test should be put under protocol and programming language/framework's test directory and named as `td.test.json`.
-For Thing Description validation test, the device should boot up and to understand the device booted up without any error, a message `"ThingIsReady"` is expected to be prompted to the console by the device.
+The Thing Description validation test should be put under the protocol and programming language/framework's test directory and named `td.test.json`.
+For the Thing Description validation test, the device should boot up and to understand the device booted up without any error, a message `"ThingIsReady"` is expected to be prompted to the console by the device.
 
 ## Port Configuration
 
-It is possible to run several Things at the same time in a container, which requires container to expose that many ports. 
+It is possible to run several Things at the same time in a container, which requires a container to expose that many ports.
 Traefik helps with this issue and routes the requests on one exposed port to relevant services inside the container.
 Traefik configuration can be seen inside `docker-compose.yml`.
-It is not possible to route using path prefix with UDP, therefore port must be exposed for new Things that use UDP.
+It is not possible to route using a path prefix with UDP, therefore port must be exposed for new Things that use UDP.
 
 ## Adding a new Thing
 
@@ -61,11 +61,11 @@ If you are going to add a completely new Thing:
 
 ### Calculator
 
-Calculator is a simple device, which has a read only `result` variable and depending on the action selected by the user, it adds or subtracts user input from the `result`. There is also a read only `lastChange` variable, which indicates the last time `result` variable has changed. Additionally, the device publishes an event, when `result` is changed.
+The calculator is a simple device, that has a read-only `result` variable, and depending on the action selected by the user, it adds or subtracts user input from the `result`. There is also a read-only `lastChange` variable, which indicates the last time `result` variable has changed. Additionally, the device publishes an event, when `result` is changed.
 
-### Elevator 
+### Elevator
 
-Elevator is a simple device, which has three variables `lightSwitch`, `floorNumber` and `onTheMove`. `lightSwitch` is a boolean which represents whether the light on the elevator is turned on or not on. `floorNumber` is an integer and represents the floor number of the elevator. `onTheMove` is a boolean and represents whether the elevator is on the move or not.
+The elevator is a simple device, that has three variables `lightSwitch`, `floorNumber`, and `onTheMove`. `lightSwitch` is a boolean that represents whether the light on the elevator is turned on or not. `floorNumber` is an integer and represents the floor number of the elevator. `onTheMove` is a boolean and represents whether the elevator is on the move or not.
 
 #### Supported Protocols and Programming Languages
 
@@ -82,20 +82,38 @@ Elevator is a simple device, which has three variables `lightSwitch`, `floorNumb
 ## How to Run
 
 ### Using docker-compose
-You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
+
+You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose-things.yml up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose-things.yml](./docker-compose-things.yml).
+
+[docker-compose-things.yml](./docker-compose-things.yml) consists of the docker configuration of the things.
+[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana and cadvisor.  
 
 After the run, as default, the devices are accessible at:
-- coap-calculator-simple -> coap://localhost:5683/coap-calculator-simple
-- coap-calculator-content-negotiation -> coap://localhost:5684/coap-calculator-content-negotiation
-- http-express-calculator-simple -> http://localhost/http-express-calculator-simple
-- http-express-calculator-content-negotiation -> http://localhost/http-express-calculator-content-negotiation
-- http-flask-calculator -> http://localhost/http-flask-calculator
-- mqtt-calculator -> mqtt://test.mosquitto.org:1883/mqtt-calculator
-- modbus-elevator -> modbus+tcp://localhost:3179/1
 
-Hostname and ports can be changed from .env file in the root directory. Therefore the links for devices would change accordingly.
+- coap-calculator-simple -> `coap://localhost:5683/coap-calculator-simple`
+- coap-calculator-content-negotiation -> `coap://localhost:5684/coap-calculator-content-negotiation`
+- http-express-calculator-simple -> `http://localhost/http-express-calculator-simple`
+- http-express-calculator-content-negotiation -> `http://localhost/http-express-calculator-content-negotiation`
+- http-flask-calculator -> `http://localhost/http-flask-calculator`
+- mqtt-calculator -> `mqtt://test.mosquitto.org:1883/mqtt-calculator`
+- modbus-elevator -> `modbus+tcp://localhost:3179/1`
+
+To be able to access additional tools, the user must have a basic username and password pair. The services are accessible at:
+
+- Traefik dashboard ->  dashboard.localhost
+- Prometheus -> prometheus.localhost
+- Grafana -> grafana.localhost
+- cAdvisor -> cadvisor.localhost
+
+Hostname and ports can be changed from `.env` file in the root directory. Therefore the links for devices would change accordingly.
+A username and password should be generated for running the services. To do so:
+
+  1. Choose a username, e.g. `myuser`, and run the following command in the command line: `echo $(htpasswd -nB USERNAMECHOICE) | sed -e s/\\$/\\$\\$/g`
+  2. Enter the username and the generated password (hashed) in the `.env` file under `TRAEFIK_DASHBOARD_USER` and `TRAEFIK_DASHBOARD_PASS`, respectively.
+  3. Use the username and the password you have types (not the hashed one) when logging in at any service but Portainer.
 
 ### Running separately
-For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able copy `tm.json` into the container.
 
-For Node.js based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
+For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able to copy `tm.json` into the container.
+
+For Node.js-based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
