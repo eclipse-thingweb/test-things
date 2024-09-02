@@ -13,14 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 // This is an example Thing script which is a simple presence detector
 // It fires an event when it detects a person (mocked as every 5 second)
 const core_1 = require("@node-wot/core");
 const binding_mqtt_1 = require("@node-wot/binding-mqtt");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 // create Servient add MQTT binding with port configuration
 const servient = new core_1.Servient();
-servient.addServer(new binding_mqtt_1.MqttBrokerServer({ uri: "mqtt://test.mosquitto.org" }));
+const brokerUri = (_a = process.env.PRESENCE_SENSOR_BROKER_URI) !== null && _a !== void 0 ? _a : "mqtt://test.mosquitto.org";
+servient.addServer(new binding_mqtt_1.MqttBrokerServer({ uri: brokerUri }));
 servient.start().then((WoT) => {
     WoT.produce({
         title: "PresenceSensor",

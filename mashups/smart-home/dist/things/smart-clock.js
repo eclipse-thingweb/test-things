@@ -13,13 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 // This is an example Thing which is a smart clock that runs 60 times faster than real time, where 1 hour happens in 1 minute.
 const core_1 = require("@node-wot/core");
 const binding_coap_1 = require("@node-wot/binding-coap");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 // create Servient add CoAP binding with port configuration
 const servient = new core_1.Servient();
-servient.addServer(new binding_coap_1.CoapServer({ port: 5686 }));
+const hostname = (_a = process.env.SMART_CLOCK_HOSTNAME) !== null && _a !== void 0 ? _a : 'localhost';
+const port = (_b = process.env.SMART_CLOCK_PORT) !== null && _b !== void 0 ? _b : "5686";
+servient.addServer(new binding_coap_1.CoapServer({
+    address: hostname,
+    port: parseInt(port)
+}));
 // Helpers.setStaticAddress("plugfest.thingweb.io"); // comment this out if you are testing locally
 let minuteCounter = 0;
 let hourCounter = 0;

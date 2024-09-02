@@ -16,21 +16,26 @@
 // This is an example Thing script which is a simple coffee machine.
 // You can order coffee and see the status of the resources
 
-import { Servient, Helpers } from "@node-wot/core";
+import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
+import dotenv from 'dotenv'
+dotenv.config()
 
 // create Servient add HTTP binding with port configuration
 const servient = new Servient();
 
 // const staticAddress = "plugfest.thingweb.io";
 const staticAddress = "localhost"; // use this for testing locally
-const httpPort = 8081;
+const hostname = process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME ?? 'localhost';
+const httpPort = process.env.SIMPLE_COFFEE_MACHINE_PORT ?? '8081';
 servient.addServer(
     new HttpServer({
-        port: httpPort,
+        baseUri: `http://${hostname}:${httpPort}`,
+        port: parseInt(httpPort),
     })
 );
-Helpers.setStaticAddress(staticAddress);
+
+// Helpers.setStaticAddress(staticAddress);
 
 let waterAmount = 1000;
 let beansAmount = 1000;

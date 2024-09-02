@@ -3,6 +3,8 @@ import { Servient, Helpers } from '@node-wot/core'
 import { HttpClientFactory, HttpsClientFactory } from '@node-wot/binding-http'
 import { CoapClientFactory } from '@node-wot/binding-coap'
 import { MqttClientFactory } from '@node-wot/binding-mqtt'
+import dotenv from 'dotenv'
+dotenv.config()
 
 // create a Servient and add HTTP, CoAP and MQTT bindings
 let servient = new Servient();
@@ -18,14 +20,14 @@ let wotHelper = new Helpers(servient);
 
   // we will fetch the TDs of the devices
   const coffeeMachineTD = await wotHelper.fetch(
-     "http://localhost:8081/coffee-machine"
+     `http://${process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME}:${process.env.SIMPLE_COFFEE_MACHINE_PORT}/coffee-machine`
   ) as WoT.ThingDescription
   // Alternatively, this Thing self-hosts its TD at http://plugfest.thingweb.io:8081/coffee-machine that you can fetch
   const presenceSensorTD = await wotHelper.fetch(
-    "mqtt://test.mosquitto.org/PresenceSensor"
+    `mqtt://${process.env.PRESENCE_SENSOR_BROKER_URI}/PresenceSensor`
   ) as WoT.ThingDescription
   const smartClockTD = await wotHelper.fetch(
-    "coap://localhost:5686/smart-clock"
+    `coap://${process.env.SMART_CLOCK_HOSTNAME}:${process.env.SMART_CLOCK_PORT}/smart-clock`
   ) as WoT.ThingDescription
 
   // consuming TDs allows creates a software object, which allows us to execute functions on them

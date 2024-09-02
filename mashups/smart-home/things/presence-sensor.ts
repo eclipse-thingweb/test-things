@@ -18,10 +18,13 @@
 
 import { Servient } from "@node-wot/core";
 import { MqttBrokerServer } from "@node-wot/binding-mqtt";
+import dotenv from 'dotenv'
+dotenv.config()
 
 // create Servient add MQTT binding with port configuration
 const servient = new Servient();
-servient.addServer(new MqttBrokerServer({ uri: "mqtt://test.mosquitto.org" }));
+const brokerUri = process.env.PRESENCE_SENSOR_BROKER_URI ?? "mqtt://test.mosquitto.org";
+servient.addServer(new MqttBrokerServer({ uri: brokerUri }));
 
 servient.start().then((WoT) => {
     WoT.produce({

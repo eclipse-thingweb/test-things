@@ -13,20 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 // This is an example Thing script which is a simple coffee machine.
 // You can order coffee and see the status of the resources
 const core_1 = require("@node-wot/core");
 const binding_http_1 = require("@node-wot/binding-http");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 // create Servient add HTTP binding with port configuration
 const servient = new core_1.Servient();
 // const staticAddress = "plugfest.thingweb.io";
 const staticAddress = "localhost"; // use this for testing locally
-const httpPort = 8081;
+const hostname = (_a = process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME) !== null && _a !== void 0 ? _a : 'localhost';
+const httpPort = (_b = process.env.SIMPLE_COFFEE_MACHINE_PORT) !== null && _b !== void 0 ? _b : '8081';
 servient.addServer(new binding_http_1.HttpServer({
-    port: httpPort,
+    baseUri: `http://${hostname}:${httpPort}`,
+    port: parseInt(httpPort),
 }));
-core_1.Helpers.setStaticAddress(staticAddress);
+// Helpers.setStaticAddress(staticAddress);
 let waterAmount = 1000;
 let beansAmount = 1000;
 let milkAmount = 1000;
