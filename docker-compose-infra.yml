@@ -7,8 +7,6 @@ services:
       - traefik.http.routers.mydashboard.rule=Host(`traefik.localhost`)
       - traefik.http.routers.mydashboard.service=api@internal
       - traefik.http.routers.mydashboard.middlewares=test-things-auth
-      - "traefik.http.middlewares.test-things-auth.basicauth.users=${TRAEFIK_DASHBOARD_USER}:${TRAEFIK_DASHBOARD_PASS}"
-      - “traefik.http.middlewares.test-things-auth.basicauth.removeheader=true”
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
@@ -37,6 +35,23 @@ services:
         reservations:
           cpus: '0.05'
           memory: 50M
+  test-things-auth:
+    image: thomseddon/traefik-forward-auth:2-arm64
+    environment:
+      - DEFAULT_PROVIDER=generic-oauth
+      - SECRET=${OAUTH_SECRET}
+      - PROVIDERS_GENERIC_OAUTH_AUTH_URL=${GITHUB_AUTH_URL}
+      - PROVIDERS_GENERIC_OAUTH_TOKEN_URL=${GITHUB_TOKEN_URL}
+      - PROVIDERS_GENERIC_OAUTH_USER_URL=${GITHUB_USER_URL}
+      - PROVIDERS_GENERIC_OAUTH_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - PROVIDERS_GENERIC_OAUTH_SCOPE=user,repo
+      - INSECURE_COOKIE=true
+      - LOG_LEVEL=debug
+    labels:
+      - "traefik.http.middlewares.test-things-auth.forwardauth.address=http://test-things-auth:${FORWARD_AUTH_PORT}"
+      - "traefik.http.middlewares.test-things-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+      - "traefik.http.services.test-things-auth.loadbalancer.server.port=${FORWARD_AUTH_PORT}"
   prometheus:
     image: prom/prometheus
     volumes:
