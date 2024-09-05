@@ -74,10 +74,12 @@ services:
       - cadvisor
   grafana:
     image: grafana/grafana
+    environment:
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
     volumes:
+      - ./conf/grafana/provisioning:/etc/grafana/provisioning
+      - ./conf/grafana/dashboards:/var/lib/grafana/dashboards
       - grafana_data:/var/lib/grafana
-    environment:  
-      GF_INSTALL_PLUGINS: grafana-piechart-panel
     labels:
       - "traefik.http.routers.grafana.rule=Host(`grafana.${HOSTNAME}`)"
       - "traefik.http.routers.grafana.service=grafana"
@@ -139,6 +141,6 @@ services:
           cpus: '0.05'
           memory: 50M
 volumes:
-  grafana_data:
   prometheus_data:
+  grafana_data:
   portainer_data:
