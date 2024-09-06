@@ -1,4 +1,12 @@
 {
+    "@context":[
+      "https://www.w3.org/2019/wot/td/v1",
+      "https://www.w3.org/2022/wot/td/v1.1",
+      {
+         "@language":"en"
+      }
+   ],
+   "@type":"tm:ThingModel",
     "title":"{{THING_NAME}}",
     "description": "A smart coffee machine with a range of capabilities.\\nA complementary tutorial is available at http: //www.thingweb.io/smart-coffee-machine.html.",
     "support": "https://github.com/eclipse-thingweb/node-wot/",

@@ -6,6 +6,7 @@ return_value=0
 for tmd in things/* ; do
     tm_test_path="$tmd/*.test.js"
     if [ ! -f $tm_test_path ]; then
+        echo "$tm_test_path does not exist. Continuing with the next thing."
         continue
     fi 
     
