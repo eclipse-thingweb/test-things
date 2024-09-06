@@ -59,6 +59,10 @@ If you are going to add a completely new Thing:
 
 ## Current Devices
 
+### Advanced Coffee Machine
+
+The advanced coffee machine is a device that simulates a behavior of a coffee machine. `allAvailableResources` property consists of the remaining values for its properties `water`, `milk`, `chocolate` and `coffeeBeans`. `possibleDrinks` property holds a list of possible drinks, a user can order, such as espresso, americano, etc. After certain amount of uses of the coffee machine, `maintenanceNeeded` property becomes true and let users know the coffee machine requires a maintenance. `schedules` property stores the users' schedules to brew a coffee at the scheduled time.
+
 ### Calculator
 
 The calculator is a simple device, that has a read-only `result` variable, and depending on the action selected by the user, it adds or subtracts user input from the `result`. There is also a read-only `lastChange` variable, which indicates the last time `result` variable has changed. Additionally, the device publishes an event, when `result` is changed.
@@ -67,9 +71,14 @@ The calculator is a simple device, that has a read-only `result` variable, and d
 
 The elevator is a simple device, that has three variables `lightSwitch`, `floorNumber`, and `onTheMove`. `lightSwitch` is a boolean that represents whether the light on the elevator is turned on or not. `floorNumber` is an integer and represents the floor number of the elevator. `onTheMove` is a boolean and represents whether the elevator is on the move or not.
 
+### Test Thing
+
+The Test Thing is a total toy device that users can try different types of properties and actions.
+
 #### Supported Protocols and Programming Languages
 
 - HTTP
+  - TypeScript node-wot
   - JavaScript Express framework
   - Python Flask framework
 - CoAP
@@ -78,6 +87,12 @@ The elevator is a simple device, that has three variables `lightSwitch`, `floorN
   - JavaScript
 - Modbus
   - JavaScript
+
+## Current Mashups
+
+### Smart Home Mashup
+
+See the mashup's [readme](./mashups//smart-home/README.md).
 
 ## How to Run
 
@@ -90,13 +105,17 @@ You can start the devices inside a container, for that running `docker-compose -
 
 After the run, as default, the devices are accessible at:
 
-- coap-calculator-simple -> `coap://localhost:5683/coap-calculator-simple`
-- coap-calculator-content-negotiation -> `coap://localhost:5684/coap-calculator-content-negotiation`
-- http-express-calculator-simple -> `http://localhost/http-express-calculator-simple`
-- http-express-calculator-content-negotiation -> `http://localhost/http-express-calculator-content-negotiation`
-- http-flask-calculator -> `http://localhost/http-flask-calculator`
-- mqtt-calculator -> `mqtt://test.mosquitto.org:1883/mqtt-calculator`
-- modbus-elevator -> `modbus+tcp://localhost:3179/1`
+| Thing Name | Access URL |
+| ----------- | ---------- |
+| advanced-coffee-machine | `http://localhost/http-advanced-coffee-machine` |
+| coap-calculator-simple | `coap://localhost:5683/coap-calculator-simple` |
+| coap-calculator-content-negotiation | `coap://localhost:5684/coap-calculator-content-negotiation` |
+| http-express-calculator-simple | `http://localhost/http-express-calculator-simple` |
+| http-express-calculator-content-negotiation | `http://localhost/http-express-calculator-content-negotiation` |
+| http-flask-calculator | `http://localhost/http-flask-calculator` |
+| mqtt-calculator | `mqtt://test.mosquitto.org:1883/mqtt-calculator` |
+| modbus-elevator | `modbus+tcp://localhost:3179/1` |
+| test-thing | `http://localhost/http-test-thing` |
 
 To be able to access additional tools, the user must have a basic username and password pair. The services are accessible at:
 
