@@ -31,7 +31,6 @@ let wotHelper = new Helpers(servient);
   const smartClockTD = await wotHelper.fetch(
     `coap://${process.env.SMART_CLOCK_HOSTNAME}:${process.env.SMART_CLOCK_PORT}/smart-home-smart-clock`
   ) as WoT.ThingDescription
-  console.log(smartClockTD)
 
   // consuming TDs allows creates a software object, which allows us to execute functions on them
   const coffeeMachineThing = await WoT.consume(coffeeMachineTD);

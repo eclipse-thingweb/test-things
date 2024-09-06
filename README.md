@@ -105,9 +105,9 @@ You can start the devices inside a container, for that running `docker-compose -
 
 After the run, as default, the devices are accessible at:
 
-| Thing Name | Access URL |
+| Thing Title | Access URL |
 | ----------- | ---------- |
-| advanced-coffee-machine | `http://localhost/http-advanced-coffee-machine` |
+| http-advanced-coffee-machine | `http://localhost/http-advanced-coffee-machine` |
 | coap-calculator-simple | `coap://localhost:5683/coap-calculator-simple` |
 | coap-calculator-content-negotiation | `coap://localhost:5684/coap-calculator-content-negotiation` |
 | http-express-calculator-simple | `http://localhost/http-express-calculator-simple` |
@@ -115,7 +115,7 @@ After the run, as default, the devices are accessible at:
 | http-flask-calculator | `http://localhost/http-flask-calculator` |
 | mqtt-calculator | `mqtt://test.mosquitto.org:1883/mqtt-calculator` |
 | modbus-elevator | `modbus+tcp://localhost:3179/1` |
-| test-thing | `http://localhost/http-test-thing` |
+| http-test-thing | `http://localhost/http-test-thing` |
 
 To be able to access additional tools, the user must have a basic username and password pair. The services are accessible at:
 

@@ -148,7 +148,7 @@ services:
       args:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
-      - HOSTNAME=${HOSTNAME}
+      - HOSTNAME=google.com
     deploy:
       resources:
         limits:
@@ -171,13 +171,16 @@ services:
           memory: 25M
   smart-home-simple-coffee-machine:
     labels: 
-      - traefik.http.routers.smart-home-simple-coffee-machine.rule=PathPrefix(`/smart-home-simple-coffee-machine`)
+      # TD is not exposed since it contains hostname that cannot be accessed outside the docker network
+      - traefik.http.routers.smart-home-simple-coffee-machine.rule=PathRegexp(`/smart-home-simple-coffee-machine/.+`)
     build:
       context: ./mashups/smart-home
       dockerfile: ./dockerfiles/simple-coffee-machine.Dockerfile
       args:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
+      # Since mashup communicates inside the Docker network use of localhost in a TD result as 
+      # the mashup container's its own localhost. Therefore hostname given as their docker service name 
       - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
     deploy:
       resources:
@@ -196,6 +199,8 @@ services:
       args:
         - PORT_ARG=${SMART_HOME_SMART_CLOCK_PORT_OUT}
     environment:
+      # Since mashup communicates inside the Docker network use of localhost in a TD result as 
+      # the mashup container's its own localhost. Therefore hostname given as their docker service name 
       - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
     deploy:
       resources:
