@@ -148,7 +148,7 @@ services:
       args:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
-      - HOSTNAME=google.com
+      - HOSTNAME=${HOSTNAME}
     deploy:
       resources:
         limits:
@@ -232,6 +232,4 @@ services:
         reservations:
           cpus: '0.01'
           memory: 25M
-      
-
       
