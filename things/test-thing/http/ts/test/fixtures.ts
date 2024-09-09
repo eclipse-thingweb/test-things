@@ -8,7 +8,7 @@ const port = 3000
 
 export async function mochaGlobalSetup() {
     try {
-        response = await getInitiateMain(path.join(__dirname, '..', 'dist', 'main.js'), port)
+        response = await getInitiateMain([path.join(__dirname, '..', 'dist', 'main.js'), '-p', `${port}`])
     } 
     catch(error) {
         console.log(error)
