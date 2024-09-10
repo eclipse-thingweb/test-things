@@ -1,16 +1,9 @@
-const Ajv = require('ajv')
 const chai = require('chai')
 const fs = require('fs')
 const path = require('path')
 const { getTDValidate } = require("../../../../../util/dist/util")
 
-const spawn = require('child_process').spawn
-
-const ajv = new Ajv({ strict: false, allErrors: true, validateFormats: false })
-
 const expect = chai.expect
-const port = "8502"
-let thingProcess
 
 describe('Elevator Modbus JS', () => {
   let validate

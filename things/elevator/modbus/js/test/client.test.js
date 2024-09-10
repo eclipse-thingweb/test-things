@@ -9,8 +9,7 @@ chai.use(chaiAsPromised)
 const expect = chai.expect
 
 let servient = new Servient()
-servient.addClientFactory(new ModbusClientFactory({ baseUri: 'localhost:8502' }))
-const port = 8502
+servient.addClientFactory(new ModbusClientFactory())
 
 let thing
 
@@ -39,6 +38,10 @@ describe("Client Tests", () => {
         } catch(error) {
             console.error(error)
         }
+    })
+
+    after(async () => {
+        await servient.shutdown()
     })
 
     describe("lightSwitch property", () => {
