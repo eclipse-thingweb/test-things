@@ -30,9 +30,9 @@ exports.getTDValidate = exports.getInitiateMain = void 0;
 const ajv_1 = __importDefault(require("ajv"));
 const https = __importStar(require("https"));
 const spawn = require('node:child_process').spawn;
-const getInitiateMain = (cmdArgs) => {
+const getInitiateMain = (mainCmd, cmdArgs) => {
     return new Promise((resolve, reject) => {
-        const thingProcess = spawn('node', cmdArgs);
+        const thingProcess = spawn(mainCmd, cmdArgs);
         // Avoids unsettled promise in case the promise is not settled in a second.
         const timeout = setTimeout(() => {
             reject({

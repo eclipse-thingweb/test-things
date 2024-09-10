@@ -32,17 +32,18 @@ for tmd in things/* ; do
 
             current_path=$(pwd)
             cd $tdd
-            td_result="$(../../../../node_modules/mocha/bin/mocha.js --exit --timeout 5000)"
+            td_result=$(../../../../node_modules/mocha/bin/mocha.js)
             td_exit_code=$?
             cd $current_path
 
             if [ $td_exit_code -ne 0 ]; then
                 echo -e "\033[0;31m** TD test failed for the thing $tdd.\033[0m"
-                echo $td_result
+                echo "$td_result"
                 return_value=1
                 continue
             else
                 echo -e "\033[0;32m** TD test successful for $tdd.\033[0m"
+                echo "$td_result"
             fi
         done
         echo "-----"
