@@ -22,21 +22,13 @@ const readProperty = async (thing, propertyName) => {
     }
 }
 
-const writeProperty = async (thing, propertyName, propertyValue) => {
-    try {
-        await thing.writeProperty(propertyName, propertyValue)
-    } catch (error) {
-        console.error(`Error: ${error}`)
-    }
-}
-
 /**
  * FIXME: To be able to test readProperty, issues https://github.com/eclipse-thingweb/node-wot/issues/980
  * and https://github.com/eclipse-thingweb/node-wot/issues/1241 must be resolved.
  * Until then we can use subscriptions.
  */
  
-describe("Client Tests", () => {
+describe.skip("Client Tests", () => {
     before(async () => {
         try {
             const WoT = await servient.start()

@@ -1,14 +1,11 @@
-const Ajv = require('ajv')
 const chai = require('chai')
 const mqtt = require('mqtt')
-const path = require('path')
 const { getTDValidate } = require("../../../../../util/dist/util")
+const { port } = require('./fixtures')
 
-const spawn = require('child_process').spawn
 
 const expect = chai.expect
 const hostname = 'test.mosquitto.org'
-const port = 1883
 
 describe('Calculator MQTT JS', () => {
   let validate
