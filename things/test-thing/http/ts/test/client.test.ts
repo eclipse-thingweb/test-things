@@ -4,13 +4,13 @@ import chaiAsPromised from 'chai-as-promised';
 
 import { Servient } from "@node-wot/core";
 import { HttpClientFactory } from "@node-wot/binding-http"
+import { port } from './fixtures'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
 let servient = new Servient()
-servient.addClientFactory(new HttpClientFactory({ baseUri: 'localhost:3000' }))
-const port = 3000
+servient.addClientFactory(new HttpClientFactory())
 
 let thing: WoT.ConsumedThing 
 
@@ -34,6 +34,10 @@ describe("Client Tests", () => {
         } catch(error) {
             console.error(error)
         }
+    })
+
+    after(async () => {
+        await servient.shutdown()
     })
     
     describe("bool property", () => {
