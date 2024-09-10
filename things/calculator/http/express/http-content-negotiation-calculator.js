@@ -71,8 +71,8 @@ const defaultForm =
   'htv:headers': [
     {
       '@type': 'htv:RequestHeader',
-      'fieldValue': 'application/json',
-      'fieldName': 'Accept'
+      'htv:fieldValue': 'application/json',
+      'htv:fieldName': 'Accept'
     }
   ]
 }
@@ -106,7 +106,7 @@ for (const key in thingDescription['properties']) {
       const newFormRead = JSON.parse(JSON.stringify(originalForm))
       newFormRead['contentType'] = type
       newFormRead['response'].contentType = type
-      newFormRead['htv:headers'][0]['fieldValue'] = type
+      newFormRead['htv:headers'][0]['htv:fieldValue'] = type
       thingDescription['properties'][key]['forms'].push(newFormRead)
 
       const newFormObs = JSON.parse(JSON.stringify(newFormRead))
@@ -142,7 +142,7 @@ for (const key in thingDescription['actions']) {
         if (!thingDescription['actions'][key]['forms'][0]['response'].contentType.includes(type)) {
           const newFormAccept = JSON.parse(JSON.stringify(newForm))
           newFormAccept['response'].contentType = type;
-          newFormAccept['htv:headers'][0]['fieldValue'] = type
+          newFormAccept['htv:headers'][0]['htv:fieldValue'] = type
           thingDescription['actions'][key]['forms'].push(newFormAccept)
         }
       })
@@ -151,7 +151,7 @@ for (const key in thingDescription['actions']) {
         if (!originalForm['response'].contentType.includes(type)) {
           const newForm = JSON.parse(JSON.stringify(originalForm));
           newForm['response'].contentType = type;
-          newForm['htv:headers'][0]['fieldValue'] = type;
+          newForm['htv:headers'][0]['htv:fieldValue'] = type;
           thingDescription['actions'][key]['forms'].push(newForm);
         }
       })
@@ -182,7 +182,7 @@ for (const key in thingDescription['events']) {
       const newForm = JSON.parse(JSON.stringify(originalForm))
       newForm['contentType'] = type
       newForm['response'].contentType = type;
-      newForm['htv:headers'][0]['fieldValue'] = type
+      newForm['htv:headers'][0]['htv:fieldValue'] = type
       thingDescription['events'][key]['forms'].push(newForm)
     }
   })
