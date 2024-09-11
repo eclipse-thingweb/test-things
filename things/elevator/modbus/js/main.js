@@ -73,10 +73,11 @@ const lightSwitchForms = [{
 
 thingDescription['properties']['lightSwitch']['forms'] = lightSwitchForms
 
+const onTheMoveAddress = 0
 const onTheMovePollingTime = 1000
 
 const onTheMoveForms = [{
-    "href": `modbus+tcp://0.0.0.0:8502/1/1?quantity=1`,
+    "href": `modbus+tcp://0.0.0.0:8502/1/10001?quantity=1`,
     "op": [
         "readproperty",
         "observeproperty"
@@ -92,25 +93,25 @@ let onTheMoveIsPolled = false
 thingDescription['properties']['onTheMove']['forms'] = onTheMoveForms
 
 const floorNumberForms = [{
-    "href": `modbus+tcp://0.0.0.0:8502/1/1?quantity=2`,
+    "href": `modbus+tcp://0.0.0.0:8502/1/40001?quantity=2`,
     "op": "readproperty",
     "modv:entity": "HoldingRegister",
     "modv:function": "readHoldingRegisters",
     "contentType": "application/octet-stream"
 }, {
-    "href": `modbus+tcp://0.0.0.0:8502/1/1?quantity=2`,
+    "href": `modbus+tcp://0.0.0.0:8502/1/40001?quantity=2`,
     "op": "writeproperty",
     "modv:entity": "HoldingRegister",
     "modv:function": "writeSingleHoldingRegister",
     "contentType": "application/octet-stream"
 }]
 
-const floorNumberAddress = 1
+const floorNumberAddress = 0
 const floorNumberQuantity = 2
 
 const getFloorNumberValue = () => {
     return holdingRegisters
-        .slice(floorNumberAddress - 1, floorNumberAddress - 1 + floorNumberQuantity)
+        .slice(floorNumberAddress, floorNumberAddress + floorNumberQuantity)
         .reduce((sum, e) => sum + e)
 }
 
@@ -121,11 +122,32 @@ thingDescription['properties']['floorNumber']['forms'] = floorNumberForms
 
 fs.writeFile(`${thingName}.td.json`, JSON.stringify(thingDescription, 4, 4), 'utf-8', function(){})
 
+
+const coilMemoryRange = [1, 9999]
+const discreteInputMemoryRange = [10001, 19999]
+const inputRegisterMemoryRange = [30001, 39999]
+const holdingRegisterMemoryRange = [40001, 49999]
+
+const isAddressInRange = (address, range) => {
+    return address >= range[0] && address <= range[1]
+}
+
+const getNormalizedAddress = (address, range) => {
+    return address - range[0]
+}
+
 const vector = {
     getDiscreteInput: function(addr, unitID) {
         if (thingUnitID === unitID) {
+            if (!isAddressInRange(addr, discreteInputMemoryRange)) {
+                console.log(`Address is out of discrete input memory range.`)
+                return
+            }
+
             console.log(`Reading discrete input @${addr}`)
-            if (addr === 1) {
+            const normalizedAddress = getNormalizedAddress(addr, discreteInputMemoryRange)
+
+            if (normalizedAddress === onTheMoveAddress) {
                 if (onTheMoveIsPolled) {
                     console.log(`Polling onTheMove too frequently. You should poll it every ${onTheMovePollingTime} ms.`)
                     return
@@ -136,14 +158,14 @@ const vector = {
                 
                 if (isTestRun) {
                     onTheMoveIsPolled = false
-                    returnValue = discreteInputs[addr - 1] 
-                    discreteInputs[addr - 1] = 0
+                    returnValue = discreteInputs[normalizedAddress] 
+                    discreteInputs[normalizedAddress] = 0
                 } else {
                     setTimeout(function() {
                         onTheMoveIsPolled = false
                     }, onTheMovePollingTime)
 
-                    returnValue = discreteInputs[addr - 1]
+                    returnValue = discreteInputs[normalizedAddress]
                 }
                 
                 return returnValue
@@ -152,40 +174,51 @@ const vector = {
     },
     getHoldingRegister: function(addr, unitID, callback) {
         if (thingUnitID === unitID) {
-            setTimeout(function() {
-                callback(null, holdingRegisters[addr - 1])
+            if (!isAddressInRange(addr, holdingRegisterMemoryRange)) {
+                console.log(`Address is out of holding register memory range.`)
+                return
+            }
 
-                // if (addr = floorNumberAddress) {
-                //     console.log(`Reading holding register @${addr}`)
-                //     const floorNumberValue = holdingRegisters.slice(addr - 1, addr - 1 + floorNumberQuantity).reduce((sum, e) => sum + e)
-                //     console.log(`Floor number is ${floorNumberValue}`)
-                //     callback(null, floorNumberValue)
-                // }
+            const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange)
+            
+            setTimeout(function() {
+                callback(null, holdingRegisters[normalizedAddress])
             }, 10)
         }
     },
     getCoil: function(addr, unitID) {
         if (thingUnitID === unitID) {
+            if (!isAddressInRange(addr, coilMemoryRange)) {
+                console.log(`Address is out of coil memory range.`)
+                return
+            }
+
             return new Promise(function(resolve) {
                 console.log(`Reading coil @${addr}`)
-                resolve(coils[addr - 1])
+                const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange)
+                resolve(coils[normalizedAddress])
             })
         }
     },
     setRegister: function(addr, value, unitID) {
         if (thingUnitID === unitID) {
+            if (!isAddressInRange(addr, holdingRegisterMemoryRange)) {
+                console.log(`Address is out of holding register memory range.`)
+                return
+            }
+
             console.log(`Setting register @${addr} to ${value}`)
+            const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange)
             // trying to change floor number
-            holdingRegisters[addr - 1] = value
+            holdingRegisters[normalizedAddress] = value
 
             // writing last part of the value and running the thing logic
-            if (addr === floorNumberAddress + floorNumberQuantity - 1) {
+            if (normalizedAddress === floorNumberAddress + floorNumberQuantity - 1) {
                 // elevator is on the move
-                if (discreteInputs[0] && !isTestRun) {
+                if (discreteInputs[onTheMoveAddress] && !isTestRun) {
                     console.log("Elevator is on the move, cannot change the floor number")
                 } else {
                     const floorNumberValue = getFloorNumberValue()
-
                     if (floorNumberValue < minFloorNumber) {
                         console.log(`Floor number should not be under ${minFloorNumber}`)
                         return -1
@@ -199,11 +232,11 @@ const vector = {
                     console.log(`Changing the floor number to ${value}`)
                     
                     // simulating elevator movement
-                    discreteInputs[0] = 1
+                    discreteInputs[onTheMoveAddress] = 1
                     // elevator completes its movement in 5 seconds
                     if (!isTestRun) {
                         setTimeout(() => {
-                            discreteInputs[0] = 0
+                            discreteInputs[onTheMoveAddress] = 0
                         }, 5000)
                     }
                 }
@@ -214,8 +247,15 @@ const vector = {
     },
     setCoil: function(addr, value, unitID) {
         if (thingUnitID === unitID) {
+            if (!isAddressInRange(addr, coilMemoryRange)) {
+                console.log(`Address is out of coil memory range.`)
+                return
+            }
+
+            const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange)
+
             console.log(`Setting coil @${addr} to ${value}`)
-            coils[addr - 1] = value
+            coils[normalizedAddress] = value
         }
         
         return

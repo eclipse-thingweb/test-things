@@ -48,7 +48,7 @@
             "observable": true,
             "forms": [
                 {
-                    "href": "modbus+tcp://0.0.0.0:8502/1/1?quantity=1",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/10001?quantity=1",
                     "op": [
                         "readproperty",
                         "observeproperty"
@@ -69,14 +69,14 @@
             "observable": false,
             "forms": [
                 {
-                    "href": "modbus+tcp://0.0.0.0:8502/1/1?quantity=2",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/40001?quantity=2",
                     "op": "readproperty",
                     "modv:entity": "HoldingRegister",
                     "modv:function": "readHoldingRegisters",
                     "contentType": "application/octet-stream"
                 },
                 {
-                    "href": "modbus+tcp://0.0.0.0:8502/1/1?quantity=2",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/40001?quantity=2",
                     "op": "writeproperty",
                     "modv:entity": "HoldingRegister",
                     "modv:function": "writeSingleHoldingRegister",
