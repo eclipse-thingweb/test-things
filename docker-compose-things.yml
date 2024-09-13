@@ -46,14 +46,24 @@ services:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
-    deploy:
-      resources:
-        limits:
-          cpus: '0.01'
-          memory: 50M
-        reservations:
-          cpus: '0.001'
-          memory: 25M
+      - LOKI_HOSTNAME=${LOKI_HOSTNAME}
+      - LOKI_PORT=${LOKI_PORT}
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.01'
+    #       memory: 50M
+    #     reservations:
+    #       cpus: '0.001'
+    #       memory: 25M
+    depends_on:
+      - loki
+    healthcheck:
+          test: wget --no-verbose --tries=1 --spider http://${HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
+          interval: ${HC_INTERVAL}
+          timeout: ${HC_TIMEOUT}
+          retries: ${HC_RETRIES}
+          start_period: ${HC_START_PERIOD}
   http-express-calculator-content-negotiation:
     labels:
       - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
@@ -72,6 +82,12 @@ services:
         reservations:
           cpus: '0.001'
           memory: 25M
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://${HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-content-negotiation || exit 1
+      interval: ${HC_INTERVAL}
+      timeout: ${HC_TIMEOUT}
+      retries: ${HC_RETRIES}
+      start_period: ${HC_START_PERIOD}
   http-flask-calculator:
     labels:
       - traefik.http.routers.http-flask-calculator.rule=PathPrefix(`/http-flask-calculator`)
@@ -85,11 +101,17 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.1'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://${HOSTNAME}:${WEB_PORT_OUT}/http-flask-calculator || exit 1
+      interval: ${HC_INTERVAL}
+      timeout: ${HC_TIMEOUT}
+      retries: ${HC_RETRIES}
+      start_period: ${HC_START_PERIOD}
   mqtt-calculator:
     build:
       context: ./things/calculator/

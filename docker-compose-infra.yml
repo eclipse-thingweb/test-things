@@ -61,6 +61,7 @@ services:
     image: grafana/grafana
     environment:
       - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+      - LOKI_PORT=${LOKI_PORT}
     volumes:
       - ./conf/grafana/provisioning:/etc/grafana/provisioning
       - ./conf/grafana/dashboards:/var/lib/grafana/dashboards
@@ -125,6 +126,21 @@ services:
         reservations:
           cpus: '0.05'
           memory: 50M
+  loki:
+    image: grafana/loki:2.9.2
+    # labels:
+    #   - "traefik.http.routers.loki.rule=Host(`loki.${HOSTNAME}`)"
+    #   - "traefik.http.routers.loki.service=loki"
+    #   - "traefik.http.services.loki.loadbalancer.server.port=${LOKI_PORT}"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./conf/loki/loki-config.yaml:/etc/loki/local-config.yaml
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - /var/log:/var/log
+      - ./conf/promtail/promtail-config.yaml:/etc/promtail/config.yaml
 volumes:
   prometheus_data:
   grafana_data:

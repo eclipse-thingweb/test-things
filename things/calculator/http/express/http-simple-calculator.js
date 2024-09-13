@@ -6,12 +6,30 @@ const { parseArgs } = require("node:util");
 const { JsonPlaceholderReplacer } = require("json-placeholder-replacer");
 require("dotenv").config();
 
+const { createLogger, transports, format } = require('winston')
+const LokiTransport = require('winston-loki')
+
 const app = express();
 app.use(express.json({ strict: false }));
 
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT ?? 3000;
 const thingName = "http-express-calculator-simple";
+
+console.log(process.env.LOKI_URL)
+let logger = createLogger({
+  transports: [new LokiTransport({
+      host:`${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
+      labels: { thing: thingName },
+      json: true,
+      format: format.json(),
+      replaceTimestamp: true,
+      onConnectionError: (err) => console.error(err)
+    }),
+    new transports.Console({
+      format: format.combine(format.simple(), format.colorize())
+    })]
+})
 
 const TDEndPoint = `/${thingName}`,
   resultEndPoint = `/${thingName}/properties/result`,
@@ -171,6 +189,7 @@ app.get(TDEndPoint, (req, res) => {
 });
 
 app.get(resultEndPoint, (req, res) => {
+  logger.info({ message: `${result}`, labels: { affordance: 'property',  op: 'readproperty', affordanceName: 'result' }})
   res.json(result);
 });
 
@@ -182,26 +201,27 @@ app.get(resultEndPointObserve, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
 
   console.log("Client is listening to result property")
+  logger.info({ message: `${result}`, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'result' }})
   let oldResult = result;
 
   const changeInterval = setInterval(() => {
-
     if (oldResult !== result) {
+      logger.info(`Observed data: ${result}`)
       res.write(`data: ${JSON.stringify(result)}\n\n`);
       oldResult = result;
     }
   }, 1000);
 
-  res.on("finish", () => {
-    clearInterval(changeInterval);
-  });
-
   res.on("close", () => {
+    clearInterval(changeInterval);
+    logger.info({ message: 'Client stopped listening to result property', labels: { affordance: 'property', op: 'unobserveproperty',  affordanceName: 'result' }})
     console.log("Client stopped listening to result property");
+    res.end()
   })
 });
 
 app.get(lastChangeEndPoint, (req, res) => {
+  logger.info({ message: lastChange, labels: { affordance: 'property', op: 'readproperty', affordanceName: 'lastChange' }})
   res.json(lastChange);
 });
 
@@ -218,6 +238,7 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   const changeInterval = setInterval(() => {
 
     if (oldLastChange !== lastChange) {
+      logger.info({ message: lastChange, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'lastChange' }})
       res.write(`data: ${JSON.stringify(lastChange)}\n\n`);
       oldLastChange = lastChange;
     }
@@ -228,6 +249,7 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   });
 
   res.on("close", () => {
+    logger.info({ message: 'Client stopped listening to result property', labels: { affordance: 'property', op: 'unobserveproperty',  affordanceName: 'lastChange' }})
     console.log("Client stopped listening to lastChange property");
   })
 });
@@ -240,8 +262,11 @@ app.post(additionEndPoint, reqParser, (req, res) => {
     if (typeof bodyInput !== "number") {
       res.status(400).json("Input should be a valid number");
     } else {
+      logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add' }})
+      logger.info({ message: `${bodyInput}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionInput' }})
       result += bodyInput;
       lastChange = new Date();
+      logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionOutput' }})
       res.json(result);
     }
   } catch (error) {
@@ -257,8 +282,11 @@ app.post(subtractionEndPoint, reqParser, (req, res) => {
     if (typeof bodyInput !== "number") {
       res.status(400).json("Input should be a valid number");
     } else {
+      logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract' }})
+      logger.info({ message: `${bodyInput}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionInput' }})
       result -= bodyInput;
       lastChange = new Date();
+      logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionOutput' }})
       res.json(result);
     }
   } catch (error) {
@@ -275,6 +303,7 @@ app.get(updateEndPoint, (req, res) => {
 
   let oldResult = result;
   console.log("Client is listening to update event");
+  logger.info({ message: 'Client is listening to update event', labels: { affordance: 'event', op: 'subscribeevent',  affordanceName: 'update' }})
 
   /**
    * The SSE specification defines the structure of SSE messages, and
@@ -283,19 +312,18 @@ app.get(updateEndPoint, (req, res) => {
    * interpreted correctly by the client, which could create empty values.
    */
   const changeInterval = setInterval(() => {
-
     if (oldResult !== result) {
+      logger.info({ message: `${result}`, labels: { affordance: 'event', op: 'subscribeevent',  affordanceName: 'update', messageType: 'eventOutput' }})
       res.write(`data: ${result}\n\n`);
       oldResult = result;
     }
   }, 1000);
 
-  res.on("finish", () => {
-    clearInterval(changeInterval);
-  });
-
   res.on("close", () => {
+    logger.info({ message: 'Client stopped listening to update event', labels: { affordance: 'event', op: 'unsubscribeevent',  affordanceName: 'update' }})
     console.log("Client stopped listening to update event");
+    clearInterval(changeInterval);
+    res.end()
   })
 });
 
