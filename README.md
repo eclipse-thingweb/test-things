@@ -117,3 +117,13 @@ A username and password should be generated for running the services. To do so:
 For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able to copy `tm.json` into the container.
 
 For Node.js-based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
+
+### Saving Grafana Dashboards
+
+Grafana dashboard json files are stored in [./conf/grafana/dashboards](./conf//grafana//dashboards/).
+To save your newly created dashboard locally and push it into the remote repository:
+  - Export the dashboard as JSON file using Share > Export.
+  - Save the exported JSON file to [./conf/grafana/dashboards](./conf//grafana//dashboards/).
+
+If your dashboard uses another datasource than our default `prometheus-datasource`, new datasource also must be provisioned in [./conf/grafana/datasources](./conf/grafana/provisioning/datasources/).
+For more information check Grafana's provisioning [documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
