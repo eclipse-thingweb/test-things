@@ -101,10 +101,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
+          cpus: '0.01'
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: '0.001'
           memory: 25M
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://${HOSTNAME}:${WEB_PORT_OUT}/http-flask-calculator || exit 1
