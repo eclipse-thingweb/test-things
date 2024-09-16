@@ -10,4 +10,4 @@ COPY ./things/presence-sensor.ts ./things/presence-sensor.ts
 
 RUN npm run build
 
-CMD ["node", "./dist/things/presence-sensor.js"]
+CMD ["npm", "run", "start:presence-sensor"]

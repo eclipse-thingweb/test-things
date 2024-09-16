@@ -115,7 +115,7 @@ After the run, as default, the devices are accessible at:
 | http-flask-calculator | `http://localhost/http-flask-calculator` |
 | mqtt-calculator | `mqtt://test.mosquitto.org:1883/mqtt-calculator` |
 | modbus-elevator | `modbus+tcp://localhost:3179/1` |
-| http-test-thing | `http://localhost/http-test-thing` |
+| http-data-schema-thing | `http://localhost/http-data-schema-thing` |
 
 To be able to access additional tools, the user must have a basic username and password pair. The services are accessible at:
 

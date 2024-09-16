@@ -27,7 +27,7 @@ const HttpServer = require("@node-wot/binding-http").HttpServer
 
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT ?? 3000;
-const thingName = "http-test-thing";
+const thingName = "http-data-schema-thing";
 
 
 function checkPropertyWrite(expected: string, actual: unknown) {

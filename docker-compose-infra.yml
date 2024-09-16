@@ -110,7 +110,7 @@ services:
     - mqtt-calculator
     - modbus-elevator
     - http-advanced-coffee-machine
-    - http-test-thing
+    - http-data-schema-thing
   portainer:
     image: portainer/portainer-ce:latest
     volumes:

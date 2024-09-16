@@ -22,7 +22,7 @@ describe("TD Test", () => {
   })
   
   it('should have a valid TD', (done) => {
-    http.get(`http://localhost:${port}/http-test-thing`, function (response: any) {
+    http.get(`http://localhost:${port}/http-data-schema-thing`, function (response: any) {
       const body: Buffer[] = []
       response.on('data', (chunk: Buffer) => {
         body.push(chunk)

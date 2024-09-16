@@ -5,8 +5,8 @@ COPY ./tsconfig.json .
 
 RUN npm install
 
-COPY ./index.ts ./index.ts 
+COPY ./mashup-logic.ts ./mashup-logic.ts 
 
 RUN npm run build
 
-CMD ["node", "./dist/index.js"]
+CMD ["npm", "run", "start"]

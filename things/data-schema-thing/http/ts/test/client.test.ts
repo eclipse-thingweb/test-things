@@ -29,7 +29,7 @@ describe("Client Tests", () => {
     before(async () => {
         try {
             const WoT = await servient.start()
-            const td: WoT.ThingDescription = await WoT.requestThingDescription(`http://localhost:${port}/http-test-thing`)
+            const td: WoT.ThingDescription = await WoT.requestThingDescription(`http://localhost:${port}/http-data-schema-thing`)
             thing = await WoT.consume(td)    
         } catch(error) {
             console.error(error)
