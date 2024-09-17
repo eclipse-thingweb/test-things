@@ -4,7 +4,7 @@ services:
     image: traefik:v3.0
     labels:
       - traefik.enable=true
-      - traefik.http.routers.mydashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.mydashboard.rule=Host(`traefik.${HOSTNAME}`)
       - traefik.http.routers.mydashboard.service=api@internal
       - traefik.http.routers.mydashboard.middlewares=test-things-auth
     command:
@@ -48,6 +48,7 @@ services:
       - PROVIDERS_GENERIC_OAUTH_SCOPE=user,repo
       - INSECURE_COOKIE=true
       - LOG_LEVEL=debug
+      - WHITELIST=${WHITELISTED_EMAILS}
     labels:
       - "traefik.http.middlewares.test-things-auth.forwardauth.address=http://test-things-auth:${FORWARD_AUTH_PORT}"
       - "traefik.http.middlewares.test-things-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
@@ -76,6 +77,8 @@ services:
     image: grafana/grafana
     environment:
       - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+      - GF_SERVER_DOMAIN=grafana.${HOSTNAME}
+      - GF_SERVER_ROOT_URL=http://grafana.${HOSTNAME}
     volumes:
       - ./conf/grafana/provisioning:/etc/grafana/provisioning
       - ./conf/grafana/dashboards:/var/lib/grafana/dashboards
@@ -83,7 +86,6 @@ services:
     labels:
       - "traefik.http.routers.grafana.rule=Host(`grafana.${HOSTNAME}`)"
       - "traefik.http.routers.grafana.service=grafana"
-      - "traefik.http.routers.grafana.middlewares=test-things-auth"
       - "traefik.http.services.grafana.loadbalancer.server.port=${GRAFANA_PORT}"
     deploy:
       resources:

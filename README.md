@@ -86,7 +86,7 @@ The elevator is a simple device, that has three variables `lightSwitch`, `floorN
 You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose-things.yml up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose-things.yml](./docker-compose-things.yml).
 
 [docker-compose-things.yml](./docker-compose-things.yml) consists of the docker configuration of the things.
-[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana and cadvisor.  
+[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana, cadvisor and portainer.  
 
 After the run, as default, the devices are accessible at:
 
@@ -98,19 +98,17 @@ After the run, as default, the devices are accessible at:
 - mqtt-calculator -> `mqtt://test.mosquitto.org:1883/mqtt-calculator`
 - modbus-elevator -> `modbus+tcp://localhost:3179/1`
 
-To be able to access additional tools, the user must have a basic username and password pair. The services are accessible at:
+To be able to access additional tools, the user must login through GitHub. For GitHub authentication to work, environment variables `OAUTH_SECRET` and, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` must be set with the configuration of GitHub OAuth application. Only whitelisted emails can access some of the services. Whitelisted emails can be set using the environment variable `WHITELISTED_EMAILS`. These services are accessible at:
 
 - Traefik dashboard ->  dashboard.localhost
 - Prometheus -> prometheus.localhost
-- Grafana -> grafana.localhost
 - cAdvisor -> cadvisor.localhost
 
-Hostname and ports can be changed from `.env` file in the root directory. Therefore the links for devices would change accordingly.
-A username and password should be generated for running the services. To do so:
+Grafana and Portainer UIs are public access but they run their own authentication and authorization. These services are accessible at:
+- Grafana -> grafana.localhost
+- Portainer -> portainer.localhost
 
-  1. Choose a username, e.g. `myuser`, and run the following command in the command line: `echo $(htpasswd -nB USERNAMECHOICE) | sed -e s/\\$/\\$\\$/g`
-  2. Enter the username and the generated password (hashed) in the `.env` file under `TRAEFIK_DASHBOARD_USER` and `TRAEFIK_DASHBOARD_PASS`, respectively.
-  3. Use the username and the password you have types (not the hashed one) when logging in at any service but Portainer.
+Hostname and ports can be changed from `.env` file in the root directory. Therefore the links for devices would change accordingly.
 
 ### Running separately
 
