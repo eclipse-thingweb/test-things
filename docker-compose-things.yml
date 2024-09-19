@@ -139,11 +139,11 @@ services:
         reservations:
           cpus: '0.01'
           memory: 25M
-  http-test-thing:
+  http-data-schema-thing:
     labels:
-      - traefik.http.routers.http-test-thing.rule=PathPrefix(`/http-test-thing`)
+      - traefik.http.routers.http-data-schema-thing.rule=PathPrefix(`/http-data-schema-thing`)
     build:
-      context: ./things/test-thing
+      context: ./things/data-schema-thing
       dockerfile: ./http/ts/Dockerfile
       args:
         - PORT_ARG=${WEB_PORT_OUT}
@@ -180,7 +180,8 @@ services:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
       # Since mashup communicates inside the Docker network use of localhost in a TD result as 
-      # the mashup container's its own localhost. Therefore hostname given as their docker service name 
+      # the mashup container's its own localhost. Therefore hostname given as their docker service name.
+      # In production we will have a dedicated address and this issue won't be a problem.
       - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
     deploy:
       resources:
@@ -200,7 +201,8 @@ services:
         - PORT_ARG=${SMART_HOME_SMART_CLOCK_PORT_OUT}
     environment:
       # Since mashup communicates inside the Docker network use of localhost in a TD result as 
-      # the mashup container's its own localhost. Therefore hostname given as their docker service name 
+      # the mashup container's its own localhost. Therefore hostname given as their docker service name.
+      # In production we will have a dedicated address and this issue won't be a problem.
       - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
     deploy:
       resources:
@@ -232,4 +234,3 @@ services:
         reservations:
           cpus: '0.01'
           memory: 25M
-      

@@ -11,6 +11,7 @@ const expect = chai.expect
 
 let servient = new Servient()
 servient.addClientFactory(new HttpClientFactory())
+const port = 3000
 
 let thing: WoT.ConsumedThing 
 

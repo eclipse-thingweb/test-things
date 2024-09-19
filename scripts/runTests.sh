@@ -32,6 +32,11 @@ for tmd in things/* ; do
 
             current_path=$(pwd)
             cd $tdd
+
+            if [ -f "tsconfig.json" ]; then
+                npm run build
+            fi
+
             td_result=$(../../../../node_modules/mocha/bin/mocha.js)
             td_exit_code=$?
             cd $current_path

@@ -25,7 +25,7 @@ describe('Test Thing', () => {
   })
 
   it('should have a valid TM', () => {
-    const testThingTM = require('./test-thing.tm.json')
+    const testThingTM = require('./data-schema-thing.tm.json')
     const valid = validate(testThingTM)
     expect(valid).to.be.true
   })

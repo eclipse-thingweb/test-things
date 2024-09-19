@@ -3,3 +3,7 @@ node_modules
 __pycache__/
 .venv
 .local.env
+
+# TS files
+dist/
+.tsbuildinfo

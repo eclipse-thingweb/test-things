@@ -10,5 +10,5 @@
         "esModuleInterop": true,
         "removeComments": false
     },
-    "include": ["index.ts", "./things/**.ts"],
+    "include": ["./mashup-logic.ts", "./things/**.ts"],
 } 
