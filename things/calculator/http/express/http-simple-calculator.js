@@ -16,7 +16,6 @@ const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT ?? 3000;
 const thingName = "http-express-calculator-simple";
 
-console.log(process.env.LOKI_URL)
 let logger = createLogger({
   transports: [new LokiTransport({
       host:`${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
@@ -137,8 +136,58 @@ try {
 
 const reqParser = bodyParser.text({ type: "*/*" });
 
-let result = 0;
-let lastChange = new Date().toISOString();
+// Logging and monitoring variables and functions
+const setResult = (value) => {
+  result = value
+  logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'updateProperty' }})
+}
+
+const setLastChange = (value) => {
+  lastChange = value
+  logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
+}
+
+let result
+setResult(0)
+
+let lastChange 
+setLastChange(new Date().toISOString())
+
+let updateSubscriptionCount = 0
+
+const increaseUpdateSubscriptionCount = () => {
+  updateSubscriptionCount++
+  logger.info({ message: `${updateSubscriptionCount}`, labels: { affordance: 'event', affordanceName: 'update', messageType: 'subscriptionCount' }})
+}
+
+const decreaseUpdateSubscriptionCount = () => {
+  updateSubscriptionCount--
+  logger.info({ message: `${updateSubscriptionCount}`, labels: { affordance: 'event', affordanceName: 'update', messageType: 'subscriptionCount' }})
+}
+
+let resultObserveCount = 0
+
+const increaseResultObserveCount = () => {
+  resultObserveCount++
+  logger.info({ message: `${resultObserveCount}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'observeCount' }})
+}
+
+const decreaseResultObserveCount = () => {
+  resultObserveCount--
+  logger.info({ message: `${resultObserveCount}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'observeCount' }})
+}
+
+let lastChangeObserveCount = 0
+
+const increaseLastChangeObserveCount = () => {
+  lastChangeObserveCount++
+  logger.info({ message: `${lastChangeObserveCount}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'observeCount' }})
+}
+
+const decreaseLastChangeObserveCount = () => {
+  lastChangeObserveCount--
+  logger.info({ message: `${lastChangeObserveCount}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'observeCount' }})
+}
 
 /******************************************/
 /************** Middleware ****************/
@@ -202,10 +251,12 @@ app.get(resultEndPointObserve, (req, res) => {
 
   console.log("Client is listening to result property")
   logger.info({ message: `${result}`, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'result' }})
+  increaseResultObserveCount()
   let oldResult = result;
 
   const changeInterval = setInterval(() => {
     if (oldResult !== result) {
+      logger.info({ message: result, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'result' }})
       logger.info(`Observed data: ${result}`)
       res.write(`data: ${JSON.stringify(result)}\n\n`);
       oldResult = result;
@@ -214,6 +265,7 @@ app.get(resultEndPointObserve, (req, res) => {
 
   res.on("close", () => {
     clearInterval(changeInterval);
+    decreaseResultObserveCount()
     logger.info({ message: 'Client stopped listening to result property', labels: { affordance: 'property', op: 'unobserveproperty',  affordanceName: 'result' }})
     console.log("Client stopped listening to result property");
     res.end()
@@ -233,6 +285,8 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
 
   console.log("Client is listening to lastChange property");
+  logger.info({ message: `${result}`, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'lastChange' }})
+  increaseLastChangeObserveCount()
   let oldLastChange = lastChange;
 
   const changeInterval = setInterval(() => {
@@ -250,6 +304,7 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 
   res.on("close", () => {
     logger.info({ message: 'Client stopped listening to result property', labels: { affordance: 'property', op: 'unobserveproperty',  affordanceName: 'lastChange' }})
+    decreaseLastChangeObserveCount()
     console.log("Client stopped listening to lastChange property");
   })
 });
@@ -264,8 +319,8 @@ app.post(additionEndPoint, reqParser, (req, res) => {
     } else {
       logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add' }})
       logger.info({ message: `${bodyInput}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionInput' }})
-      result += bodyInput;
-      lastChange = new Date();
+      setResult(result + bodyInput);
+      setLastChange(new Date());
       logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionOutput' }})
       res.json(result);
     }
@@ -284,8 +339,8 @@ app.post(subtractionEndPoint, reqParser, (req, res) => {
     } else {
       logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract' }})
       logger.info({ message: `${bodyInput}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionInput' }})
-      result -= bodyInput;
-      lastChange = new Date();
+      setResult(result - bodyInput);
+      setLastChange(new Date());
       logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionOutput' }})
       res.json(result);
     }
@@ -304,6 +359,7 @@ app.get(updateEndPoint, (req, res) => {
   let oldResult = result;
   console.log("Client is listening to update event");
   logger.info({ message: 'Client is listening to update event', labels: { affordance: 'event', op: 'subscribeevent',  affordanceName: 'update' }})
+  increaseUpdateSubscriptionCount()
 
   /**
    * The SSE specification defines the structure of SSE messages, and
@@ -321,6 +377,7 @@ app.get(updateEndPoint, (req, res) => {
 
   res.on("close", () => {
     logger.info({ message: 'Client stopped listening to update event', labels: { affordance: 'event', op: 'unsubscribeevent',  affordanceName: 'update' }})
+    decreaseUpdateSubscriptionCount()
     console.log("Client stopped listening to update event");
     clearInterval(changeInterval);
     res.end()
