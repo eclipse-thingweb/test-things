@@ -6,6 +6,7 @@ return_value=0
 for tmd in things/* ; do
     tm_test_path="$tmd/*.test.js"
     if [ ! -f $tm_test_path ]; then
+        echo "$tm_test_path does not exist. Continuing with the next thing."
         continue
     fi 
     
@@ -31,6 +32,11 @@ for tmd in things/* ; do
 
             current_path=$(pwd)
             cd $tdd
+
+            if [ -f "tsconfig.json" ]; then
+                npm run build
+            fi
+
             td_result="$(../../../../node_modules/mocha/bin/mocha.js --exit --timeout 5000)"
             td_exit_code=$?
             cd $current_path
