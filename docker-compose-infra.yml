@@ -36,7 +36,7 @@ services:
           cpus: '0.05'
           memory: 50M
   test-things-auth:
-    image: thomseddon/traefik-forward-auth:2-arm64
+    image: thomseddon/traefik-forward-auth:2
     environment:
       - DEFAULT_PROVIDER=generic-oauth
       - SECRET=${OAUTH_SECRET}
