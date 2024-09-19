@@ -1,0 +1,28 @@
+{
+  "name": "smart-home",
+  "version": "1.0.0",
+  "description": "Smart Home Mashup",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node ./dist/mashup-logic.js",
+    "start:presence-sensor": "node ./dist/things/presence-sensor.js",
+    "start:simple-coffee-machine": "node ./dist/things/simple-coffee-machine.js",
+    "start:smart-clock": "node ./dist/things/smart-clock.js",
+    "start:all": "./runMashupThings.sh"
+  },
+  "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+  "license": "EPL-2.0 OR W3C-20150513",
+  "dependencies": {
+    "@node-wot/binding-coap": "~0.8.16",
+    "@node-wot/binding-http": "~0.8.16",
+    "@node-wot/binding-mqtt": "~0.8.16",
+    "@node-wot/core": "~0.8.16"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/node-fetch": "^2.6.11",
+    "dotenv": "^16.4.5",
+    "typescript": "^4.7.4"
+  }
+}

@@ -13,10 +13,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
   coap-calculator-content-negotiation:
     labels:
@@ -31,10 +31,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
   http-express-calculator-simple:
     labels:
@@ -49,10 +49,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
   http-express-calculator-content-negotiation:
     labels:
@@ -67,10 +67,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
   http-flask-calculator:
     labels:
@@ -85,10 +85,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
   mqtt-calculator:
     build:
@@ -97,10 +97,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
   modbus-elevator:
     labels:
@@ -116,9 +116,121 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.01'
+          cpus: '0.05'
           memory: 50M
         reservations:
-          cpus: '0.001'
+          cpus: '0.01'
           memory: 25M
-      
+  http-advanced-coffee-machine:
+    labels:
+      - traefik.http.routers.http-advanced-coffee-machine.rule=PathPrefix(`/http-advanced-coffee-machine`)
+    build:
+      context: ./things/advanced-coffee-machine
+      dockerfile: ./http/ts/Dockerfile
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
+        reservations:
+          cpus: '0.01'
+          memory: 25M
+  http-data-schema-thing:
+    labels:
+      - traefik.http.routers.http-data-schema-thing.rule=PathPrefix(`/http-data-schema-thing`)
+    build:
+      context: ./things/data-schema-thing
+      dockerfile: ./http/ts/Dockerfile
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${HOSTNAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
+        reservations:
+          cpus: '0.01'
+          memory: 25M
+  smart-home-presence-sensor:
+    build:
+      context: ./mashups/smart-home
+      dockerfile: ./dockerfiles/presence-sensor.Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
+        reservations:
+          cpus: '0.01'
+          memory: 25M
+  smart-home-simple-coffee-machine:
+    labels: 
+      # TD is not exposed since it contains hostname that cannot be accessed outside the docker network
+      - traefik.http.routers.smart-home-simple-coffee-machine.rule=PathRegexp(`/smart-home-simple-coffee-machine/.+`)
+    build:
+      context: ./mashups/smart-home
+      dockerfile: ./dockerfiles/simple-coffee-machine.Dockerfile
+      args:
+        - PORT_ARG=${WEB_PORT_OUT}
+    environment:
+      # Since mashup communicates inside the Docker network use of localhost in a TD result as 
+      # the mashup container's its own localhost. Therefore hostname given as their docker service name.
+      # In production we will have a dedicated address and this issue won't be a problem.
+      - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
+        reservations:
+          cpus: '0.01'
+          memory: 25M
+  smart-home-smart-clock:
+    labels:
+      - traefik.udp.routers.smart-home-smart-clock.entrypoints=smart-home-smart-clock
+    build:
+      context: ./mashups/smart-home
+      dockerfile: ./dockerfiles/smart-clock.Dockerfile
+      args:
+        - PORT_ARG=${SMART_HOME_SMART_CLOCK_PORT_OUT}
+    environment:
+      # Since mashup communicates inside the Docker network use of localhost in a TD result as 
+      # the mashup container's its own localhost. Therefore hostname given as their docker service name.
+      # In production we will have a dedicated address and this issue won't be a problem.
+      - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 200M
+        reservations:
+          cpus: '0.01'
+          memory: 50M
+  smart-home-mashup: 
+    build:
+      context: ./mashups/smart-home
+      dockerfile: ./dockerfiles/mashup.Dockerfile
+    environment:
+      - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
+      - PRESENCE_SENSOR_BROKER_URI=${BROKER_URI}
+      - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
+      - SMART_CLOCK_PORT=${SMART_HOME_SMART_CLOCK_PORT_OUT}
+    depends_on:
+      - smart-home-presence-sensor
+      - smart-home-simple-coffee-machine
+      - smart-home-smart-clock
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
+        reservations:
+          cpus: '0.01'
+          memory: 25M
