@@ -92,7 +92,7 @@ The Test Thing is a total toy device that users can try different types of prope
 
 ### Smart Home Mashup
 
-See the mashup's [readme](./mashups//smart-home/README.md).
+See the mashup's [readme](./mashups/smart-home/README.md).
 
 ## How to Run
 
@@ -139,10 +139,10 @@ For Node.js-based devices, we use npm workspaces and running `npm install` at th
 
 ### Saving Grafana Dashboards
 
-Grafana dashboard json files are stored in [./conf/grafana/dashboards](./conf//grafana//dashboards/).
+Grafana dashboard json files are stored in [./conf/grafana/dashboards](./conf/grafana/dashboards/).
 To save your newly created dashboard locally and push it into the remote repository:
   - Export the dashboard as JSON file using Share > Export.
-  - Save the exported JSON file to [./conf/grafana/dashboards](./conf//grafana//dashboards/).
+  - Save the exported JSON file to [./conf/grafana/dashboards](./conf/grafana/dashboards/).
 
 If your dashboard uses another datasource than our default `prometheus-datasource`, new datasource also must be provisioned in [./conf/grafana/datasources](./conf/grafana/provisioning/datasources/).
 For more information check Grafana's provisioning [documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
