@@ -154,6 +154,7 @@ let lastChange
 setLastChange(new Date().toISOString())
 
 let updateSubscriptionCount = 0
+logger.info({ message: `${updateSubscriptionCount}`, labels: { affordance: 'event', affordanceName: 'update', messageType: 'subscriptionCount' }})
 
 const increaseUpdateSubscriptionCount = () => {
   updateSubscriptionCount++
@@ -166,6 +167,7 @@ const decreaseUpdateSubscriptionCount = () => {
 }
 
 let resultObserveCount = 0
+logger.info({ message: `${resultObserveCount}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'observeCount' }})
 
 const increaseResultObserveCount = () => {
   resultObserveCount++
@@ -178,6 +180,7 @@ const decreaseResultObserveCount = () => {
 }
 
 let lastChangeObserveCount = 0
+logger.info({ message: `${lastChangeObserveCount}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'observeCount' }})
 
 const increaseLastChangeObserveCount = () => {
   lastChangeObserveCount++

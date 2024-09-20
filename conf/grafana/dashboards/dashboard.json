@@ -643,7 +643,15 @@
         },
         {
           "id": "convertFieldType",
-          "options": {}
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Value"
+              }
+            ],
+            "fields": {}
+          }
         }
       ],
       "type": "stat"
@@ -805,7 +813,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Add Action Input",
+      "title": "HTTP Express Calculator Subtract Action Input",
       "transformations": [
         {
           "id": "extractFields",
@@ -894,7 +902,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Add Action Output",
+      "title": "HTTP Express Calculator Subtract Action Output",
       "transformations": [
         {
           "id": "extractFields",
@@ -929,6 +937,6 @@
   "timezone": "browser",
   "title": "HTTP Services",
   "uid": "bdwzocnv714hsd",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }
