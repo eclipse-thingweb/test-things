@@ -95,9 +95,15 @@ for (const key in thingDescription['events']) {
   thingDescription['events'][key]['forms'].push(newForm)
 }
 
+fs.writeFile(`${thingName}.td.json`, JSON.stringify(thingDescription, 4, 4), 'utf-8', function(){})
 
 broker.on('connect', () => {
   console.log(`Connected to broker via port ${portNumber}`)
+  broker.subscribe(`${thingName}/${PROPERTIES}/result`)
+  broker.subscribe(`${thingName}/${PROPERTIES}/lastChange`)
+  broker.subscribe(`${thingName}/${ACTIONS}/add`)
+  broker.subscribe(`${thingName}/${ACTIONS}/subtract`)
+  broker.subscribe(`${thingName}/${EVENTS}/update`)
 })
 
 let result = 0
@@ -130,6 +136,8 @@ broker.on('message', (topic, payload, packet) => {
       } else {
         result += parsedValue
         lastChange = (new Date()).toLocaleTimeString()
+        broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
+        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, lastChange,  { retain: true })
       }
     }
 
@@ -141,6 +149,8 @@ broker.on('message', (topic, payload, packet) => {
       } else {
         result -= parsedValue
         lastChange = (new Date()).toLocaleTimeString()
+        broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
+        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, lastChange, { retain: true })
       }
     }
   }
@@ -150,9 +160,6 @@ setInterval(() => {
   broker.publish(`${thingName}/${EVENTS}/update`, 'Updated the thing!')
 }, 500)
 
-broker.subscribe(`${thingName}/${PROPERTIES}/result`)
-broker.subscribe(`${thingName}/${PROPERTIES}/lastChange`)
-broker.subscribe(`${thingName}/${ACTIONS}/add`)
-broker.subscribe(`${thingName}/${ACTIONS}/subtract`)
+// broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
 broker.publish(`${thingName}`, JSON.stringify(thingDescription), { retain: true })
 console.log('ThingIsReady')

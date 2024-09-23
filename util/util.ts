@@ -14,11 +14,11 @@ export type ValidateResponse = {
 
 const spawn = require('node:child_process').spawn
 
-export const getInitiateMain = (thingPath: string, port: number): Promise<ThingStartResponse> => {
+export const getInitiateMain = (mainCmd: string, cmdArgs: string[]): Promise<ThingStartResponse> => {
     return new Promise((resolve, reject) => {
         const thingProcess = spawn(
-          'node',
-          [thingPath, '-p', `${port}`],
+          mainCmd,
+          cmdArgs,
         )
 
         // Avoids unsettled promise in case the promise is not settled in a second.

@@ -4,11 +4,11 @@ import path from "path"
 
 let thingProcess: ChildProcess | undefined
 let response: ThingStartResponse
-const port = 3000
+export const port = 3000
 
 export async function mochaGlobalSetup() {
     try {
-        response = await getInitiateMain(path.join(__dirname, '..', 'dist', 'main.js'), port)
+        response = await getInitiateMain('node', [path.join(__dirname, '..', 'dist', 'main.js'), '-p', `${port}`])
     } 
     catch(error) {
         console.log(error)
