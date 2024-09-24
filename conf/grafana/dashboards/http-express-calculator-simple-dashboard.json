@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
   "links": [],
   "panels": [
     {
@@ -119,7 +118,7 @@
           "useBackend": false
         }
       ],
-      "title": "HTTP Express Calculator Requests",
+      "title": "Requests",
       "type": "timeseries"
     },
     {
@@ -149,8 +148,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 8,
+        "h": 4,
+        "w": 4,
         "x": 12,
         "y": 0
       },
@@ -188,7 +187,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Result Value",
+      "title": "property \"result\"",
       "transformations": [
         {
           "id": "extractFields",
@@ -231,6 +230,104 @@
           "color": {
             "mode": "thresholds"
           },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "/.*/",
+          "limit": 5,
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cdxkxyq1xjmyoc"
+          },
+          "direction": "forward",
+          "editorMode": "code",
+          "expr": "{affordance=\"property\",affordanceName=\"lastChange\",thing=\"http-express-calculator-simple\", messageType=\"updateProperty\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "property \"lastChange\"",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "jsonPaths": [
+              {
+                "alias": "lastChange",
+                "path": "message"
+              }
+            ],
+            "keepTime": true,
+            "replace": true,
+            "source": "Line"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "string",
+                "targetField": "lastChange"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "loki",
+        "uid": "cdxkxyq1xjmyoc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -245,17 +342,17 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 8,
+        "h": 5,
+        "w": 3,
         "x": 12,
-        "y": 7
+        "y": 4
       },
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
@@ -284,6 +381,198 @@
         }
       ],
       "title": "Action Invocation Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "loki",
+        "uid": "cdxkxyq1xjmyoc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 15,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cdxkxyq1xjmyoc"
+          },
+          "direction": "forward",
+          "editorMode": "code",
+          "expr": "{affordance=\"event\",affordanceName=\"update\",messageType=\"subscriptionCount\",thing=\"http-express-calculator-simple\"}",
+          "legendFormat": "Subscribe {{affordanceName}}",
+          "queryType": "range",
+          "refId": "A",
+          "step": ""
+        }
+      ],
+      "title": "event \"update\" Subscription Count",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "jsonPaths": [
+              {
+                "alias": "Value",
+                "path": "message"
+              }
+            ],
+            "source": "Line"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Value"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "default": false,
+        "type": "loki",
+        "uid": "cdxkxyq1xjmyoc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 18,
+        "y": 4
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cdxkxyq1xjmyoc"
+          },
+          "direction": "forward",
+          "editorMode": "code",
+          "expr": "{affordance=\"property\",affordanceName=\"result\",thing=\"http-express-calculator-simple\", messageType=\"observeCount\"}",
+          "legendFormat": "Observe {{affordanceName}}",
+          "queryType": "range",
+          "refId": "A",
+          "step": ""
+        }
+      ],
+      "title": "propert \"result\" Observe Count",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "jsonPaths": [
+              {
+                "alias": "Value",
+                "path": "message"
+              }
+            ],
+            "source": "Line"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Value"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
       "type": "stat"
     },
     {
@@ -355,7 +644,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Add Action Input",
+      "title": "action \"add\" Inputs",
       "transformations": [
         {
           "id": "extractFields",
@@ -444,7 +733,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Add Action Output",
+      "title": "action \"add\" Outputs",
       "transformations": [
         {
           "id": "extractFields",
@@ -482,198 +771,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 12,
-        "y": 11
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "cdxkxyq1xjmyoc"
-          },
-          "direction": "forward",
-          "editorMode": "code",
-          "expr": "{affordance=\"event\",affordanceName=\"update\",messageType=\"subscriptionCount\",thing=\"http-express-calculator-simple\"}",
-          "legendFormat": "Subscribe {{affordanceName}}",
-          "queryType": "range",
-          "refId": "A",
-          "step": ""
-        }
-      ],
-      "title": "Update Subscription Count",
-      "transformations": [
-        {
-          "id": "extractFields",
-          "options": {
-            "format": "json",
-            "jsonPaths": [
-              {
-                "alias": "Value",
-                "path": "message"
-              }
-            ],
-            "source": "Line"
-          }
-        },
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "number",
-                "targetField": "Value"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "loki",
-        "uid": "cdxkxyq1xjmyoc"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 15,
-        "y": 11
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "cdxkxyq1xjmyoc"
-          },
-          "direction": "forward",
-          "editorMode": "code",
-          "expr": "{affordance=\"property\",affordanceName=\"result\",thing=\"http-express-calculator-simple\", messageType=\"observeCount\"}",
-          "legendFormat": "Observe {{affordanceName}}",
-          "queryType": "range",
-          "refId": "A",
-          "step": ""
-        }
-      ],
-      "title": "Result Observe Count",
-      "transformations": [
-        {
-          "id": "extractFields",
-          "options": {
-            "format": "json",
-            "jsonPaths": [
-              {
-                "alias": "Value",
-                "path": "message"
-              }
-            ],
-            "source": "Line"
-          }
-        },
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "number",
-                "targetField": "Value"
-              }
-            ],
-            "fields": {}
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "loki",
-        "uid": "cdxkxyq1xjmyoc"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
               }
             ]
           }
@@ -684,7 +781,7 @@
         "h": 6,
         "w": 3,
         "x": 18,
-        "y": 11
+        "y": 10
       },
       "id": 8,
       "options": {
@@ -720,7 +817,7 @@
           "step": ""
         }
       ],
-      "title": "Last Change Observe Count",
+      "title": "property \"lastChange\" Observe Count",
       "transformations": [
         {
           "id": "extractFields",
@@ -813,7 +910,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Subtract Action Input",
+      "title": "action \"subtract\" Inputs",
       "transformations": [
         {
           "id": "extractFields",
@@ -902,7 +999,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Express Calculator Subtract Action Output",
+      "title": "action \"subtract\" Outputs",
       "transformations": [
         {
           "id": "extractFields",
@@ -930,13 +1027,13 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "HTTP Services",
+  "title": "HTTP Express Calculator Simple",
   "uid": "bdwzocnv714hsd",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }

@@ -20,7 +20,9 @@
     "@node-wot/core": "~0.8.16",
     "dotenv": "^16.4.5",
     "json-placeholder-replacer": "^2.0.5",
-    "wot-typescript-definitions": "^0.8.0-SNAPSHOT.29"
+    "wot-typescript-definitions": "^0.8.0-SNAPSHOT.29",
+    "winston": "^3.14.2",
+    "winston-loki": "^6.1.2"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

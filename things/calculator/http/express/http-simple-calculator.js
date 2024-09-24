@@ -144,7 +144,7 @@ const setResult = (value) => {
 
 const setLastChange = (value) => {
   lastChange = value
-  logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
+  logger.info({ message: `${lastChange}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
 }
 
 let result

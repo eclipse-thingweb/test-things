@@ -171,6 +171,8 @@ services:
         - PORT_ARG=${WEB_PORT_OUT}
     environment:
       - HOSTNAME=${HOSTNAME}
+      - LOKI_HOSTNAME=${LOKI_HOSTNAME}
+      - LOKI_PORT=${LOKI_PORT}
     deploy:
       resources:
         limits:
