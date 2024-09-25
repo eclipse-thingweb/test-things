@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node ./dist/main.js",
     "build": "tsc -b",
-    "test": "mocha"
+    "test": "mocha",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "wot",

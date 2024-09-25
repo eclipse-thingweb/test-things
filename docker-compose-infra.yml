@@ -34,10 +34,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.08'
+          cpus: "0.08"
           memory: 100M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
   prometheus:
     image: prom/prometheus
@@ -52,10 +52,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.08'
+          cpus: "0.08"
           memory: 200M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 100M
     depends_on:
       - cadvisor
@@ -75,10 +75,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.08'
+          cpus: "0.08"
           memory: 100M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     depends_on:
       - prometheus
@@ -91,28 +91,28 @@ services:
       - "traefik.http.routers.cadvisor.middlewares=test-things-auth"
       - "traefik.http.services.cadvisor.loadbalancer.server.port=${CADVISOR_PORT}"
     volumes:
-    - /:/rootfs:ro
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     deploy:
       resources:
         limits:
-          cpus: '0.8'
+          cpus: "0.8"
           memory: 200M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 100M
     depends_on:
-    - coap-calculator-simple
-    - coap-calculator-content-negotiation
-    - http-express-calculator-simple
-    - http-express-calculator-content-negotiation
-    - http-flask-calculator
-    - mqtt-calculator
-    - modbus-elevator
-    - http-advanced-coffee-machine
-    - http-data-schema-thing
+      - coap-calculator-simple
+      - coap-calculator-content-negotiation
+      - http-express-calculator-simple
+      - http-express-calculator-content-negotiation
+      - http-flask-calculator
+      - mqtt-calculator
+      - modbus-elevator
+      - http-advanced-coffee-machine
+      - http-data-schema-thing
   portainer:
     image: portainer/portainer-ce:latest
     volumes:
@@ -124,10 +124,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.08'
+          cpus: "0.08"
           memory: 50M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
 volumes:
   prometheus_data:

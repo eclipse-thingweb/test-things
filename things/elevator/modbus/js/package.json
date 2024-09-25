@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Modbus Elevator",
   "main": "main.js",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
   "keywords": [
     "wot",
     "thing",

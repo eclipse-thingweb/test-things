@@ -10,7 +10,9 @@
     "http"
   ],
   "scripts": {
-    "test": "node simple-calculator.js ; pid = $! ; result=$(mocha --exit *.test.js)) & kill $pid"
+    "test": "node simple-calculator.js ; pid = $! ; result=$(mocha --exit *.test.js)) & kill $pid",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
   "license": "EPL-2.0 OR W3C-20150513",

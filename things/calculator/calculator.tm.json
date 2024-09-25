@@ -1,63 +1,61 @@
 {
-   "@context":[
-      "https://www.w3.org/2019/wot/td/v1",
-      "https://www.w3.org/2022/wot/td/v1.1",
-      {
-         "@language":"en"
-      }
-   ],
-   "@type":"tm:ThingModel",
-   "title":"{{THING_NAME}}",
-   "description":"Calculator Thing",
-   "securityDefinitions":{
-      "nosec_sc":{
-         "scheme":"nosec"
-      }
-   },
-   "security":[
-      "nosec_sc"
-   ],
-   "base":"{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/",
-   "properties":{
-      "result":{
-         "type":"number",
-         "readOnly":true,
-         "writeOnly":false,
-         "observable":"{{RESULT_OBSERVABLE}}"
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "@language": "en"
+    }
+  ],
+  "@type": "tm:ThingModel",
+  "title": "{{THING_NAME}}",
+  "description": "Calculator Thing",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": ["nosec_sc"],
+  "base": "{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}/",
+  "properties": {
+    "result": {
+      "type": "number",
+      "readOnly": true,
+      "writeOnly": false,
+      "observable": "{{RESULT_OBSERVABLE}}"
+    },
+    "lastChange": {
+      "type": "string",
+      "format": "date-time",
+      "readOnly": true,
+      "writeOnly": false,
+      "observable": "{{LAST_CHANGE_OBSERVABLE}}"
+    }
+  },
+  "actions": {
+    "add": {
+      "input": {
+        "type": "number"
       },
-      "lastChange":{
-       "type":"string",
-       "format": "date-time",
-       "readOnly":true,
-       "writeOnly":false,
-       "observable":"{{LAST_CHANGE_OBSERVABLE}}"
-      }
-   },
-   "actions":{
-      "add":{
-         "input":{
-            "type":"number"
-         },
-         "output":{
-            "type":"number"
-         },
-         "idempotent":false,
-         "safe":false
+      "output": {
+        "type": "number"
       },
-      "subtract":{
-         "input":{
-            "type":"number"
-         },
-         "output":{
-            "type":"number"
-         },
-         "idempotent":false,
-         "safe":false
-      }
-   },
-   "events":{
-      "update":{
-         "data":{}
-      }
-   }
- }
+      "idempotent": false,
+      "safe": false
+    },
+    "subtract": {
+      "input": {
+        "type": "number"
+      },
+      "output": {
+        "type": "number"
+      },
+      "idempotent": false,
+      "safe": false
+    }
+  },
+  "events": {
+    "update": {
+      "data": {}
+    }
+  }
+}

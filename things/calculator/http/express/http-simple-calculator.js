@@ -1,4 +1,18 @@
-const express = require("express");
+/********************************************************************************
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ * Document License (2015-05-13) which is available at
+ * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
+ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -13,16 +27,25 @@ const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT ?? 3000;
 const thingName = "http-express-calculator-simple";
 
-const TDEndPoint = `/${thingName}`,
-  resultEndPoint = `/${thingName}/properties/result`,
-  resultEndPointObserve = `${resultEndPoint}/observe`,
-  lastChangeEndPoint = `/${thingName}/properties/lastChange`,
-  lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
-  additionEndPoint = `/${thingName}/actions/add`,
-  subtractionEndPoint = `/${thingName}/actions/subtract`,
-  updateEndPoint = `/${thingName}/events/update`
+const TDEndPoint = `/${thingName}`;
+  const resultEndPoint = `/${thingName}/properties/result`;
+  const resultEndPointObserve = `${resultEndPoint}/observe`;
+  const lastChangeEndPoint = `/${thingName}/properties/lastChange`;
+  const lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`;
+  const additionEndPoint = `/${thingName}/actions/add`;
+  const subtractionEndPoint = `/${thingName}/actions/subtract`;
+  const updateEndPoint = `/${thingName}/events/update`;
 
-const existingEndpoints = [TDEndPoint, resultEndPoint, resultEndPointObserve, lastChangeEndPoint, lastChangeEndPointObserve, additionEndPoint, subtractionEndPoint, updateEndPoint]
+const existingEndpoints = [
+  TDEndPoint,
+  resultEndPoint,
+  resultEndPointObserve,
+  lastChangeEndPoint,
+  lastChangeEndPointObserve,
+  additionEndPoint,
+  subtractionEndPoint,
+  updateEndPoint,
+];
 
 const {
   values: { port },
@@ -54,65 +77,65 @@ placeholderReplacer.addVariableMap({
   HOSTNAME: hostname,
   PORT_NUMBER: portNumber,
   RESULT_OBSERVABLE: true,
-  LAST_CHANGE_OBSERVABLE: true
+  LAST_CHANGE_OBSERVABLE: true,
 });
 const thingDescription = placeholderReplacer.replace(thingModel);
 thingDescription["@type"] = "Thing";
 
 const defaultForm = {
-  "href": "",
-  "contentType": "application/json",
-  "op": []
+  href: "",
+  contentType: "application/json",
+  op: [],
+};
+
+// add properties forms
+for (const key in thingDescription.properties) {
+  thingDescription.properties[key].forms = [];
+
+  const newFormRead = JSON.parse(JSON.stringify(defaultForm));
+  newFormRead.href = `properties/${key}`;
+  newFormRead.op = ["readproperty"];
+
+  const newFormObs = JSON.parse(JSON.stringify(newFormRead));
+  newFormObs.href = `properties/${key}/observe`;
+  newFormObs.op = ["observeproperty", "unobserveproperty"];
+  newFormObs.subprotocol = "sse";
+
+  thingDescription.properties[key].forms.push(newFormRead);
+  thingDescription.properties[key].forms.push(newFormObs);
 }
 
-//add properties forms
-for (const key in thingDescription['properties']) {
+// add actions forms
+for (const key in thingDescription.actions) {
+  thingDescription.actions[key].forms = [];
 
-  thingDescription['properties'][key]['forms'] = []
+  const newForm = JSON.parse(JSON.stringify(defaultForm));
+  newForm.href = `actions/${key}`;
+  newForm.op = ["invokeaction"];
 
-  const newFormRead = JSON.parse(JSON.stringify(defaultForm))
-  newFormRead['href'] = `properties/${key}`
-  newFormRead['op'] = ["readproperty"]
-
-  const newFormObs = JSON.parse(JSON.stringify(newFormRead))
-  newFormObs['href'] = `properties/${key}/observe`
-  newFormObs['op'] = ["observeproperty", "unobserveproperty"]
-  newFormObs['subprotocol'] = "sse"
-
-  thingDescription['properties'][key]['forms'].push(newFormRead)
-  thingDescription['properties'][key]['forms'].push(newFormObs)
+  thingDescription.actions[key].forms.push(newForm);
 }
 
-//add actions forms
-for (const key in thingDescription['actions']) {
+// add events forms
+for (const key in thingDescription.events) {
+  thingDescription.events[key].data.type = "object";
 
-  thingDescription['actions'][key]['forms'] = []
+  thingDescription.events[key].forms = [];
 
-  const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `actions/${key}`
-  newForm['op'] = ["invokeaction"]
+  const newForm = JSON.parse(JSON.stringify(defaultForm));
+  newForm.href = `events/${key}`;
+  newForm.op = ["subscribeevent", "unsubscribeevent"];
+  newForm.subprotocol = "sse";
 
-  thingDescription['actions'][key]['forms'].push(newForm)
+  thingDescription.events[key].forms.push(newForm);
 }
 
-//add events forms
-for (const key in thingDescription['events']) {
-
-  thingDescription['events'][key]['data']['type'] = "object"
-
-  thingDescription['events'][key]['forms'] = []
-
-  const newForm = JSON.parse(JSON.stringify(defaultForm))
-  newForm['href'] = `events/${key}`
-  newForm['op'] = ["subscribeevent", "unsubscribeevent"]
-  newForm['subprotocol'] = "sse"
-
-  thingDescription['events'][key]['forms'].push(newForm)
-}
-
-//Creating the TD for testing purposes
+// Creating the TD for testing purposes
 try {
-  fs.writeFileSync('http-simple-calculator-thing.td.jsonld', JSON.stringify(thingDescription, null, 2))
+  fs.writeFileSync(
+    "http-simple-calculator-thing.td.jsonld",
+    JSON.stringify(thingDescription, null, 2),
+  );
 } catch (err) {
   console.log(err);
 }
@@ -123,47 +146,51 @@ let result = 0;
 let lastChange = new Date().toISOString();
 
 /******************************************/
-/************** Middleware ****************/
+/** ************ Middleware ****************/
 /******************************************/
 
-//Middleware to ensure the right endpoints are being called
+// Middleware to ensure the right endpoints are being called
 app.use((req, res, next) => {
-  const endpoint = req.url
+  const endpoint = req.url;
 
   if (!existingEndpoints.includes(endpoint)) {
-    res.status(404).json("Not Found")
+    res.status(404).json("Not Found");
+  } else {
+    next();
   }
-  else {
-    next()
-  }
-})
+});
 
-//Middleware to ensure the right method is been used for each endpoint
+// Middleware to ensure the right method is been used for each endpoint
 app.use((req, res, next) => {
-  const method = req.method
-  const endpoint = req.url
+  const method = req.method;
+  const endpoint = req.url;
 
-  if (endpoint === TDEndPoint || endpoint === resultEndPoint || endpoint === resultEndPointObserve || endpoint === lastChangeEndPoint || endpoint === lastChangeEndPointObserve || endpoint === updateEndPoint) {
-    if (method === 'GET') {
-      next()
+  if (
+    endpoint === TDEndPoint ||
+    endpoint === resultEndPoint ||
+    endpoint === resultEndPointObserve ||
+    endpoint === lastChangeEndPoint ||
+    endpoint === lastChangeEndPointObserve ||
+    endpoint === updateEndPoint
+  ) {
+    if (method === "GET") {
+      next();
     } else {
-      res.status(405).json('Method Not Allowed');
+      res.status(405).json("Method Not Allowed");
     }
   }
 
   if (endpoint === additionEndPoint || endpoint === subtractionEndPoint) {
-    if (method === 'POST') {
-      next()
+    if (method === "POST") {
+      next();
     } else {
-      res.status(405).json('Method Not Allowed');
+      res.status(405).json("Method Not Allowed");
     }
   }
-
-})
-
+});
 
 /******************************************/
-/*************** Endpoints ****************/
+/** ************* Endpoints ****************/
 /******************************************/
 
 app.get(TDEndPoint, (req, res) => {
@@ -181,11 +208,10 @@ app.get(resultEndPointObserve, (req, res) => {
   res.setHeader("connection", "keep-alive");
   res.setHeader("Content-Type", "text/event-stream");
 
-  console.log("Client is listening to result property")
+  console.log("Client is listening to result property");
   let oldResult = result;
 
   const changeInterval = setInterval(() => {
-
     if (oldResult !== result) {
       res.write(`data: ${JSON.stringify(result)}\n\n`);
       oldResult = result;
@@ -198,7 +224,7 @@ app.get(resultEndPointObserve, (req, res) => {
 
   res.on("close", () => {
     console.log("Client stopped listening to result property");
-  })
+  });
 });
 
 app.get(lastChangeEndPoint, (req, res) => {
@@ -216,7 +242,6 @@ app.get(lastChangeEndPointObserve, (req, res) => {
   let oldLastChange = lastChange;
 
   const changeInterval = setInterval(() => {
-
     if (oldLastChange !== lastChange) {
       res.write(`data: ${JSON.stringify(lastChange)}\n\n`);
       oldLastChange = lastChange;
@@ -229,13 +254,12 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 
   res.on("close", () => {
     console.log("Client stopped listening to lastChange property");
-  })
+  });
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
-
   try {
-    const bodyInput = JSON.parse(req.body)
+    const bodyInput = JSON.parse(req.body);
 
     if (typeof bodyInput !== "number") {
       res.status(400).json("Input should be a valid number");
@@ -247,12 +271,11 @@ app.post(additionEndPoint, reqParser, (req, res) => {
   } catch (error) {
     res.status(400).json("Input should be a valid number");
   }
-
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
   try {
-    const bodyInput = JSON.parse(req.body)
+    const bodyInput = JSON.parse(req.body);
 
     if (typeof bodyInput !== "number") {
       res.status(400).json("Input should be a valid number");
@@ -283,7 +306,6 @@ app.get(updateEndPoint, (req, res) => {
    * interpreted correctly by the client, which could create empty values.
    */
   const changeInterval = setInterval(() => {
-
     if (oldResult !== result) {
       res.write(`data: ${result}\n\n`);
       oldResult = result;
@@ -296,7 +318,7 @@ app.get(updateEndPoint, (req, res) => {
 
   res.on("close", () => {
     console.log("Client stopped listening to update event");
-  })
+  });
 });
 
 app.listen(portNumber, () => {

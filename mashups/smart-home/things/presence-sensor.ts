@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,50 +18,51 @@
 
 import { Servient } from "@node-wot/core";
 import { MqttBrokerServer } from "@node-wot/binding-mqtt";
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 // create Servient add MQTT binding with port configuration
 const servient = new Servient();
-const brokerUri = process.env.PRESENCE_SENSOR_BROKER_URI ?? "mqtt://test.mosquitto.org";
+const brokerUri =
+  process.env.PRESENCE_SENSOR_BROKER_URI ?? "mqtt://test.mosquitto.org";
 servient.addServer(new MqttBrokerServer({ uri: brokerUri }));
 
 servient.start().then((WoT) => {
-    WoT.produce({
-        title: "smart-home-presence-sensor",
-        description: "Thing that can detect presence of human nearby",
-        support: "https://github.com/eclipse-thingweb/node-wot/",
-        "@context": "https://www.w3.org/2022/wot/td/v1.1",
-        events: {
-            presenceDetected: {
-                title: "Presence Detected",
-                description:
-                    "An event that is emitted when a person is detected in the room. It is mocked and emitted every 5 seconds",
-                data: {
-                    type: "number",
-                    title: "Distance",
-                    minimum: 55,
-                    maximum: 1200,
-                },
-            },
+  WoT.produce({
+    title: "smart-home-presence-sensor",
+    description: "Thing that can detect presence of human nearby",
+    support: "https://github.com/eclipse-thingweb/node-wot/",
+    "@context": "https://www.w3.org/2022/wot/td/v1.1",
+    events: {
+      presenceDetected: {
+        title: "Presence Detected",
+        description:
+          "An event that is emitted when a person is detected in the room. It is mocked and emitted every 5 seconds",
+        data: {
+          type: "number",
+          title: "Distance",
+          minimum: 55,
+          maximum: 1200,
         },
+      },
+    },
+  })
+    .then((thing) => {
+      console.log("Produced " + thing.getThingDescription().title);
+
+      // expose the thing
+      thing.expose().then(() => {
+        console.info(thing.getThingDescription().title + " ready");
+
+        // mocking the detection with an event sent every 5 seconds, with a random distance
+        setInterval(() => {
+          const distance: number = Math.random() * (1200 - 55) + 55;
+          thing.emitEvent("presenceDetected", distance);
+          console.info("Emitted presence with distance ", distance);
+        }, 5000);
+      });
     })
-        .then((thing) => {
-            console.log("Produced " + thing.getThingDescription().title);
-
-            // expose the thing
-            thing.expose().then(() => {
-                console.info(thing.getThingDescription().title + " ready");
-
-                // mocking the detection with an event sent every 5 seconds, with a random distance
-                setInterval(() => {
-                    const distance: number = Math.random() * (1200 - 55) + 55;
-                    thing.emitEvent("presenceDetected", distance);
-                    console.info("Emitted presence with distance ", distance);
-                }, 5000);
-            });
-        })
-        .catch((e) => {
-            console.log(e);
-        });
+    .catch((e) => {
+      console.log(e);
+    });
 });

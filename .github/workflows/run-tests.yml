@@ -1,47 +1,46 @@
 name: Run tests
 
 on:
-    push:
-        paths-ignore:
-            - "**.md"
-            - "**.png"
-            - "**.svg"
-    pull_request:
-        paths-ignore:
-            - "**.md"
-            - "**.png"
-            - "**.svg"
+  push:
+    paths-ignore:
+      - "**.md"
+      - "**.png"
+      - "**.svg"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "**.png"
+      - "**.svg"
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-latest
 
-        strategy:
-            matrix:
-                node-version: [18.x]
-                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-        steps:
-            - name: Checkout the branch
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout the branch
+        uses: actions/checkout@v3
 
-            - name: Install Python
-              uses: actions/setup-python@v4
-              with:
-                python-version: '3.11' 
-                
-            - name: Install Poetry
-              uses: snok/install-poetry@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
-            - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v3
-              with:
-                  node-version: ${{ matrix.node-version }}
-                  cache: "npm"
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
 
-            - name: Install dependencies
-              run: npm run setup
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
 
-            - name: Test Things
-              run: npm test
-                            
+      - name: Install dependencies
+        run: npm run setup
+
+      - name: Test Things
+        run: npm test
