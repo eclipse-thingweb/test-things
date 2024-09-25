@@ -116,6 +116,9 @@ services:
     build:
       context: ./things/calculator/
       dockerfile: ./mqtt/js/Dockerfile
+    environment:
+      - LOKI_HOSTNAME=${LOKI_HOSTNAME}
+      - LOKI_PORT=${LOKI_PORT}
     deploy:
       resources:
         limits:
