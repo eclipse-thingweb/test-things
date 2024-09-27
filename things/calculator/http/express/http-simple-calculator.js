@@ -165,7 +165,7 @@ for (const key in thingDescription.events) {
 try {
     fs.writeFileSync(
         "http-simple-calculator-thing.td.jsonld",
-        JSON.stringify(thingDescription, null, 2),
+        JSON.stringify(thingDescription, null, 2)
     );
 } catch (err) {
     console.log(err);

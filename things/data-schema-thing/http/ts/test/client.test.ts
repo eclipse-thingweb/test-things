@@ -30,7 +30,7 @@ let thing: WoT.ConsumedThing;
 
 const readProperty = async (
     thing: WoT.ConsumedThing,
-    name: string,
+    name: string
 ): Promise<WoT.DataSchemaValue> => {
     try {
         const res = await thing.readProperty(name);
@@ -47,7 +47,7 @@ describe("Client Tests", () => {
         try {
             const WoT = await servient.start();
             const td: WoT.ThingDescription = await WoT.requestThingDescription(
-                `http://localhost:${port}/http-data-schema-thing`,
+                `http://localhost:${port}/http-data-schema-thing`
             );
             thing = await WoT.consume(td);
         } catch (error) {

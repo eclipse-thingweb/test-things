@@ -55,7 +55,7 @@ describe("Client Tests", () => {
         before(async () => {
             try {
                 const td = await WoT.requestThingDescription(
-                    `http://localhost:${simplePort}/http-express-calculator-simple`,
+                    `http://localhost:${simplePort}/http-express-calculator-simple`
                 );
                 thing = await WoT.consume(td);
             } catch (error) {
@@ -83,7 +83,7 @@ describe("Client Tests", () => {
                 await thing.invokeAction("subtract", valueToSubtract);
                 const newResultValue = await readProperty(thing, "result");
                 expect(newResultValue).to.be.equal(
-                    resultValue - valueToSubtract,
+                    resultValue - valueToSubtract
                 );
             });
         });
@@ -99,7 +99,7 @@ describe("Client Tests", () => {
                     "lastChange",
                     async (response) => {
                         value = await response.value();
-                    },
+                    }
                 );
 
                 setTimeout(async () => {
@@ -125,11 +125,11 @@ describe("Client Tests", () => {
                 const valueToSubtract = 3;
                 const response = await thing.invokeAction(
                     "subtract",
-                    valueToSubtract,
+                    valueToSubtract
                 );
                 const actionResultValue = await response.value();
                 expect(actionResultValue).to.be.equal(
-                    resultValue - valueToSubtract,
+                    resultValue - valueToSubtract
                 );
             });
         });
@@ -147,9 +147,9 @@ describe("Client Tests", () => {
                     "update",
                     async (response) => {
                         await expect(
-                            response.value,
+                            response.value
                         ).to.have.eventually.be.equal(resultValue + valueToAdd);
-                    },
+                    }
                 );
 
                 await subscription.stop();
@@ -163,7 +163,7 @@ describe("Client Tests", () => {
         before(async () => {
             try {
                 const td = await WoT.requestThingDescription(
-                    `http://localhost:${contentNegotiationPort}/http-express-calculator-content-negotiation`,
+                    `http://localhost:${contentNegotiationPort}/http-express-calculator-content-negotiation`
                 );
                 thing = await WoT.consume(td);
             } catch (error) {
@@ -191,7 +191,7 @@ describe("Client Tests", () => {
                 await thing.invokeAction("subtract", valueToSubtract);
                 const newResultValue = await readProperty(thing, "result");
                 expect(newResultValue).to.be.equal(
-                    resultValue - valueToSubtract,
+                    resultValue - valueToSubtract
                 );
             });
         });
@@ -207,7 +207,7 @@ describe("Client Tests", () => {
                     "lastChange",
                     async (response) => {
                         value = await response.value();
-                    },
+                    }
                 );
 
                 setTimeout(async () => {
@@ -233,11 +233,11 @@ describe("Client Tests", () => {
                 const valueToSubtract = 3;
                 const response = await thing.invokeAction(
                     "subtract",
-                    valueToSubtract,
+                    valueToSubtract
                 );
                 const actionResultValue = await response.value();
                 expect(actionResultValue).to.be.equal(
-                    resultValue - valueToSubtract,
+                    resultValue - valueToSubtract
                 );
             });
         });
@@ -255,9 +255,9 @@ describe("Client Tests", () => {
                     "update",
                     async (response) => {
                         await expect(
-                            response.value,
+                            response.value
                         ).to.have.eventually.be.equal(resultValue + valueToAdd);
-                    },
+                    }
                 );
 
                 await subscription.stop();

@@ -143,7 +143,7 @@ fs.writeFile(
     `${thingName}.td.json`,
     JSON.stringify(thingDescription, 4, 4),
     "utf-8",
-    function () {},
+    function () {}
 );
 
 broker.on("connect", () => {
@@ -256,12 +256,12 @@ broker.on("message", (topic, payload, packet) => {
                 broker.publish(
                     `${thingName}/${PROPERTIES}/result`,
                     `${result}`,
-                    { retain: true },
+                    { retain: true }
                 );
                 broker.publish(
                     `${thingName}/${PROPERTIES}/lastChange`,
                     `${lastChange}`,
-                    { retain: true },
+                    { retain: true }
                 );
             }
         }
@@ -301,12 +301,12 @@ broker.on("message", (topic, payload, packet) => {
                 broker.publish(
                     `${thingName}/${PROPERTIES}/result`,
                     `${result}`,
-                    { retain: true },
+                    { retain: true }
                 );
                 broker.publish(
                     `${thingName}/${PROPERTIES}/lastChange`,
                     `${lastChange}`,
-                    { retain: true },
+                    { retain: true }
                 );
             }
         }

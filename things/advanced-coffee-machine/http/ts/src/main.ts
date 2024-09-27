@@ -76,7 +76,7 @@ let thingModel;
 
 if (tmPath != null && tmPath !== "") {
     thingModel = JSON.parse(
-        fs.readFileSync(path.join(__dirname, tmPath)).toString(),
+        fs.readFileSync(path.join(__dirname, tmPath)).toString()
     );
 }
 
@@ -99,7 +99,7 @@ servient.addServer(
     new HttpServer({
         baseUri: `http://${hostname}:${portNumber}`,
         port: portNumber,
-    }),
+    })
 );
 
 servient
@@ -126,15 +126,15 @@ servient
 
             thing.setPropertyReadHandler(
                 "allAvailableResources",
-                async () => allAvailableResources,
+                async () => allAvailableResources
             );
             thing.setPropertyReadHandler(
                 "possibleDrinks",
-                async () => possibleDrinks,
+                async () => possibleDrinks
             );
             thing.setPropertyReadHandler(
                 "maintenanceNeeded",
-                async () => maintenanceNeeded,
+                async () => maintenanceNeeded
             );
             thing.setPropertyReadHandler("schedules", async () => schedules);
 
@@ -150,7 +150,7 @@ servient
                     // (the notify function here simply logs a message to the console)
                     notify(
                         "admin@coffeeMachine.com",
-                        `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`,
+                        `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
                     );
                 }
             });
@@ -181,7 +181,7 @@ servient
                         }
                     }
                     throw Error("Please specify id variable as uriVariables.");
-                },
+                }
             );
 
             // Override a read handler for availableResourceLevel property,
@@ -205,7 +205,7 @@ servient
                         }
                     }
                     throw Error("Please specify id variable as uriVariables.");
-                },
+                }
             );
 
             // Set up a handler for makeDrink action
@@ -291,22 +291,22 @@ servient
                 newResources.water -= Math.ceil(
                     quantity *
                         sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].water,
+                        drinkRecipes[drinkId].water
                 );
                 newResources.milk -= Math.ceil(
                     quantity *
                         sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].milk,
+                        drinkRecipes[drinkId].milk
                 );
                 newResources.chocolate -= Math.ceil(
                     quantity *
                         sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].chocolate,
+                        drinkRecipes[drinkId].chocolate
                 );
                 newResources.coffeeBeans -= Math.ceil(
                     quantity *
                         sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].coffeeBeans,
+                        drinkRecipes[drinkId].coffeeBeans
                 );
 
                 // Check if the amount of available resources is sufficient to make a drink
@@ -314,7 +314,7 @@ servient
                     if (newResources[resource] <= 0) {
                         thing.emitEvent(
                             "outOfResource",
-                            `Low level of ${resource}: ${newResources[resource]}%`,
+                            `Low level of ${resource}: ${newResources[resource]}%`
                         );
                         return {
                             result: false,

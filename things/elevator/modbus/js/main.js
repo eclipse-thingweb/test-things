@@ -147,7 +147,7 @@ fs.writeFile(
     `${thingName}.td.json`,
     JSON.stringify(thingDescription, 4, 4),
     "utf-8",
-    function () {},
+    function () {}
 );
 
 const coilMemoryRange = [1, 9999];
@@ -174,13 +174,13 @@ const vector = {
             console.log(`Reading discrete input @${addr}`);
             const normalizedAddress = getNormalizedAddress(
                 addr,
-                discreteInputMemoryRange,
+                discreteInputMemoryRange
             );
 
             if (normalizedAddress === onTheMoveAddress) {
                 if (onTheMoveIsPolled) {
                     console.log(
-                        `Polling onTheMove too frequently. You should poll it every ${onTheMovePollingTime} ms.`,
+                        `Polling onTheMove too frequently. You should poll it every ${onTheMovePollingTime} ms.`
                     );
                     return;
                 }
@@ -213,7 +213,7 @@ const vector = {
 
             const normalizedAddress = getNormalizedAddress(
                 addr,
-                holdingRegisterMemoryRange,
+                holdingRegisterMemoryRange
             );
 
             setTimeout(function () {
@@ -232,7 +232,7 @@ const vector = {
                 console.log(`Reading coil @${addr}`);
                 const normalizedAddress = getNormalizedAddress(
                     addr,
-                    coilMemoryRange,
+                    coilMemoryRange
                 );
                 resolve(coils[normalizedAddress]);
             });
@@ -248,7 +248,7 @@ const vector = {
             console.log(`Setting register @${addr} to ${value}`);
             const normalizedAddress = getNormalizedAddress(
                 addr,
-                holdingRegisterMemoryRange,
+                holdingRegisterMemoryRange
             );
             // trying to change floor number
             holdingRegisters[normalizedAddress] = value;
@@ -261,20 +261,20 @@ const vector = {
                 // elevator is on the move
                 if (discreteInputs[onTheMoveAddress] && !isTestRun) {
                     console.log(
-                        "Elevator is on the move, cannot change the floor number",
+                        "Elevator is on the move, cannot change the floor number"
                     );
                 } else {
                     const floorNumberValue = getFloorNumberValue();
                     if (floorNumberValue < minFloorNumber) {
                         console.log(
-                            `Floor number should not be under ${minFloorNumber}`,
+                            `Floor number should not be under ${minFloorNumber}`
                         );
                         return -1;
                     }
 
                     if (floorNumberValue > maxFloorNumber) {
                         console.log(
-                            `Floor number should not be above ${maxFloorNumber}`,
+                            `Floor number should not be above ${maxFloorNumber}`
                         );
                         return -1;
                     }
@@ -302,7 +302,7 @@ const vector = {
 
             const normalizedAddress = getNormalizedAddress(
                 addr,
-                coilMemoryRange,
+                coilMemoryRange
             );
 
             console.log(`Setting coil @${addr} to ${value}`);

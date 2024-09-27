@@ -23,7 +23,7 @@ describe("Calculator", () => {
                     validate = ajv.compile(tmSchema);
                     done();
                 });
-            },
+            }
         );
     });
 

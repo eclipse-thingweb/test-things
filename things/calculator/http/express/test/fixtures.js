@@ -40,7 +40,7 @@ const mochaGlobalSetup = async function () {
             path.join(
                 __dirname,
                 "..",
-                "http-content-negotiation-calculator.js",
+                "http-content-negotiation-calculator.js"
             ),
             "-p",
             `${contentNegotiationPort}`,

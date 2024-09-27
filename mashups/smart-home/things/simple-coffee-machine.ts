@@ -29,7 +29,7 @@ servient.addServer(
     new HttpServer({
         baseUri: `http://${hostname}:${httpPort}`,
         port: parseInt(httpPort),
-    }),
+    })
 );
 
 let waterAmount = 1000;
@@ -212,7 +212,7 @@ servient.start().then((WoT) => {
             thing.expose().then(() => {
                 console.info(thing.getThingDescription().title + " ready");
                 console.info(
-                    "TD available at http://" + hostname + ":" + httpPort,
+                    "TD available at http://" + hostname + ":" + httpPort
                 );
             });
         })

@@ -40,14 +40,14 @@ const wotHelper = new Helpers(servient);
 
     // we will fetch the TDs of the devices
     const coffeeMachineTD = (await wotHelper.fetch(
-        coffeeMachineURL,
+        coffeeMachineURL
     )) as WoT.ThingDescription;
     // Alternatively, this Thing self-hosts its TD at http://plugfest.thingweb.io:8081/coffee-machine that you can fetch
     const presenceSensorTD = (await wotHelper.fetch(
-        `mqtt://${process.env.PRESENCE_SENSOR_BROKER_URI}/smart-home-presence-sensor`,
+        `mqtt://${process.env.PRESENCE_SENSOR_BROKER_URI}/smart-home-presence-sensor`
     )) as WoT.ThingDescription;
     const smartClockTD = (await wotHelper.fetch(
-        `coap://${process.env.SMART_CLOCK_HOSTNAME}:${process.env.SMART_CLOCK_PORT}/smart-home-smart-clock`,
+        `coap://${process.env.SMART_CLOCK_HOSTNAME}:${process.env.SMART_CLOCK_PORT}/smart-home-smart-clock`
     )) as WoT.ThingDescription;
 
     // consuming TDs allows creates a software object, which allows us to execute functions on them
@@ -79,7 +79,7 @@ const wotHelper = new Helpers(servient);
                 "Current time is " +
                     currentTime.hour.toString().padStart(2, "0") +
                     ":" +
-                    currentTime.minute.toString().padStart(2, "0"),
+                    currentTime.minute.toString().padStart(2, "0")
             );
 
             // To avoid accidental brews, a flag is used to check whether a coffee was brewed before
@@ -101,6 +101,6 @@ const wotHelper = new Helpers(servient);
                     morningCoffeeFlag = false;
                 }
             }, 1000);
-        },
+        }
     );
 })();

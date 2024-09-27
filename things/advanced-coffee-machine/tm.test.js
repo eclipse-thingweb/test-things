@@ -23,7 +23,7 @@ describe("Advanced Coffee Machine", () => {
                     validate = ajv.compile(tmSchema);
                     done();
                 });
-            },
+            }
         );
     });
 

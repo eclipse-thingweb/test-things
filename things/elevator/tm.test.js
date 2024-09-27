@@ -23,7 +23,7 @@ describe("Elevator", () => {
                     validate = ajv.compile(tmSchema);
                     done();
                 });
-            },
+            }
         );
     });
 

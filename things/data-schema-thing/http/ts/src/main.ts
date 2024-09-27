@@ -60,7 +60,7 @@ function checkPropertyWrite(expected: string, actual: unknown) {
 function checkActionInvocation(
     name: string,
     expected: string,
-    actual: unknown,
+    actual: unknown
 ) {
     const output = "Action " + name + " invoked with " + actual;
     if (expected === actual) {
@@ -94,7 +94,7 @@ if (process.platform === "win32") {
 let thingModel;
 if (tmPath != null && tmPath !== "") {
     thingModel = JSON.parse(
-        fs.readFileSync(path.join(__dirname, tmPath)).toString(),
+        fs.readFileSync(path.join(__dirname, tmPath)).toString()
     );
 }
 
@@ -214,7 +214,7 @@ servient.addServer(
     new HttpServer({
         baseUri: `http://${hostname}:${portNumber}`,
         port: portNumber,
-    }),
+    })
 );
 
 servient.start().then((WoT) => {
@@ -293,7 +293,7 @@ servient.start().then((WoT) => {
                     checkActionInvocation(
                         "void-void",
                         "undefined",
-                        typeof (await parameters.value()),
+                        typeof (await parameters.value())
                     );
                     return undefined;
                 })
@@ -310,7 +310,7 @@ servient.start().then((WoT) => {
                     checkActionInvocation(
                         "void-int",
                         "undefined",
-                        typeof (await parameters.value()),
+                        typeof (await parameters.value())
                     );
                     logger.info({
                         message: `${value}`,
@@ -351,7 +351,7 @@ servient.start().then((WoT) => {
                         checkActionInvocation(
                             "int-void",
                             "integer",
-                            typeof parameters,
+                            typeof parameters
                         );
                     }
                     return undefined;
@@ -384,7 +384,7 @@ servient.start().then((WoT) => {
                         checkActionInvocation(
                             "int-int",
                             "integer",
-                            typeof localParameters,
+                            typeof localParameters
                         );
                     }
                     const value = (localParameters as number) + 1;
@@ -426,13 +426,13 @@ servient.start().then((WoT) => {
                         checkActionInvocation(
                             "int-string",
                             "integer",
-                            "integer",
+                            "integer"
                         );
                     } else {
                         checkActionInvocation(
                             "int-string",
                             "integer",
-                            typeof localParameters,
+                            typeof localParameters
                         );
                     }
 
@@ -476,7 +476,7 @@ servient.start().then((WoT) => {
                     checkActionInvocation(
                         "void-complex",
                         "undefined",
-                        typeof (await parameters.value()),
+                        typeof (await parameters.value())
                     );
                     const value = { prop1: 123, prop2: "abc" };
                     logger.info({
@@ -512,7 +512,7 @@ servient.start().then((WoT) => {
                     checkActionInvocation(
                         "complex-void",
                         "object",
-                        typeof (await parameters.value()),
+                        typeof (await parameters.value())
                     );
                     return undefined;
                 });

@@ -95,11 +95,11 @@ describe.skip("Client Tests", () => {
             const valueToSubtract = 3;
             const response = await thing.invokeAction(
                 "subtract",
-                valueToSubtract,
+                valueToSubtract
             );
             const actionResultValue = await response.value();
             expect(actionResultValue).to.be.equal(
-                resultValue - valueToSubtract,
+                resultValue - valueToSubtract
             );
         });
     });
@@ -113,7 +113,7 @@ describe.skip("Client Tests", () => {
                     console.log(value);
                     expect(value).to.be.equal("Updated the thing!");
                     subscription.stop();
-                },
+                }
             );
         });
     });

@@ -47,7 +47,7 @@ describe("TD Test", () => {
                 response.on("end", () => {
                     try {
                         const result = JSON.parse(
-                            Buffer.concat(body).toString(),
+                            Buffer.concat(body).toString()
                         );
                         const valid =
                             validate && result !== ""
@@ -60,7 +60,7 @@ describe("TD Test", () => {
                         done(error);
                     }
                 });
-            },
+            }
         );
     });
 });

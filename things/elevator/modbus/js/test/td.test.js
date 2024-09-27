@@ -48,7 +48,7 @@ describe("Elevator Modbus JS", () => {
                 const valid = validate(result);
                 expect(valid).to.be.true;
                 done();
-            },
+            }
         );
     });
 });

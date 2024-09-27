@@ -140,7 +140,7 @@ function listenToLastChangeProperty(acceptType) {
             headers: {
                 Accept: acceptType,
             },
-        },
+        }
     );
 
     lastChangeEventSource.onmessage = (e) => {
@@ -282,20 +282,20 @@ async function runCalculatorInteractions() {
         console.log("Full thing: \n", await getFullTD("application/cbor"));
         console.log(
             "Current number: ",
-            await getCurrentResult("application/json"),
+            await getCurrentResult("application/json")
         );
         console.log("Last Change: ", await getLatestChange("application/cbor"));
         console.log(
             "Result of the addition is: ",
-            await addNumber(5, "application/cbor", "application/json"),
+            await addNumber(5, "application/cbor", "application/json")
         );
         console.log(
             "Result of the subtraction is: ",
-            await subtractNumber(3, "application/json", "application/cbor"),
+            await subtractNumber(3, "application/json", "application/cbor")
         );
         console.log(
             "Current number: ",
-            await getCurrentResult("application/cbor"),
+            await getCurrentResult("application/cbor")
         );
         console.log("Last Change: ", await getLatestChange("application/json"));
 
@@ -303,7 +303,7 @@ async function runCalculatorInteractions() {
          * Start listening to the update event, result property and lastChange property.
          */
         console.log(
-            "\n-------- Start listening to properties and events --------\n",
+            "\n-------- Start listening to properties and events --------\n"
         );
         listenToResultProperty("application/cbor");
         listenToUpdateEvent("application/json");
@@ -313,7 +313,7 @@ async function runCalculatorInteractions() {
             console.log(
                 "Adding 1 to test observation: ",
                 await addNumber(1, "application/cbor", "application/json"),
-                "\n",
+                "\n"
             );
         }, 2000);
     } catch (err) {

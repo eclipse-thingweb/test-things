@@ -228,7 +228,7 @@ for (const key in thingDescription.events) {
 try {
     fs.writeFileSync(
         "coap-content-negotiation-calculator-thing.td.jsonld",
-        JSON.stringify(thingDescription, null, 2),
+        JSON.stringify(thingDescription, null, 2)
     );
 } catch (err) {
     console.log(err);
@@ -262,7 +262,7 @@ server.on("request", (req, res) => {
                     res.end(JSON.stringify(thingDescription));
                 } else if (acceptHeaders.includes("application/cbor")) {
                     const cborData = cbor.encode(
-                        JSON.stringify(thingDescription),
+                        JSON.stringify(thingDescription)
                     );
                     res.setOption("Content-Format", "application/cbor");
                     res.end(cborData);
@@ -297,7 +297,7 @@ server.on("request", (req, res) => {
                                 res.statusCode = 205;
                                 if (
                                     acceptHeaders.includes(
-                                        "application/json",
+                                        "application/json"
                                     ) ||
                                     acceptHeaders.includes("application/*") ||
                                     acceptHeaders === "*/*"
@@ -314,7 +314,7 @@ server.on("request", (req, res) => {
 
                         res.on("finish", () => {
                             console.log(
-                                "Result property observation has been closed",
+                                "Result property observation has been closed"
                             );
                             clearInterval(changeInterval);
                         });
@@ -345,7 +345,7 @@ server.on("request", (req, res) => {
                                 res.statusCode = 205;
                                 if (
                                     acceptHeaders.includes(
-                                        "application/json",
+                                        "application/json"
                                     ) ||
                                     acceptHeaders.includes("application/*") ||
                                     acceptHeaders === "*/*"
@@ -362,7 +362,7 @@ server.on("request", (req, res) => {
 
                         res.on("finish", () => {
                             console.log(
-                                "lastChange property observation has been closed",
+                                "lastChange property observation has been closed"
                             );
                             clearInterval(changeInterval);
                         });
@@ -435,7 +435,7 @@ server.on("request", (req, res) => {
 
                         if (reqContentType.includes("application/json")) {
                             numberToSubtract = JSON.parse(
-                                req.payload.toString(),
+                                req.payload.toString()
                             );
                         } else {
                             numberToSubtract = cbor.decode(req.payload);

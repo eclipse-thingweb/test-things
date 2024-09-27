@@ -82,7 +82,7 @@ async function getLatestChange() {
  */
 function listenToLastChange() {
     const lastChangeEventSource = new EventSource(
-        url + lastChangeEndPointObserve,
+        url + lastChangeEndPointObserve
     );
 
     lastChangeEventSource.onmessage = (e) => {
@@ -174,7 +174,7 @@ async function runCalculatorInteractions() {
          * Start listening to the update event, result property and lastChange property.
          */
         console.log(
-            "\n-------- Start listening to properties and events --------\n",
+            "\n-------- Start listening to properties and events --------\n"
         );
         listenToUpdateEvent();
         listenToLastChange();

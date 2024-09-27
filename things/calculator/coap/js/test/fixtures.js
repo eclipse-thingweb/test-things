@@ -40,7 +40,7 @@ const mochaGlobalSetup = async function () {
             path.join(
                 __dirname,
                 "..",
-                "coap-content-negotiation-calculator.js",
+                "coap-content-negotiation-calculator.js"
             ),
             "-p",
             `${contentNegotiationPort}`,

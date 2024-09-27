@@ -28,7 +28,7 @@ servient.addServer(
     new CoapServer({
         address: hostname,
         port: parseInt(port),
-    }),
+    })
 );
 
 let minuteCounter = 0;

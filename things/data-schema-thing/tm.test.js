@@ -23,7 +23,7 @@ describe("Test Thing", () => {
                     validate = ajv.compile(tmSchema);
                     done();
                 });
-            },
+            }
         );
     });
 

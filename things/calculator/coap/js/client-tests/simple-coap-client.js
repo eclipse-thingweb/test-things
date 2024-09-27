@@ -42,11 +42,13 @@ function getThingDescription() {
         if (res.code === "2.05") {
             console.log(
                 "Thing Description: \n",
-                JSON.parse(res.payload.toString()),
+                JSON.parse(res.payload.toString())
             );
         } else {
             console.error(
-                `Failed to get Thing Description: ${res.code} - ${res.payload.toString()}`,
+                `Failed to get Thing Description: ${
+                    res.code
+                } - ${res.payload.toString()}`
             );
         }
     });
@@ -71,7 +73,9 @@ function getResult() {
             console.log("Result:", JSON.parse(res.payload.toString()));
         } else {
             console.error(
-                `Failed to get Property "result": ${res.code} - ${res.payload.toString()}`,
+                `Failed to get Property "result": ${
+                    res.code
+                } - ${res.payload.toString()}`
             );
         }
     });
@@ -98,11 +102,13 @@ function observeResultProperty() {
             if (res.code === "2.05") {
                 console.log(
                     "Observe result property:",
-                    JSON.parse(res.payload.toString()),
+                    JSON.parse(res.payload.toString())
                 );
             } else {
                 console.error(
-                    `Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`,
+                    `Failed to observe Event "update": ${
+                        res.code
+                    } - ${res.payload.toString()}`
                 );
             }
         });
@@ -129,7 +135,9 @@ function getLastChange() {
             console.log("Last Change:", JSON.parse(res.payload.toString()));
         } else {
             console.error(
-                `Failed to get Property "lastChange": ${res.code} - ${res.payload.toString()}`,
+                `Failed to get Property "lastChange": ${
+                    res.code
+                } - ${res.payload.toString()}`
             );
         }
     });
@@ -156,11 +164,13 @@ function observeLastChangeProperty() {
             if (res.code === "2.05") {
                 console.log(
                     "Observe lastChange property:",
-                    JSON.parse(res.payload.toString()),
+                    JSON.parse(res.payload.toString())
                 );
             } else {
                 console.error(
-                    `Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`,
+                    `Failed to observe Event "update": ${
+                        res.code
+                    } - ${res.payload.toString()}`
                 );
             }
         });
@@ -194,7 +204,9 @@ function addNumber(numberToAdd) {
             console.log("Addition result:", JSON.parse(res.payload.toString()));
         } else {
             console.error(
-                `Failed to call the Action "add": ${res.code} - ${res.payload.toString()}`,
+                `Failed to call the Action "add": ${
+                    res.code
+                } - ${res.payload.toString()}`
             );
         }
     });
@@ -224,11 +236,13 @@ function subtractNumber(numberToSubtract) {
         if (res.code === "2.05") {
             console.log(
                 "Subtraction result:",
-                JSON.parse(res.payload.toString()),
+                JSON.parse(res.payload.toString())
             );
         } else {
             console.error(
-                `Failed to call the Action "subtract": ${res.code} - ${res.payload.toString()}`,
+                `Failed to call the Action "subtract": ${
+                    res.code
+                } - ${res.payload.toString()}`
             );
         }
     });
@@ -258,11 +272,13 @@ function observeUpdateEvent() {
             if (res.code === "2.05") {
                 console.log(
                     "Observe update event:",
-                    JSON.parse(res.payload.toString()),
+                    JSON.parse(res.payload.toString())
                 );
             } else {
                 console.error(
-                    `Failed to observe Event "update": ${res.code} - ${res.payload.toString()}`,
+                    `Failed to observe Event "update": ${
+                        res.code
+                    } - ${res.payload.toString()}`
                 );
             }
         });

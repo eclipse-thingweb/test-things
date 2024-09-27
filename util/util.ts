@@ -31,7 +31,7 @@ const spawn = require("node:child_process").spawn;
 
 export const getInitiateMain = (
     mainCmd: string,
-    cmdArgs: string[],
+    cmdArgs: string[]
 ): Promise<ThingStartResponse> => {
     return new Promise((resolve, reject) => {
         const thingProcess = spawn(mainCmd, cmdArgs);
@@ -98,6 +98,6 @@ const getTDJSONSchema = new Promise((resolve, reject) => {
                 const tdSchema = JSON.parse(Buffer.concat(body).toString());
                 resolve(tdSchema);
             });
-        },
+        }
     );
 });

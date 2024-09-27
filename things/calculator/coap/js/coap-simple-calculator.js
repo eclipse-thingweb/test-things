@@ -127,7 +127,7 @@ for (const key in thingDescription.events) {
 try {
     fs.writeFileSync(
         "coap-simple-calculator-thing.td.jsonld",
-        JSON.stringify(thingDescription, null, 2),
+        JSON.stringify(thingDescription, null, 2)
     );
 } catch (err) {
     console.log(err);
@@ -206,7 +206,7 @@ server.on("request", (req, res) => {
 
                     res.on("finish", () => {
                         console.log(
-                            "Client stopped the lastChange observation",
+                            "Client stopped the lastChange observation"
                         );
                         clearInterval(changeInterval);
                     });

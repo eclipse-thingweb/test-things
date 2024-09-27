@@ -47,12 +47,12 @@ describe("Calculator HTTP Flask", () => {
 
                     response.on("end", () => {
                         const tdSchema = JSON.parse(
-                            Buffer.concat(body).toString(),
+                            Buffer.concat(body).toString()
                         );
                         validate = ajv.compile(tdSchema);
                         resolve("Success");
                     });
-                },
+                }
             );
         });
 
@@ -81,13 +81,13 @@ describe("Calculator HTTP Flask", () => {
 
                     response.on("end", () => {
                         const result = JSON.parse(
-                            Buffer.concat(body).toString(),
+                            Buffer.concat(body).toString()
                         );
                         const valid = validate(result);
                         expect(valid).to.be.true;
                         done();
                     });
-                },
+                }
             );
         }, 1000);
     });

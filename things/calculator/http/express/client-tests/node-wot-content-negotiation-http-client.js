@@ -23,7 +23,7 @@ servient
     .start()
     .then(async (WoT) => {
         const td = await WoT.requestThingDescription(
-            "http://localhost:3001/http-express-calculator-content-negotiation",
+            "http://localhost:3001/http-express-calculator-content-negotiation"
         );
 
         const thing = await WoT.consume(td);

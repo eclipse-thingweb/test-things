@@ -131,7 +131,7 @@ for (const key in thingDescription.properties) {
     supportedContentTypes.forEach((type) => {
         if (
             !thingDescription.properties[key].forms[0].contentType.includes(
-                type,
+                type
             )
         ) {
             const newFormRead = JSON.parse(JSON.stringify(originalForm));
@@ -235,7 +235,7 @@ for (const key in thingDescription.events) {
 try {
     fs.writeFileSync(
         "http-content-negotiation-calculator-thing.td.jsonld",
-        JSON.stringify(thingDescription, null, 2),
+        JSON.stringify(thingDescription, null, 2)
     );
 } catch (err) {
     console.log(err);
@@ -291,7 +291,7 @@ app.use((req, res, next) => {
 
     if (acceptHeader === undefined) {
         res.status(406).json(
-            "Not Acceptable: Supported formats are application/json, and application/cbor",
+            "Not Acceptable: Supported formats are application/json, and application/cbor"
         );
     } else if (
         acceptHeader.includes("*/*") ||
@@ -304,7 +304,7 @@ app.use((req, res, next) => {
         next();
     } else {
         res.status(406).json(
-            "Not Acceptable: Supported formats are application/json, and application/cbor",
+            "Not Acceptable: Supported formats are application/json, and application/cbor"
         );
     }
 });
