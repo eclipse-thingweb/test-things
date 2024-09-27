@@ -22,20 +22,20 @@ let response: ThingStartResponse;
 const port = 3000;
 
 export async function mochaGlobalSetup() {
-  try {
-    response = await getInitiateMain(
-      path.join(__dirname, "..", "dist", "main.js"),
-      port,
-    );
-    thingProcess = response.process;
-  } catch (error: unknown) {
-    console.log(error);
-    thingProcess = (error as ThingStartResponse).process;
-  }
+    try {
+        response = await getInitiateMain(
+            path.join(__dirname, "..", "dist", "main.js"),
+            port,
+        );
+        thingProcess = response.process;
+    } catch (error: unknown) {
+        console.log(error);
+        thingProcess = (error as ThingStartResponse).process;
+    }
 }
 
 export function mochaGlobalTeardown() {
-  if (thingProcess) {
-    thingProcess.kill();
-  }
+    if (thingProcess) {
+        thingProcess.kill();
+    }
 }

@@ -1,14 +1,14 @@
 {
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "./",
-    "target": "ES2018",
-    "module": "commonjs",
-    "skipLibCheck": false,
-    "strict": true,
-    "sourceMap": false,
-    "esModuleInterop": true,
-    "removeComments": false
-  },
-  "include": ["./mashup-logic.ts", "./things/**.ts"]
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "./",
+        "target": "ES2018",
+        "module": "commonjs",
+        "skipLibCheck": false,
+        "strict": true,
+        "sourceMap": false,
+        "esModuleInterop": true,
+        "removeComments": false
+    },
+    "include": ["./mashup-logic.ts", "./things/**.ts"]
 }

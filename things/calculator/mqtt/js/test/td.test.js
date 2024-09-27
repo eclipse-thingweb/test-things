@@ -12,7 +12,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
- const Ajv = require("ajv");
+const Ajv = require("ajv");
 const chai = require("chai");
 const https = require("https");
 const mqtt = require("mqtt");
@@ -28,73 +28,75 @@ const port = 1883;
 let thingProcess;
 
 describe("Calculator MQTT JS", () => {
-  let validate;
+    let validate;
 
-  before(async () => {
-    const initiateMain = new Promise(async (resolve, reject) => {
-      thingProcess = spawn("node", ["main.js", "-p", `${port}`], {
-        cwd: path.join(__dirname, ".."),
-      });
-      thingProcess.stdout.on("data", (data) => {
-        if (data.toString().trim() === "ThingIsReady") {
-          resolve("Success");
-        }
-      });
-      thingProcess.stderr.on("data", (data) => {
-        reject(`Error: ${data}`);
-      });
-      thingProcess.on("error", (error) => {
-        reject(`Error: ${error}`);
-      });
-      thingProcess.on("close", () => {
-        reject("Failed to initiate the main script.");
-      });
+    before(async () => {
+        const initiateMain = new Promise((resolve, reject) => {
+            thingProcess = spawn("node", ["main.js", "-p", `${port}`], {
+                cwd: path.join(__dirname, ".."),
+            });
+            thingProcess.stdout.on("data", (data) => {
+                if (data.toString().trim() === "ThingIsReady") {
+                    resolve("Success");
+                }
+            });
+            thingProcess.stderr.on("data", (data) => {
+                reject(new Error(`Error: ${data}`));
+            });
+            thingProcess.on("error", (error) => {
+                reject(new Error(`Error: ${error}`));
+            });
+            thingProcess.on("close", () => {
+                reject(new Error("Failed to initiate the main script."));
+            });
+        });
+
+        const getJSONSchema = new Promise((resolve, reject) => {
+            https.get(
+                "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/td-json-schema-validation.json",
+                function (response) {
+                    const body = [];
+                    response.on("data", (chunk) => {
+                        body.push(chunk);
+                    });
+
+                    response.on("end", () => {
+                        const tdSchema = JSON.parse(
+                            Buffer.concat(body).toString(),
+                        );
+                        validate = ajv.compile(tdSchema);
+                        resolve("Success");
+                    });
+                },
+            );
+        });
+
+        await Promise.all([initiateMain, getJSONSchema]).then((data) => {
+            if (data[0] !== "Success" || data[1] !== "Success") {
+                console.log(`initiateMain: ${data[0]}`);
+                console.log(`getJSONSchema: ${data[1]}`);
+            }
+        });
     });
 
-    const getJSONSchema = new Promise((resolve, reject) => {
-      https.get(
-        "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/td-json-schema-validation.json",
-        function (response) {
-          const body = [];
-          response.on("data", (chunk) => {
-            body.push(chunk);
-          });
-
-          response.on("end", () => {
-            const tdSchema = JSON.parse(Buffer.concat(body).toString());
-            validate = ajv.compile(tdSchema);
-            resolve("Success");
-          });
-        },
-      );
+    after(() => {
+        thingProcess.kill();
     });
 
-    await Promise.all([initiateMain, getJSONSchema]).then((data) => {
-      if (data[0] !== "Success" || data[1] !== "Success") {
-        console.log(`initiateMain: ${data[0]}`);
-        console.log(`getJSONSchema: ${data[1]}`);
-      }
+    it("should have a valid TD", (done) => {
+        const broker = mqtt.connect(`mqtt://${hostname}`, { port });
+        broker.subscribe("mqtt-calculator");
+
+        let valid = false;
+
+        broker.on("message", (topic, payload, packet) => {
+            valid = validate(JSON.parse(payload.toString()));
+            broker.end();
+        });
+
+        broker.on("close", () => {
+            expect(valid).to.be.true;
+            done();
+        });
     });
-  });
-
-  after(() => {
-    thingProcess.kill();
-  });
-
-  it("should have a valid TD", (done) => {
-    const broker = mqtt.connect(`mqtt://${hostname}`, { port });
-    broker.subscribe("mqtt-calculator");
-
-    let valid = false;
-
-    broker.on("message", (topic, payload, packet) => {
-      valid = validate(JSON.parse(payload.toString()));
-      broker.end();
-    });
-
-    broker.on("close", () => {
-      expect(valid).to.be.true;
-      done();
-    });
-  });
 });
