@@ -1,18 +1,28 @@
-/**
- * @file The `simple-http-client.js` file acts a client for the simple-calculator.js.
- * This client is mostly used for testing the overall basic functionality of the http thing.
- */
+/********************************************************************************
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ * Document License (2015-05-13) which is available at
+ * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
 
 const EventSource = require("eventsource");
 
-const url = "http://localhost:3000/http-express-calculator-simple",
-    resultEndPoint = "/properties/result",
-    resultEndPointObserve = `${resultEndPoint}/observe`,
-    lastChangeEndPoint = "/properties/lastChange",
-    lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
-    additionEndPoint = "/actions/add",
-    subtractionEndPoint = "/actions/subtract",
-    updateEndPoint = "/events/update";
+const url = "http://localhost:3000/http-express-calculator-simple";
+const resultEndPoint = "/properties/result";
+const resultEndPointObserve = `${resultEndPoint}/observe`;
+const lastChangeEndPoint = "/properties/lastChange";
+const lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`;
+const additionEndPoint = "/actions/add";
+const subtractionEndPoint = "/actions/subtract";
+const updateEndPoint = "/events/update";
 
 /**
  * Return the Full TD
@@ -49,7 +59,7 @@ function listenToResult() {
         console.error("Error with Result SSE:", error);
     };
 
-    //Closing the event source after 6 seconds
+    // Closing the event source after 6 seconds
     setTimeout(() => {
         resultEventSource.close();
         console.log("- Closing Result Property SSE");
@@ -83,7 +93,7 @@ function listenToLastChange() {
         console.error("Error with lastChange SSE:", error);
     };
 
-    //Closing the event source after 6 seconds
+    // Closing the event source after 6 seconds
     setTimeout(() => {
         lastChangeEventSource.close();
         console.log("- Closing lastChange Property SSE");
@@ -139,7 +149,7 @@ function listenToUpdateEvent() {
         console.error("Error with Update SSE:", error);
     };
 
-    //Closing the event source after 6 seconds
+    // Closing the event source after 6 seconds
     setTimeout(() => {
         updateEventSource.close();
         console.log("- Closing Update Event SSE");

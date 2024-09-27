@@ -26,7 +26,7 @@ const subtractionEndPoint = `/${thingName}/actions/subtract`;
 const updateEndPoint = `/${thingName}/events/update`;
 
 /****************************************/
-/****** Thing Description Endpoint ******/
+/** **** Thing Description Endpoint ******/
 /****************************************/
 
 function getThingDescription() {
@@ -113,7 +113,7 @@ function observeResultProperty() {
 }
 
 /****************************************/
-/********** lastChange Endpoint *********/
+/** ******** lastChange Endpoint *********/
 /****************************************/
 
 function getLastChange() {
@@ -171,7 +171,7 @@ function observeLastChangeProperty() {
 }
 
 /****************************************/
-/*********** Addition Endpoint **********/
+/** ********* Addition Endpoint **********/
 /****************************************/
 
 function addNumber(numberToAdd) {
@@ -202,7 +202,7 @@ function addNumber(numberToAdd) {
 }
 
 /****************************************/
-/********** Subtraction Endpoint ********/
+/** ******** Subtraction Endpoint ********/
 /****************************************/
 
 function subtractNumber(numberToSubtract) {
@@ -236,7 +236,7 @@ function subtractNumber(numberToSubtract) {
 }
 
 /****************************************/
-/*********** Update Endpoint ************/
+/** ********* Update Endpoint ************/
 /****************************************/
 
 /**
@@ -279,7 +279,7 @@ function runCalculatorInteractions() {
     addNumber(3);
     subtractNumber(2);
 
-    //Start the observation of properties and events after 1 second
+    // Start the observation of properties and events after 1 second
     setTimeout(() => {
         console.log("\n-------- Start observation --------\n");
         observeResultProperty();
@@ -287,7 +287,7 @@ function runCalculatorInteractions() {
         observeUpdateEvent();
     }, 1000);
 
-    //Update the property result after 2.5 seconds to test the observation
+    // Update the property result after 2.5 seconds to test the observation
     setTimeout(() => {
         addNumber(1);
     }, 2500);

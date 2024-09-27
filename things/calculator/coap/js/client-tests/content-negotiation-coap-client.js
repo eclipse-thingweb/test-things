@@ -1,18 +1,33 @@
+/********************************************************************************
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ * Document License (2015-05-13) which is available at
+ * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
+
 const coap = require("coap");
 const cbor = require("cbor");
 const hostname = "localhost";
 const portNumber = 5684;
 const thingName = "coap-calculator-content-negotiation";
 
-const fullTDEndpoint = `/${thingName}`,
-    resultEndPoint = `/${thingName}/properties/result`,
-    lastChangeEndPoint = `/${thingName}/properties/lastChange`,
-    additionEndPoint = `/${thingName}/actions/add`,
-    subtractionEndPoint = `/${thingName}/actions/subtract`,
-    updateEndPoint = `/${thingName}/events/update`;
+const fullTDEndpoint = `/${thingName}`;
+const resultEndPoint = `/${thingName}/properties/result`;
+const lastChangeEndPoint = `/${thingName}/properties/lastChange`;
+const additionEndPoint = `/${thingName}/actions/add`;
+const subtractionEndPoint = `/${thingName}/actions/subtract`;
+const updateEndPoint = `/${thingName}/events/update`;
 
 /****************************************/
-/****** Thing Description Endpoint ******/
+/** **** Thing Description Endpoint ******/
 /****************************************/
 
 // GET request to retrieve thing description
@@ -28,7 +43,7 @@ function getFullTD(acceptType) {
     });
 
     getThingDescription.on("response", (res) => {
-        //TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
+        // TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
         if (res.code === "2.05") {
             if (
                 acceptType === "application/json" ||
@@ -53,7 +68,7 @@ function getFullTD(acceptType) {
 }
 
 /****************************************/
-/*********** Result Endpoint ************/
+/** ********* Result Endpoint ************/
 /****************************************/
 
 // GET request to retrieve a property (result)
@@ -131,7 +146,7 @@ function observeResultProperty(acceptType) {
 }
 
 /****************************************/
-/********** lastChange Endpoint *********/
+/** ******** lastChange Endpoint *********/
 /****************************************/
 
 // GET request to retrieve a property (lastChange)
@@ -208,7 +223,7 @@ function observeLastChangeProperty(acceptType) {
 }
 
 /****************************************/
-/*********** Addition Endpoint **********/
+/** ********* Addition Endpoint **********/
 /****************************************/
 
 // POST request to perform the addition action
@@ -252,7 +267,7 @@ function addNumber(acceptType, contentType, numberToAdd) {
 }
 
 /****************************************/
-/********** Subtraction Endpoint ********/
+/** ******** Subtraction Endpoint ********/
 /****************************************/
 
 // POST request to perform the subtract action
@@ -296,7 +311,7 @@ function subtractNumber(acceptType, contentType, numberToSubtract) {
 }
 
 /****************************************/
-/*********** Update Endpoint ************/
+/** ********* Update Endpoint ************/
 /****************************************/
 
 /**
@@ -339,16 +354,16 @@ function observeUpdateEvent(acceptType) {
     observeUpdate.end();
 }
 
-//Test the main functionality of the content-negotiation-calculator-thing
+// Test the main functionality of the content-negotiation-calculator-thing
 function runCalculatorInteractions() {
-    //Main GET and POST requests
+    // Main GET and POST requests
     getFullTD("application/json");
     getResult("application/cbor");
     getLastChange("application/json");
     addNumber("application/cbor", "application/cbor", 3);
     subtractNumber("application/json", "application/json", 2);
 
-    //Observation of properties and events after 1 second
+    // Observation of properties and events after 1 second
     setTimeout(() => {
         console.log("\n-------- Start observation --------\n");
         observeResultProperty("application/json");
@@ -356,7 +371,7 @@ function runCalculatorInteractions() {
         observeUpdateEvent("application/json");
     }, 1000);
 
-    //Update the property result after 2.5 seconds to test the observation
+    // Update the property result after 2.5 seconds to test the observation
     setTimeout(() => {
         addNumber("application/cbor", "application/json", 1);
     }, 2500);

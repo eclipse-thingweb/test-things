@@ -1,20 +1,29 @@
-/**
- * @file The `content-negotiation-http-client.js` file acts as a client for the content-negotiation-calculator.js.
- * This client is mostly used for testing the content negotiation functionality of the http thing.
- * Requests as well as responses can be sent and received in JSON and CBOR formats.
- */
+/********************************************************************************
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ * Document License (2015-05-13) which is available at
+ * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
 
 const cbor = require("cbor");
 const EventSource = require("eventsource");
 
-const url = "http://localhost:3000/http-express-calculator-content-negotiation",
-    resultEndPoint = "/properties/result",
-    resultEndPointObserve = `${resultEndPoint}/observe`,
-    lastChangeEndPoint = "/properties/lastChange",
-    lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`,
-    additionEndPoint = "/actions/add",
-    subtractionEndPoint = "/actions/subtract",
-    updateEndPoint = "/events/update";
+const url = "http://localhost:3000/http-express-calculator-content-negotiation";
+const resultEndPoint = "/properties/result";
+const resultEndPointObserve = `${resultEndPoint}/observe`;
+const lastChangeEndPoint = "/properties/lastChange";
+const lastChangeEndPointObserve = `${lastChangeEndPoint}/observe`;
+const additionEndPoint = "/actions/add";
+const subtractionEndPoint = "/actions/subtract";
+const updateEndPoint = "/events/update";
 
 /**
  * Return the Full TD
@@ -90,7 +99,7 @@ function listenToResultProperty(acceptType) {
         console.error("Error with Result property SSE:", error);
     };
 
-    //Closing the event source after 6 seconds
+    // Closing the event source after 6 seconds
     setTimeout(() => {
         resultEventSource.close();
         console.log("- Closing Result Property SSE");
@@ -150,7 +159,7 @@ function listenToLastChangeProperty(acceptType) {
         console.error("Error with lastChange property SSE:", error);
     };
 
-    //Closing the event source after 6 seconds
+    // Closing the event source after 6 seconds
     setTimeout(() => {
         lastChangeEventSource.close();
         console.log("- Closing lastChange Property SSE");
@@ -257,7 +266,7 @@ function listenToUpdateEvent(acceptType) {
         console.error("Error with Update event SSE:", error);
     };
 
-    //Closing the event source after 6 seconds
+    // Closing the event source after 6 seconds
     setTimeout(() => {
         updateEventSource.close();
         console.log("- Closing Update Event SSE");

@@ -1,4 +1,18 @@
-// example-client.js
+/********************************************************************************
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ * Document License (2015-05-13) which is available at
+ * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
+
 const { Servient } = require("@node-wot/core");
 const { CoapClientFactory } = require("@node-wot/binding-coap");
 
@@ -18,11 +32,11 @@ servient
             console.log(td);
 
             // read property result
-            let result = await thing.readProperty("result");
+            const result = await thing.readProperty("result");
             console.log("result: ", await result.value());
 
             // read property lastChange
-            let lastChange = await thing.readProperty("lastChange");
+            const lastChange = await thing.readProperty("lastChange");
             console.log("lastChange: ", await lastChange.value());
 
             console.log("\n------------\n");
@@ -40,11 +54,11 @@ servient
                 console.log("Update event:", await data.value());
             });
 
-            //Invoke addition action
-            let addition = await thing.invokeAction("add", 2);
+            // Invoke addition action
+            const addition = await thing.invokeAction("add", 2);
             console.log("Addition result: ", await addition.value());
-            //Invoke addition subtraction
-            let subtraction = await thing.invokeAction("subtract", 3);
+            // Invoke addition subtraction
+            const subtraction = await thing.invokeAction("subtract", 3);
             console.log("Subtraction result: ", await subtraction.value());
 
             console.log("\n------------\n");
