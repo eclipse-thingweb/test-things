@@ -14,7 +14,9 @@
             "scheme": "nosec"
         }
     },
-    "security": ["nosec_sc"],
+    "security": [
+        "nosec_sc"
+    ],
     "base": "modbus+tcp://0.0.0.0:8502/1",
     "properties": {
         "lightSwitch": {

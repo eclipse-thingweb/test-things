@@ -6,4 +6,4 @@ __pycache__/
 
 # TS files
 dist/
-.tsbuildinfo
+*.tsbuildinfo

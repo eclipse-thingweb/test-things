@@ -59,11 +59,11 @@ services:
     depends_on:
       - loki
     healthcheck:
-          test: wget --no-verbose --tries=1 --spider http://${HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
-          interval: ${HC_INTERVAL}
-          timeout: ${HC_TIMEOUT}
-          retries: ${HC_RETRIES}
-          start_period: ${HC_START_PERIOD}
+      test: wget --no-verbose --tries=1 --spider http://${HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
+      interval: ${HC_INTERVAL}
+      timeout: ${HC_TIMEOUT}
+      retries: ${HC_RETRIES}
+      start_period: ${HC_START_PERIOD}
   http-express-calculator-content-negotiation:
     labels:
       - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)

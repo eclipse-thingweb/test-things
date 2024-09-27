@@ -101,7 +101,7 @@ See the mashup's [readme](./mashups/smart-home/README.md).
 You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose-things.yml up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose-things.yml](./docker-compose-things.yml).
 
 [docker-compose-things.yml](./docker-compose-things.yml) consists of the docker configuration of the things.
-[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana, cadvisor and portainer.  
+[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana, cadvisor and portainer.
 
 After the run, as default, the devices are accessible at:
 
@@ -124,6 +124,7 @@ To be able to access additional tools, the user must login through GitHub. For G
 - cAdvisor -> cadvisor.localhost
 
 Grafana and Portainer UIs are public access but they run their own authentication and authorization. These services are accessible at:
+
 - Grafana -> grafana.localhost
 - Portainer -> portainer.localhost
 
@@ -139,8 +140,9 @@ For Node.js-based devices, we use npm workspaces and running `npm install` at th
 
 Grafana dashboard json files are stored in [./conf/grafana/dashboards](./conf/grafana/dashboards/).
 To save your newly created dashboard locally and push it into the remote repository:
-  - Export the dashboard as JSON file using Share > Export.
-  - Save the exported JSON file to [./conf/grafana/dashboards](./conf/grafana/dashboards/).
+
+- Export the dashboard as JSON file using Share > Export.
+- Save the exported JSON file to [./conf/grafana/dashboards](./conf/grafana/dashboards/).
 
 If your dashboard uses another datasource than our default `prometheus-datasource`, new datasource also must be provisioned in [./conf/grafana/datasources](./conf/grafana/provisioning/datasources/).
 For more information check Grafana's provisioning [documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).

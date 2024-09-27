@@ -18,10 +18,10 @@ import chaiAsPromised from "chai-as-promised";
 
 import { Servient } from "@node-wot/core";
 import { HttpClientFactory } from "@node-wot/binding-http";
-import { port } from './fixtures';
+import { port } from "./fixtures";
 
-chai.use(chaiAsPromised)
-const expect = chai.expect
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 
 const servient = new Servient();
 servient.addClientFactory(new HttpClientFactory());
@@ -53,12 +53,12 @@ describe("Client Tests", () => {
         } catch (error) {
             console.error(error);
         }
-    })
+    });
 
     after(async () => {
-        await servient.shutdown()
-    })
-    
+        await servient.shutdown();
+    });
+
     describe("bool property", () => {
         it("should read property bool", async () => {
             const value = await readProperty(thing, "bool");

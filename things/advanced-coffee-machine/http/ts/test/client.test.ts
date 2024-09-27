@@ -14,15 +14,15 @@
  ********************************************************************************/ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
-import { Servient } from "@node-wot/core"
-import { HttpClientFactory } from "@node-wot/binding-http"
-import { port } from './fixtures'
+import { Servient } from "@node-wot/core";
+import { HttpClientFactory } from "@node-wot/binding-http";
+import { port } from "./fixtures";
 
-chai.use(chaiAsPromised)
-const expect = chai.expect
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 
-let servient = new Servient()
-servient.addClientFactory(new HttpClientFactory())
+const servient = new Servient();
+servient.addClientFactory(new HttpClientFactory());
 
 let thing: WoT.ConsumedThing;
 

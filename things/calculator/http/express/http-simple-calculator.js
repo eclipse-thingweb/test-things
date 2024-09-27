@@ -20,8 +20,8 @@ const { parseArgs } = require("node:util");
 const { JsonPlaceholderReplacer } = require("json-placeholder-replacer");
 require("dotenv").config();
 
-const { createLogger, transports, format } = require('winston')
-const LokiTransport = require('winston-loki')
+const { createLogger, transports, format } = require("winston");
+const LokiTransport = require("winston-loki");
 
 const app = express();
 app.use(express.json({ strict: false }));
@@ -30,19 +30,21 @@ const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT ?? 3000;
 const thingName = "http-express-calculator-simple";
 
-let logger = createLogger({
-  transports: [new LokiTransport({
-      host:`${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
-      labels: { thing: thingName },
-      json: true,
-      format: format.json(),
-      replaceTimestamp: true,
-      onConnectionError: (err) => console.error(err)
-    }),
-    new transports.Console({
-      format: format.combine(format.simple(), format.colorize())
-    })]
-})
+const logger = createLogger({
+    transports: [
+        new LokiTransport({
+            host: `${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
+            labels: { thing: thingName },
+            json: true,
+            format: format.json(),
+            replaceTimestamp: true,
+            onConnectionError: (err) => console.error(err),
+        }),
+        new transports.Console({
+            format: format.combine(format.simple(), format.colorize()),
+        }),
+    ],
+});
 
 const TDEndPoint = `/${thingName}`;
 const resultEndPoint = `/${thingName}/properties/result`;
@@ -173,59 +175,136 @@ const reqParser = bodyParser.text({ type: "*/*" });
 
 // Logging and monitoring variables and functions
 const setResult = (value) => {
-  result = value
-  logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'updateProperty' }})
-}
+    result = value;
+    logger.info({
+        message: `${result}`,
+        labels: {
+            affordance: "property",
+            affordanceName: "result",
+            messageType: "updateProperty",
+        },
+    });
+};
 
 const setLastChange = (value) => {
-  lastChange = value
-  logger.info({ message: `${lastChange}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
-}
+    lastChange = value;
+    logger.info({
+        message: `${lastChange}`,
+        labels: {
+            affordance: "property",
+            affordanceName: "lastChange",
+            messageType: "updateProperty",
+        },
+    });
+};
 
-let result
-setResult(0)
+let result;
+setResult(0);
 
-let lastChange 
-setLastChange(new Date().toISOString())
+let lastChange;
+setLastChange(new Date().toISOString());
 
-let updateSubscriptionCount = 0
-logger.info({ message: `${updateSubscriptionCount}`, labels: { affordance: 'event', affordanceName: 'update', messageType: 'subscriptionCount' }})
+let updateSubscriptionCount = 0;
+logger.info({
+    message: `${updateSubscriptionCount}`,
+    labels: {
+        affordance: "event",
+        affordanceName: "update",
+        messageType: "subscriptionCount",
+    },
+});
 
 const increaseUpdateSubscriptionCount = () => {
-  updateSubscriptionCount++
-  logger.info({ message: `${updateSubscriptionCount}`, labels: { affordance: 'event', affordanceName: 'update', messageType: 'subscriptionCount' }})
-}
+    updateSubscriptionCount++;
+    logger.info({
+        message: `${updateSubscriptionCount}`,
+        labels: {
+            affordance: "event",
+            affordanceName: "update",
+            messageType: "subscriptionCount",
+        },
+    });
+};
 
 const decreaseUpdateSubscriptionCount = () => {
-  updateSubscriptionCount--
-  logger.info({ message: `${updateSubscriptionCount}`, labels: { affordance: 'event', affordanceName: 'update', messageType: 'subscriptionCount' }})
-}
+    updateSubscriptionCount--;
+    logger.info({
+        message: `${updateSubscriptionCount}`,
+        labels: {
+            affordance: "event",
+            affordanceName: "update",
+            messageType: "subscriptionCount",
+        },
+    });
+};
 
-let resultObserveCount = 0
-logger.info({ message: `${resultObserveCount}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'observeCount' }})
+let resultObserveCount = 0;
+logger.info({
+    message: `${resultObserveCount}`,
+    labels: {
+        affordance: "property",
+        affordanceName: "result",
+        messageType: "observeCount",
+    },
+});
 
 const increaseResultObserveCount = () => {
-  resultObserveCount++
-  logger.info({ message: `${resultObserveCount}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'observeCount' }})
-}
+    resultObserveCount++;
+    logger.info({
+        message: `${resultObserveCount}`,
+        labels: {
+            affordance: "property",
+            affordanceName: "result",
+            messageType: "observeCount",
+        },
+    });
+};
 
 const decreaseResultObserveCount = () => {
-  resultObserveCount--
-  logger.info({ message: `${resultObserveCount}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'observeCount' }})
-}
+    resultObserveCount--;
+    logger.info({
+        message: `${resultObserveCount}`,
+        labels: {
+            affordance: "property",
+            affordanceName: "result",
+            messageType: "observeCount",
+        },
+    });
+};
 
-let lastChangeObserveCount = 0
-logger.info({ message: `${lastChangeObserveCount}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'observeCount' }})
+let lastChangeObserveCount = 0;
+logger.info({
+    message: `${lastChangeObserveCount}`,
+    labels: {
+        affordance: "property",
+        affordanceName: "lastChange",
+        messageType: "observeCount",
+    },
+});
 
 const increaseLastChangeObserveCount = () => {
-  lastChangeObserveCount++
-  logger.info({ message: `${lastChangeObserveCount}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'observeCount' }})
-}
+    lastChangeObserveCount++;
+    logger.info({
+        message: `${lastChangeObserveCount}`,
+        labels: {
+            affordance: "property",
+            affordanceName: "lastChange",
+            messageType: "observeCount",
+        },
+    });
+};
 
 const decreaseLastChangeObserveCount = () => {
-  lastChangeObserveCount--
-  logger.info({ message: `${lastChangeObserveCount}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'observeCount' }})
-}
+    lastChangeObserveCount--;
+    logger.info({
+        message: `${lastChangeObserveCount}`,
+        labels: {
+            affordance: "property",
+            affordanceName: "lastChange",
+            messageType: "observeCount",
+        },
+    });
+};
 
 /******************************************/
 /** ************ Middleware ****************/
@@ -280,8 +359,15 @@ app.get(TDEndPoint, (req, res) => {
 });
 
 app.get(resultEndPoint, (req, res) => {
-  logger.info({ message: `${result}`, labels: { affordance: 'property',  op: 'readproperty', affordanceName: 'result' }})
-  res.json(result);
+    logger.info({
+        message: `${result}`,
+        labels: {
+            affordance: "property",
+            op: "readproperty",
+            affordanceName: "result",
+        },
+    });
+    res.json(result);
 });
 
 app.get(resultEndPointObserve, (req, res) => {
@@ -291,32 +377,60 @@ app.get(resultEndPointObserve, (req, res) => {
     res.setHeader("connection", "keep-alive");
     res.setHeader("Content-Type", "text/event-stream");
 
-  console.log("Client is listening to result property")
-  logger.info({ message: `${result}`, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'result' }})
-  increaseResultObserveCount()
-  let oldResult = result;
+    console.log("Client is listening to result property");
+    logger.info({
+        message: `${result}`,
+        labels: {
+            affordance: "property",
+            op: "observeproperty",
+            affordanceName: "result",
+        },
+    });
+    increaseResultObserveCount();
+    let oldResult = result;
 
-  const changeInterval = setInterval(() => {
-    if (oldResult !== result) {
-      logger.info({ message: result, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'result' }})
-      logger.info(`Observed data: ${result}`)
-      res.write(`data: ${JSON.stringify(result)}\n\n`);
-      oldResult = result;
-    }
-  }, 1000);
+    const changeInterval = setInterval(() => {
+        if (oldResult !== result) {
+            logger.info({
+                message: result,
+                labels: {
+                    affordance: "property",
+                    op: "observeproperty",
+                    affordanceName: "result",
+                },
+            });
+            logger.info(`Observed data: ${result}`);
+            res.write(`data: ${JSON.stringify(result)}\n\n`);
+            oldResult = result;
+        }
+    }, 1000);
 
-  res.on("close", () => {
-    clearInterval(changeInterval);
-    decreaseResultObserveCount()
-    logger.info({ message: 'Client stopped listening to result property', labels: { affordance: 'property', op: 'unobserveproperty',  affordanceName: 'result' }})
-    console.log("Client stopped listening to result property");
-    res.end()
-  })
+    res.on("close", () => {
+        clearInterval(changeInterval);
+        decreaseResultObserveCount();
+        logger.info({
+            message: "Client stopped listening to result property",
+            labels: {
+                affordance: "property",
+                op: "unobserveproperty",
+                affordanceName: "result",
+            },
+        });
+        console.log("Client stopped listening to result property");
+        res.end();
+    });
 });
 
 app.get(lastChangeEndPoint, (req, res) => {
-  logger.info({ message: lastChange, labels: { affordance: 'property', op: 'readproperty', affordanceName: 'lastChange' }})
-  res.json(lastChange);
+    logger.info({
+        message: lastChange,
+        labels: {
+            affordance: "property",
+            op: "readproperty",
+            affordanceName: "lastChange",
+        },
+    });
+    res.json(lastChange);
 });
 
 app.get(lastChangeEndPointObserve, (req, res) => {
@@ -326,68 +440,135 @@ app.get(lastChangeEndPointObserve, (req, res) => {
     res.setHeader("connection", "keep-alive");
     res.setHeader("Content-Type", "text/event-stream");
 
-  console.log("Client is listening to lastChange property");
-  logger.info({ message: `${result}`, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'lastChange' }})
-  increaseLastChangeObserveCount()
-  let oldLastChange = lastChange;
+    console.log("Client is listening to lastChange property");
+    logger.info({
+        message: `${result}`,
+        labels: {
+            affordance: "property",
+            op: "observeproperty",
+            affordanceName: "lastChange",
+        },
+    });
+    increaseLastChangeObserveCount();
+    let oldLastChange = lastChange;
 
-  const changeInterval = setInterval(() => {
-
-    if (oldLastChange !== lastChange) {
-      logger.info({ message: lastChange, labels: { affordance: 'property', op: 'observeproperty',  affordanceName: 'lastChange' }})
-      res.write(`data: ${JSON.stringify(lastChange)}\n\n`);
-      oldLastChange = lastChange;
-    }
-  }, 1000);
+    const changeInterval = setInterval(() => {
+        if (oldLastChange !== lastChange) {
+            logger.info({
+                message: lastChange,
+                labels: {
+                    affordance: "property",
+                    op: "observeproperty",
+                    affordanceName: "lastChange",
+                },
+            });
+            res.write(`data: ${JSON.stringify(lastChange)}\n\n`);
+            oldLastChange = lastChange;
+        }
+    }, 1000);
 
     res.on("finish", () => {
         clearInterval(changeInterval);
     });
 
-  res.on("close", () => {
-    logger.info({ message: 'Client stopped listening to result property', labels: { affordance: 'property', op: 'unobserveproperty',  affordanceName: 'lastChange' }})
-    decreaseLastChangeObserveCount()
-    console.log("Client stopped listening to lastChange property");
-  })
+    res.on("close", () => {
+        logger.info({
+            message: "Client stopped listening to result property",
+            labels: {
+                affordance: "property",
+                op: "unobserveproperty",
+                affordanceName: "lastChange",
+            },
+        });
+        decreaseLastChangeObserveCount();
+        console.log("Client stopped listening to lastChange property");
+    });
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
     try {
         const bodyInput = JSON.parse(req.body);
 
-    if (typeof bodyInput !== "number") {
-      res.status(400).json("Input should be a valid number");
-    } else {
-      logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add' }})
-      logger.info({ message: `${bodyInput}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionInput' }})
-      setResult(result + bodyInput);
-      setLastChange(new Date());
-      logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionOutput' }})
-      res.json(result);
+        if (typeof bodyInput !== "number") {
+            res.status(400).json("Input should be a valid number");
+        } else {
+            logger.info({
+                message: "Action invoked.",
+                labels: {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "add",
+                },
+            });
+            logger.info({
+                message: `${bodyInput}`,
+                labels: {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "add",
+                    messageType: "actionInput",
+                },
+            });
+            setResult(result + bodyInput);
+            setLastChange(new Date());
+            logger.info({
+                message: `${result}`,
+                labels: {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "add",
+                    messageType: "actionOutput",
+                },
+            });
+            res.json(result);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(400).json("Input should be a valid number");
     }
-  } catch (error) {
-    res.status(400).json("Input should be a valid number");
-  }
-
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
     try {
         const bodyInput = JSON.parse(req.body);
 
-    if (typeof bodyInput !== "number") {
-      res.status(400).json("Input should be a valid number");
-    } else {
-      logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract' }})
-      logger.info({ message: `${bodyInput}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionInput' }})
-      setResult(result - bodyInput);
-      setLastChange(new Date());
-      logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionOutput' }})
-      res.json(result);
+        if (typeof bodyInput !== "number") {
+            res.status(400).json("Input should be a valid number");
+        } else {
+            logger.info({
+                message: "Action invoked.",
+                labels: {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "subtract",
+                },
+            });
+            logger.info({
+                message: `${bodyInput}`,
+                labels: {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "subtract",
+                    messageType: "actionInput",
+                },
+            });
+            setResult(result - bodyInput);
+            setLastChange(new Date());
+            logger.info({
+                message: `${result}`,
+                labels: {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "subtract",
+                    messageType: "actionOutput",
+                },
+            });
+            res.json(result);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(400).json("Input should be a valid number");
     }
-  } catch (error) {
-    res.status(400).json("Input should be a valid number");
-  }
 });
 
 app.get(updateEndPoint, (req, res) => {
@@ -397,32 +578,54 @@ app.get(updateEndPoint, (req, res) => {
     res.setHeader("connection", "keep-alive");
     res.setHeader("Content-Type", "text/event-stream");
 
-  let oldResult = result;
-  console.log("Client is listening to update event");
-  logger.info({ message: 'Client is listening to update event', labels: { affordance: 'event', op: 'subscribeevent',  affordanceName: 'update' }})
-  increaseUpdateSubscriptionCount()
+    let oldResult = result;
+    console.log("Client is listening to update event");
+    logger.info({
+        message: "Client is listening to update event",
+        labels: {
+            affordance: "event",
+            op: "subscribeevent",
+            affordanceName: "update",
+        },
+    });
+    increaseUpdateSubscriptionCount();
 
-  /**
-   * The SSE specification defines the structure of SSE messages, and
-   * it expects event data to be formatted with "data:" followed by the
-   * actual data. When you deviate from this standard, it might not be
-   * interpreted correctly by the client, which could create empty values.
-   */
-  const changeInterval = setInterval(() => {
-    if (oldResult !== result) {
-      logger.info({ message: `${result}`, labels: { affordance: 'event', op: 'subscribeevent',  affordanceName: 'update', messageType: 'eventOutput' }})
-      res.write(`data: ${result}\n\n`);
-      oldResult = result;
-    }
-  }, 1000);
+    /**
+     * The SSE specification defines the structure of SSE messages, and
+     * it expects event data to be formatted with "data:" followed by the
+     * actual data. When you deviate from this standard, it might not be
+     * interpreted correctly by the client, which could create empty values.
+     */
+    const changeInterval = setInterval(() => {
+        if (oldResult !== result) {
+            logger.info({
+                message: `${result}`,
+                labels: {
+                    affordance: "event",
+                    op: "subscribeevent",
+                    affordanceName: "update",
+                    messageType: "eventOutput",
+                },
+            });
+            res.write(`data: ${result}\n\n`);
+            oldResult = result;
+        }
+    }, 1000);
 
-  res.on("close", () => {
-    logger.info({ message: 'Client stopped listening to update event', labels: { affordance: 'event', op: 'unsubscribeevent',  affordanceName: 'update' }})
-    decreaseUpdateSubscriptionCount()
-    console.log("Client stopped listening to update event");
-    clearInterval(changeInterval);
-    res.end()
-  })
+    res.on("close", () => {
+        logger.info({
+            message: "Client stopped listening to update event",
+            labels: {
+                affordance: "event",
+                op: "unsubscribeevent",
+                affordanceName: "update",
+            },
+        });
+        decreaseUpdateSubscriptionCount();
+        console.log("Client stopped listening to update event");
+        clearInterval(changeInterval);
+        res.end();
+    });
 });
 
 app.listen(portNumber, () => {
