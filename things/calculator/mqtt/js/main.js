@@ -12,12 +12,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
-const mqtt = require("mqtt");
-const { parseArgs } = require("node:util");
-const fs = require("fs");
-const path = require("path");
-const { JsonPlaceholderReplacer } = require("json-placeholder-replacer");
-require("dotenv").config();
+
+const mqtt = require('mqtt')
+const { parseArgs } = require('node:util')
+const fs = require('fs')
+const path = require('path')
+const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
+require('dotenv').config()
+
+const { createLogger, transports, format } = require('winston')
+const LokiTransport = require('winston-loki')
 
 const brokerURI = process.env.BROKER_URI ?? "test.mosquitto.org";
 let portNumber = process.env.PORT ?? 1883;
@@ -42,8 +46,21 @@ const PROPERTIES = "properties";
 const ACTIONS = "actions";
 const EVENTS = "events";
 
-const broker = mqtt.connect(`mqtt://${brokerURI}`, { port: portNumber });
+let logger = createLogger({
+  transports: [new LokiTransport({
+      host:`${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
+      labels: { thing: thingName },
+      json: true,
+      format: format.json(),
+      replaceTimestamp: true,
+      onConnectionError: (err) => console.error(err)
+    }),
+    new transports.Console({
+      format: format.combine(format.simple(), format.colorize())
+    })]
+})
 
+const broker = mqtt.connect(`mqtt://${brokerURI}`, { port: portNumber });
 const tmPath = process.env.TM_PATH;
 
 if (process.platform === "win32") {
@@ -120,61 +137,90 @@ for (const key in thingDescription.events) {
     thingDescription.events[key].forms.push(newForm);
 }
 
-broker.on("connect", () => {
-    console.log(`Connected to broker via port ${portNumber}`);
-});
+fs.writeFile(`${thingName}.td.json`, JSON.stringify(thingDescription, 4, 4), 'utf-8', function(){})
 
-let result = 0;
-let lastChange = "";
+broker.on('connect', () => {
+  console.log(`Connected to broker via port ${portNumber}`)
+  broker.subscribe(`${thingName}/${PROPERTIES}/result`)
+  broker.subscribe(`${thingName}/${PROPERTIES}/lastChange`)
+  broker.subscribe(`${thingName}/${ACTIONS}/add`)
+  broker.subscribe(`${thingName}/${ACTIONS}/subtract`)
+  broker.subscribe(`${thingName}/${EVENTS}/update`)
+})
 
-broker.on("message", (topic, payload, packet) => {
-    console.log(`Messaged to the topic ${topic}`);
-    const segments = topic.split("/");
+const setResult = (value) => {
+  result = value
+  logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'updateProperty' }})
+}
+
+const setLastChange = (value) => {
+  lastChange = value
+  logger.info({ message: `${lastChange}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
+}
+
+let result
+setResult(0)
+
+let lastChange
+setLastChange(new Date().toISOString())
+
+broker.on('message', (topic, payload, packet) => {
+  const segments = topic.split('/')
 
     if (segments[0] !== thingName) {
         return;
     }
 
-    if (segments[1] === PROPERTIES) {
-        if (segments.length === 3 && segments[2] === "result") {
-            console.log(`Result is : ${result}`);
-        }
-
-        if (segments.length === 3 && segments[2] === "lastChange") {
-            console.log(`Last change : ${lastChange}`);
-        }
+  if (segments[1] === PROPERTIES) {
+    if (segments.length === 3 && segments[2] === 'result') {
+      console.log(`Result is : ${result}`)
+      logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'updateProperty' }})
     }
 
-    if (segments[1] === ACTIONS) {
-        if (segments.length === 3 && segments[2] === "add") {
-            const parsedValue = parseInt(payload.toString());
-
-            if (!isNaN(parsedValue)) {
-                result += parsedValue;
-                lastChange = new Date().toLocaleTimeString();
-            }
-        }
-
-        if (segments.length === 3 && segments[2] === "subtract") {
-            const parsedValue = parseInt(payload.toString());
-
-            if (!isNaN(parsedValue)) {
-                result -= parsedValue;
-                lastChange = new Date().toLocaleTimeString();
-            }
-        }
+    if (segments.length === 3 && segments[2] === 'lastChange') {
+      console.log(`Last change : ${lastChange}`)
+      logger.info({ message: `${lastChange}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
     }
-});
+  }
+
+  if (segments[1] === ACTIONS) {
+    if (segments.length === 3 && segments[2] === 'add') {
+      const parsedValue = parseInt(payload.toString())
+
+      if (isNaN(parsedValue)) {
+        return
+      } else {
+        logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add' }})
+        logger.info({ message: `${parsedValue}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionInput' }})
+        setResult(result + parsedValue);
+        setLastChange(new Date());
+        logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionOutput' }})
+        broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
+        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, `${lastChange}`,  { retain: true })
+      }
+    }
+
+    if (segments.length === 3 && segments[2] === 'subtract') {
+      const parsedValue = parseInt(payload.toString())
+
+      if (isNaN(parsedValue)) {
+        return
+      } else {
+        logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract' }})
+        logger.info({ message: `${parsedValue}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionInput' }})
+        setResult(result - parsedValue);
+        setLastChange(new Date());
+        logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionOutput' }})
+        broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
+        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, `${lastChange}`, { retain: true })
+      }
+    }
+  }
+})
 
 setInterval(() => {
     broker.publish(`${thingName}/${EVENTS}/update`, "Updated the thing!");
 }, 500);
 
-broker.subscribe(`${thingName}/${PROPERTIES}/result`);
-broker.subscribe(`${thingName}/${PROPERTIES}/lastChange`);
-broker.subscribe(`${thingName}/${ACTIONS}/add`);
-broker.subscribe(`${thingName}/${ACTIONS}/subtract`);
-broker.publish(`${thingName}`, JSON.stringify(thingDescription), {
-    retain: true,
-});
-console.log("ThingIsReady");
+broker.publish(`${thingName}`, JSON.stringify(thingDescription), { retain: true })
+console.log('ThingIsReady')

@@ -24,17 +24,17 @@
             "observable": false,
             "forms": [
                 {
-                    "href": "?address=1&quantity=1",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/1?quantity=1",
                     "op": "readproperty",
-                    "modbus:entity": "Coil",
-                    "modbus:function": "readCoil",
+                    "modv:entity": "Coil",
+                    "modv:function": "readCoil",
                     "contentType": "application/octet-stream"
                 },
                 {
-                    "href": "?address=1&quantity=1",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/1?quantity=1",
                     "op": "writeproperty",
-                    "modbus:entity": "Coil",
-                    "modbus:function": "writeSingleCoil",
+                    "modv:entity": "Coil",
+                    "modv:function": "writeSingleCoil",
                     "contentType": "application/octet-stream"
                 }
             ]
@@ -46,11 +46,14 @@
             "observable": true,
             "forms": [
                 {
-                    "href": "?address=1&quantity=1",
-                    "op": ["readproperty", "observeproperty"],
-                    "modbus:entity": "DiscreteInput",
-                    "modbus:function": "readDiscreteInput",
-                    "modbus:pollingTime": 1000,
+                    "href": "modbus+tcp://0.0.0.0:8502/1/10001?quantity=1",
+                    "op": [
+                        "readproperty",
+                        "observeproperty"
+                    ],
+                    "modv:entity": "DiscreteInput",
+                    "modv:function": "readDiscreteInput",
+                    "modv:pollingTime": 1000,
                     "contentType": "application/octet-stream"
                 }
             ]
@@ -64,17 +67,17 @@
             "observable": false,
             "forms": [
                 {
-                    "href": "?address=1&quantity=1",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/40001?quantity=2",
                     "op": "readproperty",
-                    "modbus:entity": "HoldingRegister",
-                    "modbus:function": "readHoldingRegister",
+                    "modv:entity": "HoldingRegister",
+                    "modv:function": "readHoldingRegisters",
                     "contentType": "application/octet-stream"
                 },
                 {
-                    "href": "?address=1&quantity=1",
+                    "href": "modbus+tcp://0.0.0.0:8502/1/40001?quantity=2",
                     "op": "writeproperty",
-                    "modbus:entity": "HoldingRegister",
-                    "modbus:function": "writeSingleHoldingRegister",
+                    "modv:entity": "HoldingRegister",
+                    "modv:function": "writeSingleHoldingRegister",
                     "contentType": "application/octet-stream"
                 }
             ]

@@ -22,7 +22,9 @@
         "dotenv": "^16.3.1",
         "eventsource": "^2.0.2",
         "express": "^4.18.2",
-        "json-placeholder-replacer": "^1.0.35"
+        "json-placeholder-replacer": "^1.0.35",
+    "winston": "^3.14.2",
+    "winston-loki": "^6.1.2"
     },
     "devDependencies": {
         "@types/express": "^4.17.17"

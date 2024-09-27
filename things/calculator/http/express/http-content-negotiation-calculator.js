@@ -84,22 +84,23 @@ placeholderReplacer.addVariableMap({
     LAST_CHANGE_OBSERVABLE: true,
 });
 
-const defaultForm = {
-    href: "",
-    contentType: "application/json",
-    response: {
-        contentType: "application/json",
-    },
-    op: "",
-    "htv:methodName": "",
-    "htv:headers": [
-        {
-            "@type": "htv:RequestHeader",
-            fieldValue: "application/json",
-            fieldName: "Accept",
-        },
-    ],
-};
+const defaultForm =
+{
+  'href': '',
+  'contentType': 'application/json',
+  'response': {
+    'contentType': 'application/json'
+  },
+  'op': '',
+  'htv:methodName': '',
+  'htv:headers': [
+    {
+      '@type': 'htv:RequestHeader',
+      'htv:fieldValue': 'application/json',
+      'htv:fieldName': 'Accept'
+    }
+  ]
+}
 
 const thingDescription = placeholderReplacer.replace(thingModel);
 thingDescription["@type"] = "Thing";

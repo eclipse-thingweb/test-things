@@ -1,0 +1,5 @@
+{
+    "exit": true,
+    "spec": "./test/**.test.js",
+    "require": ["./test/fixtures.js"]
+}

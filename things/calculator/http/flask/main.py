@@ -150,9 +150,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--port', required=False)
 args = parser.parse_args()
 
-port = 5000
-if args.port:
+if portNumber:
+    port = portNumber
+elif args.port:
     port = args.port
+else:
+    port = 5000
 
 if __name__ == "__main__":
     app.run(debug=False, host=hostname, port=port)

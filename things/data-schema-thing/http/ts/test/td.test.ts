@@ -12,14 +12,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
+
 import * as chai from "chai";
 import * as http from "http";
 import { getTDValidate } from "../../../../../util/util";
 import { ValidateFunction } from "ajv";
+import { port } from './fixtures'
 
 const expect = chai.expect;
 
-const port = 3000;
 let validate: ValidateFunction | undefined;
 
 describe("TD Test", () => {

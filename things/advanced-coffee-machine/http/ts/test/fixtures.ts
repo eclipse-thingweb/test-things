@@ -19,18 +19,16 @@ import path from "path";
 
 let thingProcess: ChildProcess | undefined;
 let response: ThingStartResponse;
-const port = 3000;
+export const port = 3000;
 
 export async function mochaGlobalSetup() {
     try {
-        response = await getInitiateMain(
-            path.join(__dirname, "..", "dist", "main.js"),
-            port,
-        );
-        thingProcess = response.process;
-    } catch (error: unknown) {
-        console.log(error);
-        thingProcess = (error as ThingStartResponse).process;
+        response = await getInitiateMain('node', [path.join(__dirname, '..', 'dist', 'main.js'), '-p', `${port}`])
+        thingProcess = response.process
+    } 
+    catch(error: any) {
+        console.log(error)
+        thingProcess = error.process
     }
 }
 

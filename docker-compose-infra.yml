@@ -4,11 +4,9 @@ services:
     image: traefik:v3.0
     labels:
       - traefik.enable=true
-      - traefik.http.routers.mydashboard.rule=Host(`traefik.localhost`)
+      - traefik.http.routers.mydashboard.rule=Host(`traefik.${HOSTNAME}`)
       - traefik.http.routers.mydashboard.service=api@internal
       - traefik.http.routers.mydashboard.middlewares=test-things-auth
-      - "traefik.http.middlewares.test-things-auth.basicauth.users=${TRAEFIK_DASHBOARD_USER}:${TRAEFIK_DASHBOARD_PASS}"
-      - “traefik.http.middlewares.test-things-auth.basicauth.removeheader=true”
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
@@ -39,6 +37,24 @@ services:
         reservations:
           cpus: "0.05"
           memory: 50M
+  test-things-auth:
+    image: thomseddon/traefik-forward-auth:2
+    environment:
+      - DEFAULT_PROVIDER=generic-oauth
+      - SECRET=${OAUTH_SECRET}
+      - PROVIDERS_GENERIC_OAUTH_AUTH_URL=${GITHUB_AUTH_URL}
+      - PROVIDERS_GENERIC_OAUTH_TOKEN_URL=${GITHUB_TOKEN_URL}
+      - PROVIDERS_GENERIC_OAUTH_USER_URL=${GITHUB_USER_URL}
+      - PROVIDERS_GENERIC_OAUTH_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - PROVIDERS_GENERIC_OAUTH_SCOPE=user,repo
+      - INSECURE_COOKIE=true
+      - LOG_LEVEL=debug
+      - WHITELIST=${WHITELISTED_EMAILS}
+    labels:
+      - "traefik.http.middlewares.test-things-auth.forwardauth.address=http://test-things-auth:${FORWARD_AUTH_PORT}"
+      - "traefik.http.middlewares.test-things-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+      - "traefik.http.services.test-things-auth.loadbalancer.server.port=${FORWARD_AUTH_PORT}"
   prometheus:
     image: prom/prometheus
     volumes:
@@ -63,6 +79,9 @@ services:
     image: grafana/grafana
     environment:
       - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+      - GF_SERVER_DOMAIN=grafana.${HOSTNAME}
+      - GF_SERVER_ROOT_URL=http://grafana.${HOSTNAME}
+      - LOKI_PORT=${LOKI_PORT}
     volumes:
       - ./conf/grafana/provisioning:/etc/grafana/provisioning
       - ./conf/grafana/dashboards:/var/lib/grafana/dashboards
@@ -70,7 +89,6 @@ services:
     labels:
       - "traefik.http.routers.grafana.rule=Host(`grafana.${HOSTNAME}`)"
       - "traefik.http.routers.grafana.service=grafana"
-      - "traefik.http.routers.grafana.middlewares=test-things-auth"
       - "traefik.http.services.grafana.loadbalancer.server.port=${GRAFANA_PORT}"
     deploy:
       resources:
@@ -129,6 +147,21 @@ services:
         reservations:
           cpus: "0.05"
           memory: 50M
+  loki:
+    image: grafana/loki:2.9.2
+    # labels:
+    #   - "traefik.http.routers.loki.rule=Host(`loki.${HOSTNAME}`)"
+    #   - "traefik.http.routers.loki.service=loki"
+    #   - "traefik.http.services.loki.loadbalancer.server.port=${LOKI_PORT}"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./conf/loki/loki-config.yaml:/etc/loki/local-config.yaml
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - /var/log:/var/log
+      - ./conf/promtail/promtail-config.yaml:/etc/promtail/config.yaml
 volumes:
   prometheus_data:
   grafana_data:
