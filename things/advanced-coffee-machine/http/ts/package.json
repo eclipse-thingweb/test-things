@@ -8,7 +8,8 @@
         "build": "tsc -b",
         "test": "mocha",
         "lint": "eslint .",
-        "lint:fix": "eslint . --fix"
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"**/*.json\""
     },
     "keywords": [
         "wot",
