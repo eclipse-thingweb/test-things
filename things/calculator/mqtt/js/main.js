@@ -5,6 +5,9 @@ const path = require('path')
 const { JsonPlaceholderReplacer } = require('json-placeholder-replacer')
 require('dotenv').config()
 
+const { createLogger, transports, format } = require('winston')
+const LokiTransport = require('winston-loki')
+
 const brokerURI = process.env.BROKER_URI ?? 'test.mosquitto.org'
 let portNumber = process.env.PORT ?? 1883
 
@@ -26,8 +29,21 @@ const PROPERTIES = 'properties'
 const ACTIONS = 'actions'
 const EVENTS = 'events'
 
-const broker = mqtt.connect(`mqtt://${brokerURI}`, { port: portNumber })
+let logger = createLogger({
+  transports: [new LokiTransport({
+      host:`${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
+      labels: { thing: thingName },
+      json: true,
+      format: format.json(),
+      replaceTimestamp: true,
+      onConnectionError: (err) => console.error(err)
+    }),
+    new transports.Console({
+      format: format.combine(format.simple(), format.colorize())
+    })]
+})
 
+const broker = mqtt.connect(`mqtt://${brokerURI}`, { port: portNumber })
 const tmPath = process.env.TM_PATH
 
 if (process.platform === 'win32') {
@@ -106,11 +122,23 @@ broker.on('connect', () => {
   broker.subscribe(`${thingName}/${EVENTS}/update`)
 })
 
-let result = 0
-let lastChange = ''
+const setResult = (value) => {
+  result = value
+  logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'updateProperty' }})
+}
+
+const setLastChange = (value) => {
+  lastChange = value
+  logger.info({ message: `${lastChange}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
+}
+
+let result
+setResult(0)
+
+let lastChange
+setLastChange(new Date().toISOString())
 
 broker.on('message', (topic, payload, packet) => {
-  console.log(`Messaged to the topic ${topic}`)
   const segments = topic.split('/')
 
   if (segments[0] !== thingName) {
@@ -120,10 +148,12 @@ broker.on('message', (topic, payload, packet) => {
   if (segments[1] === PROPERTIES) {
     if (segments.length === 3 && segments[2] === 'result') {
       console.log(`Result is : ${result}`)
+      logger.info({ message: `${result}`, labels: { affordance: 'property', affordanceName: 'result', messageType: 'updateProperty' }})
     }
 
     if (segments.length === 3 && segments[2] === 'lastChange') {
       console.log(`Last change : ${lastChange}`)
+      logger.info({ message: `${lastChange}`, labels: { affordance: 'property', affordanceName: 'lastChange', messageType: 'updateProperty' }})
     }
   }
 
@@ -134,10 +164,13 @@ broker.on('message', (topic, payload, packet) => {
       if (isNaN(parsedValue)) {
         return
       } else {
-        result += parsedValue
-        lastChange = (new Date()).toLocaleTimeString()
+        logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add' }})
+        logger.info({ message: `${parsedValue}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionInput' }})
+        setResult(result + parsedValue);
+        setLastChange(new Date());
+        logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'add', messageType: 'actionOutput' }})
         broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
-        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, lastChange,  { retain: true })
+        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, `${lastChange}`,  { retain: true })
       }
     }
 
@@ -145,12 +178,15 @@ broker.on('message', (topic, payload, packet) => {
       const parsedValue = parseInt(payload.toString())
 
       if (isNaN(parsedValue)) {
-
+        return
       } else {
-        result -= parsedValue
-        lastChange = (new Date()).toLocaleTimeString()
+        logger.info({ message: 'Action invoked.', labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract' }})
+        logger.info({ message: `${parsedValue}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionInput' }})
+        setResult(result - parsedValue);
+        setLastChange(new Date());
+        logger.info({ message: `${result}`, labels: { affordance: 'action', op: 'invokeaction', affordanceName: 'subtract', messageType: 'actionOutput' }})
         broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
-        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, lastChange, { retain: true })
+        broker.publish(`${thingName}/${PROPERTIES}/lastChange`, `${lastChange}`, { retain: true })
       }
     }
   }
@@ -160,6 +196,5 @@ setInterval(() => {
   broker.publish(`${thingName}/${EVENTS}/update`, 'Updated the thing!')
 }, 500)
 
-// broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true })
 broker.publish(`${thingName}`, JSON.stringify(thingDescription), { retain: true })
 console.log('ThingIsReady')
