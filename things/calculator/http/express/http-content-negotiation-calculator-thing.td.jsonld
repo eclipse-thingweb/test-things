@@ -72,8 +72,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ]
         },
@@ -91,8 +92,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ],
           "subprotocol": "sse"
@@ -153,8 +155,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ]
         },
@@ -172,8 +175,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ],
           "subprotocol": "sse"
@@ -219,8 +223,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ]
         },
@@ -251,8 +256,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ]
         }
@@ -295,8 +301,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ]
         },
@@ -327,8 +334,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ]
         }
@@ -369,8 +377,9 @@
           "htv:headers": [
             {
               "@type": "htv:RequestHeader",
-              "htv:fieldValue": "application/cbor",
-              "htv:fieldName": "Accept"
+              "htv:fieldValue": "application/json",
+              "htv:fieldName": "Accept",
+              "fieldValue": "application/cbor"
             }
           ],
           "subprotocol": "sse"

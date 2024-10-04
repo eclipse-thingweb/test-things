@@ -1,13 +1,13 @@
 {
-    "@context":[
-      "https://www.w3.org/2019/wot/td/v1",
-      "https://www.w3.org/2022/wot/td/v1.1",
-      {
-         "@language":"en"
-      }
-   ],
-   "@type":"tm:ThingModel",
-    "title":"{{THING_NAME}}",
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1",
+        "https://www.w3.org/2022/wot/td/v1.1",
+        {
+            "@language": "en"
+        }
+    ],
+    "@type": "tm:ThingModel",
+    "title": "{{THING_NAME}}",
     "description": "A smart coffee machine with a range of capabilities.\\nA complementary tutorial is available at http: //www.thingweb.io/smart-coffee-machine.html.",
     "support": "https://github.com/eclipse-thingweb/node-wot/",
     "base": "{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}",
@@ -45,12 +45,7 @@
             "uriVariables": {
                 "id": {
                     "type": "string",
-                    "enum": [
-                        "water",
-                        "milk",
-                        "chocolate",
-                        "coffeeBeans"
-                    ]
+                    "enum": ["water", "milk", "chocolate", "coffeeBeans"]
                 }
             }
         },
@@ -86,11 +81,7 @@
                     "size": {
                         "type": "string",
                         "description": "Defines the size of a drink, s = small, m = medium, l = large.",
-                        "enum": [
-                            "s",
-                            "m",
-                            "l"
-                        ]
+                        "enum": ["s", "m", "l"]
                     },
                     "quantity": {
                         "type": "integer",
@@ -132,11 +123,7 @@
                 "size": {
                     "type": "string",
                     "description": "Defines the size of a drink, s = small, m = medium, l = large.",
-                    "enum": [
-                        "s",
-                        "m",
-                        "l"
-                    ]
+                    "enum": ["s", "m", "l"]
                 },
                 "quantity": {
                     "type": "integer",
@@ -170,11 +157,7 @@
                     "size": {
                         "type": "string",
                         "description": "Defines the size of a drink, s = small, m = medium, l = large.",
-                        "enum": [
-                            "s",
-                            "m",
-                            "l"
-                        ]
+                        "enum": ["s", "m", "l"]
                     },
                     "quantity": {
                         "type": "integer",
@@ -202,10 +185,7 @@
                         ]
                     }
                 },
-                "required": [
-                    "time",
-                    "mode"
-                ]
+                "required": ["time", "mode"]
             },
             "output": {
                 "type": "object",

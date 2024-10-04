@@ -1,30 +1,33 @@
 {
-  "name": "http-calculator",
-  "version": "1.0.0",
-  "description": "HTTP Calculator",
-  "main": "index.js",
-  "keywords": [
-    "wot",
-    "thing",
-    "iot",
-    "http"
-  ],
-  "scripts": {
-    "test": "node simple-calculator.js ; pid = $! ; result=$(mocha --exit *.test.js)) & kill $pid"
-  },
-  "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
-  "license": "EPL-2.0 OR W3C-20150513",
-  "dependencies": {
-    "body-parser": "^1.20.2",
-    "cbor": "^9.0.1",
-    "dotenv": "^16.3.1",
-    "eventsource": "^2.0.2",
-    "express": "^4.18.2",
-    "json-placeholder-replacer": "^1.0.35",
-    "winston": "^3.14.2",
-    "winston-loki": "^6.1.2"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.17"
-  }
+    "name": "http-calculator",
+    "version": "1.0.0",
+    "description": "HTTP Calculator",
+    "main": "index.js",
+    "keywords": [
+        "wot",
+        "thing",
+        "iot",
+        "http"
+    ],
+    "scripts": {
+        "test": "node simple-calculator.js ; pid = $! ; result=$(mocha --exit *.test.js)) & kill $pid",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write \"**/*.js\" \"test/**/*.js\" \"client-tests/**/*.js\" \"**/*.json\""
+    },
+    "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+    "license": "EPL-2.0 OR W3C-20150513",
+    "dependencies": {
+        "body-parser": "^1.20.2",
+        "cbor": "^9.0.1",
+        "dotenv": "^16.3.1",
+        "eventsource": "^2.0.2",
+        "express": "^4.18.2",
+        "json-placeholder-replacer": "^1.0.35",
+        "winston": "^3.14.2",
+        "winston-loki": "^6.1.2"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.17"
+    }
 }

@@ -8,5 +8,5 @@
         "sourceMap": false,
         "esModuleInterop": true,
         "removeComments": false
-    },
-} 
+    }
+}
