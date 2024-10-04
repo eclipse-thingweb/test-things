@@ -9,7 +9,7 @@ datasources:
     url: http://prometheus:${PROMETHEUS_PORT}
     isDefault: true
   - name: loki-datasource
-    uid: cdxkxyq1xjmyoc # THIS IS IMPORTANT ON THE DASHBOARD MUST BE THE SAME               
+    uid: cdxkxyq1xjmyoc # THIS IS IMPORTANT ON THE DASHBOARD MUST BE THE SAME
     orgId: 1
     type: loki
     access: proxy

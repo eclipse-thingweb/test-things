@@ -132,15 +132,15 @@ services:
     networks:
       - things_network
     depends_on:
-    - coap-calculator-simple
-    - coap-calculator-content-negotiation
-    - http-express-calculator-simple
-    - http-express-calculator-content-negotiation
-    - http-flask-calculator
-    - mqtt-calculator
-    - modbus-elevator
-    - http-advanced-coffee-machine
-    - http-data-schema-thing
+      - coap-calculator-simple
+      - coap-calculator-content-negotiation
+      - http-express-calculator-simple
+      - http-express-calculator-content-negotiation
+      - http-flask-calculator
+      - mqtt-calculator
+      - modbus-elevator
+      - http-advanced-coffee-machine
+      - http-data-schema-thing
   portainer:
     image: portainer/portainer-ce:latest
     volumes:
@@ -152,10 +152,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.08'
+          cpus: "0.08"
           memory: 50M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
   loki:
     image: grafana/loki:2.9.2
@@ -182,4 +182,4 @@ volumes:
 networks:
   things_network:
     name: things_network
-    driver: 'bridge'
+    driver: "bridge"
