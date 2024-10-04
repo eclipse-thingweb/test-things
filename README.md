@@ -101,29 +101,30 @@ See the mashup's [readme](./mashups/smart-home/README.md).
 You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose-things.yml up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose-things.yml](./docker-compose-things.yml).
 
 [docker-compose-things.yml](./docker-compose-things.yml) consists of the docker configuration of the things.
-[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana, cadvisor and portainer.  
+[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana, cadvisor and portainer.
 
 After the run, as default, the devices are accessible at:
 
-| Thing Title | Access URL |
-| ----------- | ---------- |
-| http-advanced-coffee-machine | `http://localhost/http-advanced-coffee-machine` |
-| coap-calculator-simple | `coap://localhost:5683/coap-calculator-simple` |
-| coap-calculator-content-negotiation | `coap://localhost:5684/coap-calculator-content-negotiation` |
-| http-express-calculator-simple | `http://localhost/http-express-calculator-simple` |
+| Thing Title                                 | Access URL                                                     |
+| ------------------------------------------- | -------------------------------------------------------------- |
+| http-advanced-coffee-machine                | `http://localhost/http-advanced-coffee-machine`                |
+| coap-calculator-simple                      | `coap://localhost:5683/coap-calculator-simple`                 |
+| coap-calculator-content-negotiation         | `coap://localhost:5684/coap-calculator-content-negotiation`    |
+| http-express-calculator-simple              | `http://localhost/http-express-calculator-simple`              |
 | http-express-calculator-content-negotiation | `http://localhost/http-express-calculator-content-negotiation` |
-| http-flask-calculator | `http://localhost/http-flask-calculator` |
-| mqtt-calculator | `mqtt://test.mosquitto.org:1883/mqtt-calculator` |
-| modbus-elevator | `modbus+tcp://localhost:3179/1` |
-| http-data-schema-thing | `http://localhost/http-data-schema-thing` |
+| http-flask-calculator                       | `http://localhost/http-flask-calculator`                       |
+| mqtt-calculator                             | `mqtt://test.mosquitto.org:1883/mqtt-calculator`               |
+| modbus-elevator                             | `modbus+tcp://localhost:3179/1`                                |
+| http-data-schema-thing                      | `http://localhost/http-data-schema-thing`                      |
 
 To be able to access additional tools, the user must login through GitHub. For GitHub authentication to work, environment variables `OAUTH_SECRET` and, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` must be set with the configuration of GitHub OAuth application. Only whitelisted emails can access some of the services. Whitelisted emails can be set using the environment variable `WHITELISTED_EMAILS`. These services are accessible at:
 
-- Traefik dashboard ->  dashboard.localhost
+- Traefik dashboard -> dashboard.localhost
 - Prometheus -> prometheus.localhost
 - cAdvisor -> cadvisor.localhost
 
 Grafana and Portainer UIs are public access but they run their own authentication and authorization. These services are accessible at:
+
 - Grafana -> grafana.localhost
 - Portainer -> portainer.localhost
 
@@ -139,8 +140,9 @@ For Node.js-based devices, we use npm workspaces and running `npm install` at th
 
 Grafana dashboard json files are stored in [./conf/grafana/dashboards](./conf/grafana/dashboards/).
 To save your newly created dashboard locally and push it into the remote repository:
-  - Export the dashboard as JSON file using Share > Export.
-  - Save the exported JSON file to [./conf/grafana/dashboards](./conf/grafana/dashboards/).
+
+- Export the dashboard as JSON file using Share > Export.
+- Save the exported JSON file to [./conf/grafana/dashboards](./conf/grafana/dashboards/).
 
 If your dashboard uses another datasource than our default `prometheus-datasource`, new datasource also must be provisioned in [./conf/grafana/datasources](./conf/grafana/provisioning/datasources/).
 For more information check Grafana's provisioning [documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).

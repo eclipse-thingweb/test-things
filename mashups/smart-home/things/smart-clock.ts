@@ -17,19 +17,19 @@
 
 import { Servient } from "@node-wot/core";
 import { CoapServer } from "@node-wot/binding-coap";
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 // create Servient add CoAP binding with port configuration
 const servient = new Servient();
-const hostname = process.env.SMART_CLOCK_HOSTNAME ?? 'localhost';
+const hostname = process.env.SMART_CLOCK_HOSTNAME ?? "localhost";
 const port = process.env.SMART_CLOCK_PORT ?? "5686";
 servient.addServer(
-    new CoapServer({ 
+    new CoapServer({
         address: hostname,
-        port: parseInt(port) 
-    }
-));
+        port: parseInt(port),
+    })
+);
 
 let minuteCounter = 0;
 let hourCounter = 5;
@@ -54,7 +54,8 @@ async function timeCount(thing: WoT.ExposedThing) {
 servient.start().then((WoT) => {
     WoT.produce({
         title: "smart-home-smart-clock",
-        description: "a smart clock that runs 60 times faster than real time, where 1 hour happens in 1 minute.",
+        description:
+            "a smart clock that runs 60 times faster than real time, where 1 hour happens in 1 minute.",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",
         properties: {

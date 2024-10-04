@@ -10,10 +10,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -28,10 +28,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -48,17 +48,17 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     healthcheck:
-          test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
-          interval: ${HC_INTERVAL}
-          timeout: ${HC_TIMEOUT}
-          retries: ${HC_RETRIES}
-          start_period: ${HC_START_PERIOD}
+      test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
+      interval: ${HC_INTERVAL}
+      timeout: ${HC_TIMEOUT}
+      retries: ${HC_RETRIES}
+      start_period: ${HC_START_PERIOD}
     networks:
       - things_network
   http-express-calculator-content-negotiation:
@@ -72,10 +72,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-content-negotiation || exit 1
@@ -96,10 +96,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-flask-calculator || exit 1
@@ -118,10 +118,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -134,10 +134,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -152,10 +152,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -172,10 +172,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -184,21 +184,21 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
   smart-home-simple-coffee-machine:
     image: thingweb/test-things-smart-home-simple-coffee-machine
-    labels: 
+    labels:
       # TD is not exposed since it contains hostname that cannot be accessed outside the docker network
       - traefik.http.routers.smart-home-simple-coffee-machine.rule=PathRegexp(`/smart-home-simple-coffee-machine/.+`)
       - traefik.http.services.smart-home-simple-coffee-machine.loadbalancer.server.port=${WEB_PORT_OUT}
     environment:
-      # Since mashup communicates inside the Docker network use of localhost in a TD result as 
+      # Since mashup communicates inside the Docker network use of localhost in a TD result as
       # the mashup container's its own localhost. Therefore hostname given as their docker service name.
       # In production we will have a dedicated address and this issue won't be a problem.
       - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
@@ -206,10 +206,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network
@@ -219,7 +219,7 @@ services:
       - traefik.udp.routers.smart-home-smart-clock.entrypoints=smart-home-smart-clock
       - traefik.udp.services.smart-home-smart-clock.loadbalancer.server.port=${SMART_HOME_SMART_CLOCK_PORT_OUT}
     environment:
-      # Since mashup communicates inside the Docker network use of localhost in a TD result as 
+      # Since mashup communicates inside the Docker network use of localhost in a TD result as
       # the mashup container's its own localhost. Therefore hostname given as their docker service name.
       # In production we will have a dedicated address and this issue won't be a problem.
       - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
@@ -227,14 +227,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 200M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 50M
     networks:
       - things_network
-  smart-home-mashup: 
+  smart-home-mashup:
     image: thingweb/test-things-smart-home-main
     environment:
       - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
@@ -249,10 +249,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
         reservations:
-          cpus: '0.01'
+          cpus: "0.01"
           memory: 25M
     networks:
       - things_network

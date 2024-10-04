@@ -1,19 +1,19 @@
 {
     "annotations": {
-      "list": [
-        {
-          "builtIn": 1,
-          "datasource": {
-            "type": "grafana",
-            "uid": "-- Grafana --"
-          },
-          "enable": true,
-          "hide": true,
-          "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "type": "dashboard"
-        }
-      ]
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
     },
     "editable": true,
     "fiscalYearStartMonth": 0,
@@ -21,634 +21,620 @@
     "id": 10,
     "links": [],
     "panels": [
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "fieldMinMax": false,
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            },
-            "unit": "none"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 4,
-          "w": 4,
-          "x": 0,
-          "y": 0
-        },
-        "id": 1,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "percentChangeColorMode": "standard",
-          "reduceOptions": {
-            "calcs": [
-              "last"
-            ],
-            "fields": "/.*/",
-            "limit": 5,
-            "values": false
-          },
-          "showPercentChange": false,
-          "text": {},
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
+        {
             "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
             },
-            "direction": "forward",
-            "editorMode": "code",
-            "expr": "{affordance=\"property\", affordanceName=\"result\",thing=\"mqtt-calculator\", messageType=\"updateProperty\"}",
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "property \"result\"",
-        "transformations": [
-          {
-            "id": "extractFields",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "fieldMinMax": false,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
             "options": {
-              "format": "json",
-              "jsonPaths": [
-                {
-                  "alias": "result",
-                  "path": "message"
-                }
-              ],
-              "keepTime": true,
-              "replace": true,
-              "source": "Line"
-            }
-          },
-          {
-            "id": "convertFieldType",
-            "options": {
-              "conversions": [
-                {
-                  "destinationType": "number",
-                  "targetField": "result"
-                }
-              ],
-              "fields": {}
-            }
-          }
-        ],
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": ["last"],
+                    "fields": "/.*/",
+                    "limit": 5,
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {},
+                "textMode": "auto",
+                "wideLayout": true
             },
-            "fieldMinMax": false,
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
+            "pluginVersion": "11.2.0",
+            "targets": [
                 {
-                  "color": "green",
-                  "value": null
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "direction": "forward",
+                    "editorMode": "code",
+                    "expr": "{affordance=\"property\", affordanceName=\"result\",thing=\"mqtt-calculator\", messageType=\"updateProperty\"}",
+                    "queryType": "range",
+                    "refId": "A"
                 }
-              ]
-            },
-            "unit": "none"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 4,
-          "w": 4,
-          "x": 4,
-          "y": 0
-        },
-        "id": 2,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "auto",
-          "orientation": "auto",
-          "percentChangeColorMode": "standard",
-          "reduceOptions": {
-            "calcs": [
-              "last"
             ],
-            "fields": "/.*/",
-            "limit": 5,
-            "values": false
-          },
-          "showPercentChange": false,
-          "text": {},
-          "textMode": "auto",
-          "wideLayout": true
-        },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
-            },
-            "direction": "forward",
-            "editorMode": "code",
-            "expr": "{affordance=\"property\",affordanceName=\"lastChange\",thing=\"mqtt-calculator\", messageType=\"updateProperty\"}",
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "property \"lastChange\"",
-        "transformations": [
-          {
-            "id": "extractFields",
-            "options": {
-              "format": "json",
-              "jsonPaths": [
+            "title": "property \"result\"",
+            "transformations": [
                 {
-                  "alias": "lastChange",
-                  "path": "message"
-                }
-              ],
-              "keepTime": true,
-              "replace": true,
-              "source": "Line"
-            }
-          },
-          {
-            "id": "convertFieldType",
-            "options": {
-              "conversions": [
-                {
-                  "destinationType": "string",
-                  "targetField": "lastChange"
-                }
-              ],
-              "fields": {}
-            }
-          }
-        ],
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 4,
-          "w": 4,
-          "x": 8,
-          "y": 0
-        },
-        "id": 3,
-        "options": {
-          "colorMode": "value",
-          "graphMode": "none",
-          "justifyMode": "auto",
-          "orientation": "horizontal",
-          "percentChangeColorMode": "standard",
-          "reduceOptions": {
-            "calcs": [
-              "sum"
-            ],
-            "fields": "",
-            "values": false
-          },
-          "showPercentChange": false,
-          "textMode": "value_and_name",
-          "wideLayout": true
-        },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
-            },
-            "editorMode": "code",
-            "expr": "count_over_time({affordance=\"action\", thing=\"mqtt-calculator\", op=\"invokeaction\", messageType=\"\"}[$__auto])",
-            "legendFormat": "{{affordanceName}}",
-            "queryType": "range",
-            "refId": "A",
-            "step": ""
-          }
-        ],
-        "title": "Action Invocation Count",
-        "type": "stat"
-      },
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
+                    "id": "extractFields",
+                    "options": {
+                        "format": "json",
+                        "jsonPaths": [
+                            {
+                                "alias": "result",
+                                "path": "message"
+                            }
+                        ],
+                        "keepTime": true,
+                        "replace": true,
+                        "source": "Line"
+                    }
                 },
                 {
-                  "color": "red",
-                  "value": 80
+                    "id": "convertFieldType",
+                    "options": {
+                        "conversions": [
+                            {
+                                "destinationType": "number",
+                                "targetField": "result"
+                            }
+                        ],
+                        "fields": {}
+                    }
                 }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 4
-        },
-        "id": 4,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
             ],
-            "show": false
-          },
-          "frameIndex": 0,
-          "showHeader": true
+            "type": "stat"
         },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
+        {
             "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
             },
-            "direction": "backward",
-            "editorMode": "code",
-            "expr": "{affordance=\"action\",affordanceName=\"add\",messageType=\"actionInput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "action \"add\" Inputs",
-        "transformations": [
-          {
-            "id": "extractFields",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "fieldMinMax": false,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 0
+            },
+            "id": 2,
             "options": {
-              "format": "json",
-              "jsonPaths": [
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": ["last"],
+                    "fields": "/.*/",
+                    "limit": 5,
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {},
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.2.0",
+            "targets": [
                 {
-                  "alias": "Value",
-                  "path": "message"
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "direction": "forward",
+                    "editorMode": "code",
+                    "expr": "{affordance=\"property\",affordanceName=\"lastChange\",thing=\"mqtt-calculator\", messageType=\"updateProperty\"}",
+                    "queryType": "range",
+                    "refId": "A"
                 }
-              ],
-              "keepTime": true,
-              "replace": true,
-              "source": "Line"
-            }
-          }
-        ],
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
+            ],
+            "title": "property \"lastChange\"",
+            "transformations": [
                 {
-                  "color": "green",
-                  "value": null
+                    "id": "extractFields",
+                    "options": {
+                        "format": "json",
+                        "jsonPaths": [
+                            {
+                                "alias": "lastChange",
+                                "path": "message"
+                            }
+                        ],
+                        "keepTime": true,
+                        "replace": true,
+                        "source": "Line"
+                    }
                 },
                 {
-                  "color": "red",
-                  "value": 80
+                    "id": "convertFieldType",
+                    "options": {
+                        "conversions": [
+                            {
+                                "destinationType": "string",
+                                "targetField": "lastChange"
+                            }
+                        ],
+                        "fields": {}
+                    }
                 }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 6,
-          "y": 4
-        },
-        "id": 5,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
             ],
-            "show": false
-          },
-          "frameIndex": 0,
-          "showHeader": true
+            "type": "stat"
         },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
+        {
             "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
             },
-            "direction": "backward",
-            "editorMode": "code",
-            "expr": "{affordance=\"action\",affordanceName=\"add\",messageType=\"actionOutput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "action \"add\" Outputs",
-        "transformations": [
-          {
-            "id": "extractFields",
-            "options": {
-              "format": "json",
-              "jsonPaths": [
-                {
-                  "alias": "Value",
-                  "path": "message"
-                }
-              ],
-              "keepTime": true,
-              "replace": true,
-              "source": "Line"
-            }
-          }
-        ],
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
                 },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 0,
-          "y": 12
-        },
-        "id": 6,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
-          },
-          "frameIndex": 0,
-          "showHeader": true
-        },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
+                "overrides": []
             },
-            "direction": "backward",
-            "editorMode": "code",
-            "expr": "{affordance=\"action\",affordanceName=\"subtract\",messageType=\"actionInput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "action \"subtract\" Inputs",
-        "transformations": [
-          {
-            "id": "extractFields",
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 0
+            },
+            "id": 3,
             "options": {
-              "format": "json",
-              "jsonPaths": [
-                {
-                  "alias": "Value",
-                  "path": "message"
-                }
-              ],
-              "keepTime": true,
-              "replace": true,
-              "source": "Line"
-            }
-          }
-        ],
-        "type": "table"
-      },
-      {
-        "datasource": {
-          "default": false,
-          "type": "loki",
-          "uid": "cdxkxyq1xjmyoc"
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "custom": {
-              "align": "auto",
-              "cellOptions": {
-                "type": "auto"
-              },
-              "inspect": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": ["sum"],
+                    "fields": "",
+                    "values": false
                 },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 8,
-          "w": 6,
-          "x": 6,
-          "y": 12
-        },
-        "id": 7,
-        "options": {
-          "cellHeight": "sm",
-          "footer": {
-            "countRows": false,
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
-          },
-          "frameIndex": 0,
-          "showHeader": true
-        },
-        "pluginVersion": "11.2.0",
-        "targets": [
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "cdxkxyq1xjmyoc"
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
             },
-            "direction": "backward",
-            "editorMode": "code",
-            "expr": "{affordance=\"action\",affordanceName=\"subtract\",messageType=\"actionOutput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
-            "queryType": "range",
-            "refId": "A"
-          }
-        ],
-        "title": "action \"subtract\" Outputs",
-        "transformations": [
-          {
-            "id": "extractFields",
-            "options": {
-              "format": "json",
-              "jsonPaths": [
+            "pluginVersion": "11.2.0",
+            "targets": [
                 {
-                  "alias": "Value",
-                  "path": "message"
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "editorMode": "code",
+                    "expr": "count_over_time({affordance=\"action\", thing=\"mqtt-calculator\", op=\"invokeaction\", messageType=\"\"}[$__auto])",
+                    "legendFormat": "{{affordanceName}}",
+                    "queryType": "range",
+                    "refId": "A",
+                    "step": ""
                 }
-              ],
-              "keepTime": true,
-              "replace": true,
-              "source": "Line"
-            }
-          }
-        ],
-        "type": "table"
-      }
+            ],
+            "title": "Action Invocation Count",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 4
+            },
+            "id": 4,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": ["sum"],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true
+            },
+            "pluginVersion": "11.2.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "{affordance=\"action\",affordanceName=\"add\",messageType=\"actionInput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "action \"add\" Inputs",
+            "transformations": [
+                {
+                    "id": "extractFields",
+                    "options": {
+                        "format": "json",
+                        "jsonPaths": [
+                            {
+                                "alias": "Value",
+                                "path": "message"
+                            }
+                        ],
+                        "keepTime": true,
+                        "replace": true,
+                        "source": "Line"
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 6,
+                "y": 4
+            },
+            "id": 5,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": ["sum"],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true
+            },
+            "pluginVersion": "11.2.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "{affordance=\"action\",affordanceName=\"add\",messageType=\"actionOutput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "action \"add\" Outputs",
+            "transformations": [
+                {
+                    "id": "extractFields",
+                    "options": {
+                        "format": "json",
+                        "jsonPaths": [
+                            {
+                                "alias": "Value",
+                                "path": "message"
+                            }
+                        ],
+                        "keepTime": true,
+                        "replace": true,
+                        "source": "Line"
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 12
+            },
+            "id": 6,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": ["sum"],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true
+            },
+            "pluginVersion": "11.2.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "{affordance=\"action\",affordanceName=\"subtract\",messageType=\"actionInput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "action \"subtract\" Inputs",
+            "transformations": [
+                {
+                    "id": "extractFields",
+                    "options": {
+                        "format": "json",
+                        "jsonPaths": [
+                            {
+                                "alias": "Value",
+                                "path": "message"
+                            }
+                        ],
+                        "keepTime": true,
+                        "replace": true,
+                        "source": "Line"
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "default": false,
+                "type": "loki",
+                "uid": "cdxkxyq1xjmyoc"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 6,
+                "y": 12
+            },
+            "id": 7,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": ["sum"],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true
+            },
+            "pluginVersion": "11.2.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "cdxkxyq1xjmyoc"
+                    },
+                    "direction": "backward",
+                    "editorMode": "code",
+                    "expr": "{affordance=\"action\",affordanceName=\"subtract\",messageType=\"actionOutput\",op=\"invokeaction\",thing=\"mqtt-calculator\"}",
+                    "queryType": "range",
+                    "refId": "A"
+                }
+            ],
+            "title": "action \"subtract\" Outputs",
+            "transformations": [
+                {
+                    "id": "extractFields",
+                    "options": {
+                        "format": "json",
+                        "jsonPaths": [
+                            {
+                                "alias": "Value",
+                                "path": "message"
+                            }
+                        ],
+                        "keepTime": true,
+                        "replace": true,
+                        "source": "Line"
+                    }
+                }
+            ],
+            "type": "table"
+        }
     ],
     "refresh": "10s",
     "schemaVersion": 39,
     "tags": [],
     "templating": {
-      "list": []
+        "list": []
     },
     "time": {
-      "from": "now-6h",
-      "to": "now"
+        "from": "now-6h",
+        "to": "now"
     },
     "timepicker": {},
     "timezone": "browser",
@@ -656,4 +642,4 @@
     "uid": "adyy7x2gkc6iof",
     "version": 1,
     "weekStart": ""
-  }
+}

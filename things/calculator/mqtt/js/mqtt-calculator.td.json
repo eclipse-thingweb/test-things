@@ -14,9 +14,7 @@
             "scheme": "nosec"
         }
     },
-    "security": [
-        "nosec_sc"
-    ],
+    "security": ["nosec_sc"],
     "base": "mqtt://test.mosquitto.org:1883/mqtt-calculator/",
     "properties": {
         "result": {
@@ -28,9 +26,7 @@
                 {
                     "href": "properties/result",
                     "contentType": "application/json",
-                    "op": [
-                        "readproperty"
-                    ]
+                    "op": ["readproperty"]
                 }
             ]
         },
@@ -44,9 +40,7 @@
                 {
                     "href": "properties/lastChange",
                     "contentType": "application/json",
-                    "op": [
-                        "readproperty"
-                    ]
+                    "op": ["readproperty"]
                 }
             ]
         }
@@ -65,9 +59,7 @@
                 {
                     "href": "actions/add",
                     "contentType": "application/json",
-                    "op": [
-                        "invokeaction"
-                    ]
+                    "op": ["invokeaction"]
                 }
             ]
         },
@@ -84,9 +76,7 @@
                 {
                     "href": "actions/subtract",
                     "contentType": "application/json",
-                    "op": [
-                        "invokeaction"
-                    ]
+                    "op": ["invokeaction"]
                 }
             ]
         }
@@ -100,10 +90,7 @@
                 {
                     "href": "events/update",
                     "contentType": "application/json",
-                    "op": [
-                        "subscribeevent",
-                        "unsubscribeevent"
-                    ]
+                    "op": ["subscribeevent", "unsubscribeevent"]
                 }
             ]
         }
