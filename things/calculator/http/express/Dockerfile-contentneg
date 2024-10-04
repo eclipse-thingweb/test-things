@@ -6,11 +6,6 @@ COPY ./http/express .
 
 RUN npm install
 
-# To be able to expose the given port we use port argument, if exposing the port is not necessary we can simply remove them in the future.
-ARG PORT_ARG=3001
-ENV PORT=${PORT_ARG}
 ENV TM_PATH="./calculator.tm.json"
 
 CMD ["node", "http-content-negotiation-calculator.js"]
-
-EXPOSE ${PORT}
