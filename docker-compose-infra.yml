@@ -4,7 +4,7 @@ services:
     image: traefik:v3.0
     labels:
       - traefik.enable=true
-      - traefik.http.routers.mydashboard.rule=Host(`traefik.${HOSTNAME}`)
+      - traefik.http.routers.mydashboard.rule=Host(`traefik.${STACK_HOSTNAME}`)
       - traefik.http.routers.mydashboard.service=api@internal
       - traefik.http.routers.mydashboard.middlewares=test-things-auth
     command:
@@ -37,6 +37,8 @@ services:
         reservations:
           cpus: "0.05"
           memory: 50M
+    networks:
+      - things_network
   test-things-auth:
     image: thomseddon/traefik-forward-auth:2
     environment:
@@ -55,13 +57,15 @@ services:
       - "traefik.http.middlewares.test-things-auth.forwardauth.address=http://test-things-auth:${FORWARD_AUTH_PORT}"
       - "traefik.http.middlewares.test-things-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
       - "traefik.http.services.test-things-auth.loadbalancer.server.port=${FORWARD_AUTH_PORT}"
+    networks:
+      - things_network
   prometheus:
     image: prom/prometheus
     volumes:
       - "prometheus_data:/prometheus"
-      - "./conf/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "${CONFIG_FILEPATH}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
     labels:
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${HOSTNAME}`)"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${STACK_HOSTNAME}`)"
       - "traefik.http.routers.prometheus.service=prometheus"
       - "traefik.http.routers.prometheus.middlewares=test-things-auth"
       - "traefik.http.services.prometheus.loadbalancer.server.port=${PROMETHEUS_PORT}"
@@ -75,19 +79,21 @@ services:
           memory: 100M
     depends_on:
       - cadvisor
+    networks:
+      - things_network
   grafana:
     image: grafana/grafana
     environment:
       - PROMETHEUS_PORT=${PROMETHEUS_PORT}
-      - GF_SERVER_DOMAIN=grafana.${HOSTNAME}
-      - GF_SERVER_ROOT_URL=http://grafana.${HOSTNAME}
+      - GF_SERVER_DOMAIN=grafana.${STACK_HOSTNAME}
+      - GF_SERVER_ROOT_URL=http://grafana.${STACK_HOSTNAME}
       - LOKI_PORT=${LOKI_PORT}
     volumes:
-      - ./conf/grafana/provisioning:/etc/grafana/provisioning
-      - ./conf/grafana/dashboards:/var/lib/grafana/dashboards
+      - ${CONFIG_FILEPATH}/grafana/provisioning:/etc/grafana/provisioning
+      - ${CONFIG_FILEPATH}/grafana/dashboards:/var/lib/grafana/dashboards
       - grafana_data:/var/lib/grafana
     labels:
-      - "traefik.http.routers.grafana.rule=Host(`grafana.${HOSTNAME}`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${STACK_HOSTNAME}`)"
       - "traefik.http.routers.grafana.service=grafana"
       - "traefik.http.services.grafana.loadbalancer.server.port=${GRAFANA_PORT}"
     deploy:
@@ -100,11 +106,13 @@ services:
           memory: 50M
     depends_on:
       - prometheus
+    networks:
+      - things_network
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     labels:
-      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${HOSTNAME}`)"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${STACK_HOSTNAME}`)"
       - "traefik.http.routers.cadvisor.service=cadvisor"
       - "traefik.http.routers.cadvisor.middlewares=test-things-auth"
       - "traefik.http.services.cadvisor.loadbalancer.server.port=${CADVISOR_PORT}"
@@ -121,6 +129,8 @@ services:
         reservations:
           cpus: "0.05"
           memory: 100M
+    networks:
+      - things_network
     depends_on:
       - coap-calculator-simple
       - coap-calculator-content-negotiation
@@ -150,19 +160,26 @@ services:
   loki:
     image: grafana/loki:2.9.2
     # labels:
-    #   - "traefik.http.routers.loki.rule=Host(`loki.${HOSTNAME}`)"
+    #   - "traefik.http.routers.loki.rule=Host(`loki.${STACK_HOSTNAME}`)"
     #   - "traefik.http.routers.loki.service=loki"
     #   - "traefik.http.services.loki.loadbalancer.server.port=${LOKI_PORT}"
     ports:
       - "3100:3100"
     volumes:
-      - ./conf/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - ${CONFIG_FILEPATH}/loki/loki-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - things_network
   promtail:
     image: grafana/promtail:2.9.2
     volumes:
       - /var/log:/var/log
-      - ./conf/promtail/promtail-config.yaml:/etc/promtail/config.yaml
+      - ${CONFIG_FILEPATH}/promtail/promtail-config.yaml:/etc/promtail/config.yaml
+    networks:
+      - things_network
 volumes:
   prometheus_data:
   grafana_data:
-  portainer_data:
+networks:
+  things_network:
+    name: things_network
+    driver: "bridge"
