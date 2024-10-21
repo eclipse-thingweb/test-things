@@ -98,10 +98,17 @@ See the mashup's [readme](./mashups/smart-home/README.md).
 
 ### Using docker-compose
 
-You can start the devices inside a container, for that running `docker-compose -f docker-compose-infra.yml -f docker-compose-things.yml up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose-things.yml](./docker-compose-things.yml).
+You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
 
-[docker-compose-things.yml](./docker-compose-things.yml) consists of the docker configuration of the things.
-[docker-compose-infra.yml](./docker-compose-infra.yml) consists of the docker configuration of additional tools such as traefik, prometheus, grafana, cadvisor and portainer.
+Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization): 
+```
+docker buildx build \
+--push \
+--platform linux/amd64, linux/arm64 \
+--tag thingweb/<IMAGE_NAME> \
+--filename <DOCKERFILE_NAME> \
+<BUILD_CONTEXT>
+```
 
 After the run, as default, the devices are accessible at:
 
@@ -117,32 +124,9 @@ After the run, as default, the devices are accessible at:
 | modbus-elevator                             | `modbus+tcp://localhost:3179/1`                                |
 | http-data-schema-thing                      | `http://localhost/http-data-schema-thing`                      |
 
-To be able to access additional tools, the user must login through GitHub. For GitHub authentication to work, environment variables `OAUTH_SECRET` and, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` must be set with the configuration of GitHub OAuth application. Only whitelisted emails can access some of the services. Whitelisted emails can be set using the environment variable `WHITELISTED_EMAILS`. These services are accessible at:
-
-- Traefik dashboard -> dashboard.localhost
-- Prometheus -> prometheus.localhost
-- cAdvisor -> cadvisor.localhost
-
-Grafana and Portainer UIs are public access but they run their own authentication and authorization. These services are accessible at:
-
-- Grafana -> grafana.localhost
-- Portainer -> portainer.localhost
-
-Hostname and ports can be changed from `.env` file in the root directory. Therefore the links for devices would change accordingly.
 
 ### Running separately
 
 For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able to copy `tm.json` into the container.
 
 For Node.js-based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
-
-### Saving Grafana Dashboards
-
-Grafana dashboard json files are stored in [./conf/grafana/dashboards](./conf/grafana/dashboards/).
-To save your newly created dashboard locally and push it into the remote repository:
-
-- Export the dashboard as JSON file using Share > Export.
-- Save the exported JSON file to [./conf/grafana/dashboards](./conf/grafana/dashboards/).
-
-If your dashboard uses another datasource than our default `prometheus-datasource`, new datasource also must be provisioned in [./conf/grafana/datasources](./conf/grafana/provisioning/datasources/).
-For more information check Grafana's provisioning [documentation](https://grafana.com/docs/grafana/latest/administration/provisioning/).
