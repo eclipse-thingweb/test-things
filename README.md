@@ -114,7 +114,7 @@ See the mashup's [readme](./mashups/smart-home/README.md).
 
 ### Using docker-compose
 
-You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
+You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or `docker-compose.yml`.
 
 Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
 
