@@ -75,7 +75,6 @@ Also see [Mashup Things](./mashups/smart-home/README.md), which are useful when 
 | modbus-elevator                             |                                                                           |
 | http-data-schema-thing                      | `http://plugfest.thingweb.io/http-data-schema-thing`                      |
 
-
 ### Advanced Coffee Machine
 
 The advanced coffee machine is a device that simulates a behavior of a coffee machine. `allAvailableResources` property consists of the remaining values for its properties `water`, `milk`, `chocolate` and `coffeeBeans`. `possibleDrinks` property holds a list of possible drinks, a user can order, such as espresso, americano, etc. After certain amount of uses of the coffee machine, `maintenanceNeeded` property becomes true and let users know the coffee machine requires a maintenance. `schedules` property stores the users' schedules to brew a coffee at the scheduled time.

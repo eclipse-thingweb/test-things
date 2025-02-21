@@ -7,9 +7,7 @@
             "scheme": "nosec"
         }
     },
-    "security": [
-        "nosec_sc"
-    ],
+    "security": ["nosec_sc"],
     "events": {
         "presenceDetected": {
             "title": "Presence Detected",
@@ -25,10 +23,7 @@
                     "href": "mqtt://test.mosquitto.org/smart-home-presence-sensor/events/presenceDetected",
                     "contentType": "application/json",
                     "mqv:qos": "2",
-                    "op": [
-                        "subscribeevent",
-                        "unsubscribeevent"
-                    ]
+                    "op": ["subscribeevent", "unsubscribeevent"]
                 }
             ]
         }

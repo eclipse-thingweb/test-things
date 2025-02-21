@@ -7,9 +7,7 @@
             "scheme": "nosec"
         }
     },
-    "security": [
-        "nosec_sc"
-    ],
+    "security": ["nosec_sc"],
     "properties": {
         "time": {
             "readOnly": true,
@@ -31,32 +29,22 @@
                 {
                     "href": "coap://192.168.178.31:5686/smart-home-smart-clock/properties/time",
                     "contentType": "application/json",
-                    "op": [
-                        "observeproperty",
-                        "unobserveproperty"
-                    ]
+                    "op": ["observeproperty", "unobserveproperty"]
                 },
                 {
                     "href": "coap://192.168.178.31:5686/smart-home-smart-clock/properties/time",
                     "contentType": "application/json",
-                    "op": [
-                        "readproperty"
-                    ]
+                    "op": ["readproperty"]
                 },
                 {
                     "href": "coap://192.168.178.31:5686/smart-home-smart-clock/properties/time",
                     "contentType": "application/cbor",
-                    "op": [
-                        "observeproperty",
-                        "unobserveproperty"
-                    ]
+                    "op": ["observeproperty", "unobserveproperty"]
                 },
                 {
                     "href": "coap://192.168.178.31:5686/smart-home-smart-clock/properties/time",
                     "contentType": "application/cbor",
-                    "op": [
-                        "readproperty"
-                    ]
+                    "op": ["readproperty"]
                 }
             ],
             "writeOnly": false
@@ -69,18 +57,12 @@
         {
             "href": "coap://192.168.178.31:5686/smart-home-smart-clock/properties",
             "contentType": "application/json",
-            "op": [
-                "readmultipleproperties",
-                "readallproperties"
-            ]
+            "op": ["readmultipleproperties", "readallproperties"]
         },
         {
             "href": "coap://192.168.178.31:5686/smart-home-smart-clock/properties",
             "contentType": "application/cbor",
-            "op": [
-                "readmultipleproperties",
-                "readallproperties"
-            ]
+            "op": ["readmultipleproperties", "readallproperties"]
         }
     ]
 }

@@ -7,9 +7,7 @@
             "scheme": "nosec"
         }
     },
-    "security": [
-        "nosec"
-    ],
+    "security": ["nosec"],
     "properties": {
         "resources": {
             "readOnly": true,
@@ -36,35 +34,25 @@
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/properties/resources",
                     "contentType": "application/json",
-                    "op": [
-                        "readproperty"
-                    ],
+                    "op": ["readproperty"],
                     "htv:methodName": "GET"
                 },
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/properties/resources/observable",
                     "contentType": "application/json",
-                    "op": [
-                        "observeproperty",
-                        "unobserveproperty"
-                    ],
+                    "op": ["observeproperty", "unobserveproperty"],
                     "subprotocol": "longpoll"
                 },
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/properties/resources",
                     "contentType": "application/cbor",
-                    "op": [
-                        "readproperty"
-                    ],
+                    "op": ["readproperty"],
                     "htv:methodName": "GET"
                 },
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/properties/resources/observable",
                     "contentType": "application/cbor",
-                    "op": [
-                        "observeproperty",
-                        "unobserveproperty"
-                    ],
+                    "op": ["observeproperty", "unobserveproperty"],
                     "subprotocol": "longpoll"
                 }
             ],
@@ -76,27 +64,19 @@
             "synchronous": true,
             "input": {
                 "type": "string",
-                "enum": [
-                    "espresso",
-                    "cappuccino",
-                    "americano"
-                ]
+                "enum": ["espresso", "cappuccino", "americano"]
             },
             "forms": [
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/actions/brew",
                     "contentType": "application/json",
-                    "op": [
-                        "invokeaction"
-                    ],
+                    "op": ["invokeaction"],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/actions/brew",
                     "contentType": "application/cbor",
-                    "op": [
-                        "invokeaction"
-                    ],
+                    "op": ["invokeaction"],
                     "htv:methodName": "POST"
                 }
             ],
@@ -109,28 +89,20 @@
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "enum": [
-                        "water",
-                        "beans",
-                        "milk"
-                    ]
+                    "enum": ["water", "beans", "milk"]
                 }
             },
             "forms": [
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/actions/refill",
                     "contentType": "application/json",
-                    "op": [
-                        "invokeaction"
-                    ],
+                    "op": ["invokeaction"],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/actions/refill",
                     "contentType": "application/cbor",
-                    "op": [
-                        "invokeaction"
-                    ],
+                    "op": ["invokeaction"],
                     "htv:methodName": "POST"
                 }
             ],
@@ -144,11 +116,7 @@
                 "type": "array",
                 "items": {
                     "type": "string",
-                    "enum": [
-                        "water",
-                        "beans",
-                        "milk"
-                    ]
+                    "enum": ["water", "beans", "milk"]
                 }
             },
             "forms": [
@@ -156,19 +124,13 @@
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/events/resourceEmpty",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": [
-                        "subscribeevent",
-                        "unsubscribeevent"
-                    ]
+                    "op": ["subscribeevent", "unsubscribeevent"]
                 },
                 {
                     "href": "http://localhost:8082/smart-home-simple-coffee-machine/events/resourceEmpty",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": [
-                        "subscribeevent",
-                        "unsubscribeevent"
-                    ]
+                    "op": ["subscribeevent", "unsubscribeevent"]
                 }
             ]
         }
@@ -180,18 +142,12 @@
         {
             "href": "http://localhost:8082/smart-home-simple-coffee-machine/properties",
             "contentType": "application/json",
-            "op": [
-                "readallproperties",
-                "readmultipleproperties"
-            ]
+            "op": ["readallproperties", "readmultipleproperties"]
         },
         {
             "href": "http://localhost:8082/smart-home-simple-coffee-machine/properties",
             "contentType": "application/cbor",
-            "op": [
-                "readallproperties",
-                "readmultipleproperties"
-            ]
+            "op": ["readallproperties", "readmultipleproperties"]
         }
     ]
 }
