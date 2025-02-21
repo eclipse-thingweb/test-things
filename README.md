@@ -59,6 +59,22 @@ If you are going to add a completely new Thing:
 
 ## Current Devices
 
+The table below contains the public base URIs of the Things used for protocol testing.
+For HTTP and CoAP Things, the base URL also contains the TD.
+Also see [Mashup Things](./mashups/smart-home/README.md), which are useful when combined together and are not necessarily developed for protocol testing.
+
+| Thing Title                                 | Base URI                                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------- |
+| http-advanced-coffee-machine                | `http://plugfest.thingweb.io/http-advanced-coffee-machine`                |
+| coap-calculator-simple                      |                                                                           |
+| coap-calculator-content-negotiation         |                                                                           |
+| http-express-calculator-simple              | `http://plugfest.thingweb.io/http-express-calculator-simple`              |
+| http-express-calculator-content-negotiation | `http://plugfest.thingweb.io/http-express-calculator-content-negotiation` |
+| http-flask-calculator                       | `http://plugfest.thingweb.io/http-flask-calculator`                       |
+| mqtt-calculator                             |                                                                           |
+| modbus-elevator                             |                                                                           |
+| http-data-schema-thing                      | `http://plugfest.thingweb.io/http-data-schema-thing`                      |
+
 ### Advanced Coffee Machine
 
 The advanced coffee machine is a device that simulates a behavior of a coffee machine. `allAvailableResources` property consists of the remaining values for its properties `water`, `milk`, `chocolate` and `coffeeBeans`. `possibleDrinks` property holds a list of possible drinks, a user can order, such as espresso, americano, etc. After certain amount of uses of the coffee machine, `maintenanceNeeded` property becomes true and let users know the coffee machine requires a maintenance. `schedules` property stores the users' schedules to brew a coffee at the scheduled time.
@@ -100,7 +116,8 @@ See the mashup's [readme](./mashups/smart-home/README.md).
 
 You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
 
-Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization): 
+Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
+
 ```
 docker buildx build \
 --push \
@@ -112,7 +129,7 @@ docker buildx build \
 
 After the run, as default, the devices are accessible at:
 
-| Thing Title                                 | Access URL                                                     |
+| Thing Title                                 | Local Access URL                                               |
 | ------------------------------------------- | -------------------------------------------------------------- |
 | http-advanced-coffee-machine                | `http://localhost/http-advanced-coffee-machine`                |
 | coap-calculator-simple                      | `coap://localhost:5683/coap-calculator-simple`                 |
@@ -123,7 +140,6 @@ After the run, as default, the devices are accessible at:
 | mqtt-calculator                             | `mqtt://test.mosquitto.org:1883/mqtt-calculator`               |
 | modbus-elevator                             | `modbus+tcp://localhost:3179/1`                                |
 | http-data-schema-thing                      | `http://localhost/http-data-schema-thing`                      |
-
 
 ### Running separately
 
