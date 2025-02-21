@@ -59,7 +59,9 @@ If you are going to add a completely new Thing:
 
 ## Current Devices
 
-The table below contains the public base URIs of the Things. For HTTP and CoAP Things, the base URL also contains the TD.
+The table below contains the public base URIs of the Things used for protocol testing.
+For HTTP and CoAP Things, the base URL also contains the TD.
+Also see [Mashup Things](./mashups/smart-home/README.md), which are useful when combined together and are not necessarily developed for protocol testing.
 
 | Thing Title                                 | Base URI                                                                  |
 | ------------------------------------------- | ------------------------------------------------------------------------- |
@@ -72,6 +74,7 @@ The table below contains the public base URIs of the Things. For HTTP and CoAP T
 | mqtt-calculator                             |                                                                           |
 | modbus-elevator                             |                                                                           |
 | http-data-schema-thing                      | `http://plugfest.thingweb.io/http-data-schema-thing`                      |
+
 
 ### Advanced Coffee Machine
 
