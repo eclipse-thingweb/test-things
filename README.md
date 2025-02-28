@@ -118,7 +118,7 @@ You can either start all the devices at [the same time](#using-docker-compose) o
 
 1. Clone the [infrastructure](https://github.com/eclipse-thingweb/infrastructure) repository
 2. Start the infrastructure services via `docker-compose up -f docker-compose-services.yml`
-3. Start the Things via  `docker-compose up -f docker-compose-things.yml`
+3. Start the Things via `docker-compose up -f docker-compose-things.yml`
 
 After the run, as default, the devices are accessible at:
 
@@ -136,7 +136,7 @@ After the run, as default, the devices are accessible at:
 
 For custom configuration, take a look at the `Dockerfile` of each device or `docker-compose-things.yml`.
 
-Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization): 
+Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
 
 ```
 docker buildx build \
