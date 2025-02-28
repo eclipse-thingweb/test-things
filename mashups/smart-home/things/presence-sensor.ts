@@ -18,9 +18,11 @@
 
 import { Servient } from "@node-wot/core";
 import { MqttBrokerServer } from "@node-wot/binding-mqtt";
+import * as fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
 
+const thingName = "smart-home-presence-sensor";
 // create Servient add MQTT binding with port configuration
 const servient = new Servient();
 const brokerUri =
@@ -29,7 +31,7 @@ servient.addServer(new MqttBrokerServer({ uri: brokerUri }));
 
 servient.start().then((WoT) => {
     WoT.produce({
-        title: "smart-home-presence-sensor",
+        title: thingName,
         description: "Thing that can detect presence of human nearby",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",
@@ -53,7 +55,12 @@ servient.start().then((WoT) => {
             // expose the thing
             thing.expose().then(() => {
                 console.info(thing.getThingDescription().title + " ready");
-
+                fs.writeFile(
+                    `${thingName}.td.json`,
+                    JSON.stringify(thing.getThingDescription(), null, 4),
+                    "utf-8",
+                    function () {}
+                );
                 // mocking the detection with an event sent every 5 seconds, with a random distance
                 setInterval(() => {
                     const distance: number = Math.random() * (1200 - 55) + 55;

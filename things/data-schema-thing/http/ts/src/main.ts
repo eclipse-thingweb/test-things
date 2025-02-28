@@ -521,6 +521,12 @@ servient.start().then((WoT) => {
             thing.expose().then(async () => {
                 console.info(thing.getThingDescription().title + " ready");
                 console.log("ThingIsReady");
+                fs.writeFile(
+                    `${thingName}.td.json`,
+                    JSON.stringify(thing.getThingDescription(), null, 4),
+                    "utf-8",
+                    function () {}
+                );
             });
         })
         .catch((e: Error) => {

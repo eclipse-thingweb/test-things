@@ -18,9 +18,11 @@
 
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
+import * as fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
 
+const thingName = "smart-home-simple-coffee-machine";
 // create Servient add HTTP binding with port configuration
 const servient = new Servient();
 const hostname = process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME ?? "localhost";
@@ -43,7 +45,7 @@ function timeout(ms: number) {
 
 servient.start().then((WoT) => {
     WoT.produce({
-        title: "smart-home-simple-coffee-machine",
+        title: thingName,
         description:
             "A simple coffee machine that can be interacted over the Internet",
         support: "https://github.com/eclipse-thingweb/node-wot/",
@@ -213,6 +215,12 @@ servient.start().then((WoT) => {
                 console.info(thing.getThingDescription().title + " ready");
                 console.info(
                     "TD available at http://" + hostname + ":" + httpPort
+                );
+                fs.writeFile(
+                    `${thingName}.td.json`,
+                    JSON.stringify(thing.getThingDescription(), null, 4),
+                    "utf-8",
+                    function () {}
                 );
             });
         })
