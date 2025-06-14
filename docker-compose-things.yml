@@ -256,6 +256,63 @@ services:
           memory: 25M
     networks:
       - things_network
+  thing-monitor:
+    image: thingweb/test-things-thing-monitor
+    environment:
+      - PORT=3000
+      - LOKI_HOSTNAME=${LOKI_HOSTNAME}
+      - LOKI_PORT=${LOKI_PORT}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
+      - THINGS_TO_MONITOR=http-express-calculator-simple,http,${STACK_HOSTNAME},${WEB_PORT_OUT},/http-express-calculator-simple;mqtt-calculator,mqtt,${BROKER_URI},1883,;modbus-elevator,modbus,${STACK_HOSTNAME},${MODBUS_ELEVATOR_PORT_OUT},
+      - HEARTBEAT_INTERVAL=30000
+      - HEARTBEAT_TIMEOUT=5000
+      - RETRY_COUNT=3
+    labels:
+      - traefik.http.routers.thing-monitor.rule=PathPrefix(`/thing-monitor`)
+      - traefik.http.services.thing-monitor.loadbalancer.server.port=3000
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 100M
+        reservations:
+          cpus: "0.05"
+          memory: 50M
+    networks:
+      - things_network
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"  # MQTT
+      - "9001:9001"  # WebSocket
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - things_network
+
+  test-monitor:
+    build:
+      context: ./monitoring/thing-monitor
+      dockerfile: Dockerfile
+    environment:
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
+    depends_on:
+      - http-express-calculator-simple
+      - mqtt-broker
+    networks:
+      - things_network
+
 networks:
   things_network:
     name: things_network

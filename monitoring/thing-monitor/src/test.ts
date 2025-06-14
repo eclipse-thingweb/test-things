@@ -1,0 +1,76 @@
+import { ThingMonitor } from './monitor';
+import { MonitorConfig } from './types';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// Test configuration
+// NOTE: The health check now verifies the Thing Description is available over HTTP.
+// Ensure your test Things have a TD available at the specified host/port.
+const testConfig: MonitorConfig = {
+    heartbeatInterval: 5000, // 5 seconds for testing
+    heartbeatTimeout: 2000,
+    retryCount: 2,
+    things: [
+        {
+            name: 'http-test-thing',
+            protocol: 'http',
+            host: 'plugfest.thingweb.io', // A public test server
+            port: 8080,
+            path: '/things/counter'
+        },
+        {
+            name: 'non-existent-thing',
+            protocol: 'http',
+            host: 'localhost',
+            port: 9999, // A port that is likely down
+            path: '/td'
+        }
+    ],
+    notifications: {
+        email: {
+            smtpHost: process.env.SMTP_HOST || '',
+            smtpPort: parseInt(process.env.SMTP_PORT || '587'),
+            smtpUser: process.env.SMTP_USER || '',
+            smtpPass: process.env.SMTP_PASS || '',
+            recipientEmail: process.env.NOTIFICATION_EMAIL || ''
+        }
+    }
+};
+
+async function runTests() {
+    console.log('Starting monitoring tests...');
+    
+    // Check if notification config is set, otherwise skip notification part of test
+    const canTestNotifications = testConfig.notifications.email.smtpHost && testConfig.notifications.email.recipientEmail;
+    if (!canTestNotifications) {
+        console.warn('SMTP environment variables not set. Email notification tests will be skipped.');
+    }
+    
+    try {
+        // Initialize monitor
+        const monitor = new ThingMonitor(testConfig);
+        
+        // Start monitoring
+        await monitor.start();
+        console.log('Monitor started successfully');
+
+        // Let it run for a while to test notifications
+        console.log('\nMonitoring for 20 seconds...');
+        await new Promise(resolve => setTimeout(resolve, 20000));
+
+        // Get final statuses
+        console.log('\nFinal statuses after 20 seconds:');
+        const finalStatuses = monitor.getThingStatuses();
+        console.log(JSON.stringify(finalStatuses, null, 2));
+
+        console.log('\nTest finished. The service will continue running. Press Ctrl+C to exit.');
+
+    } catch (error) {
+        console.error('Test failed:', error);
+        process.exit(1);
+    }
+}
+
+// Run tests
+runTests().catch(console.error);
