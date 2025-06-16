@@ -6,6 +6,17 @@
 </picture>
 </h1>
 
+![Architecture Diagram](./architecture-diagram.png)
+
+## How It Works
+
+- External applications—known as WoT Consumer Stacks—connect to the system. Traefik, which handles inbound HTTP requests, or a MQTT broker for real-time, event-based communication allow them to communicate with the internal services ("Things") in two main methods.
+- The primary application services, the "Things" (A, B, C, D) reflect several functionalities like those of a Coffee Machine or Elevator. Every service is specified by a Thing Description (TD), a standardized metadata file that explains the service's capabilities and how to interact with it.
+- **Monitoring and Observability:** The system is built up comprehensively for monitoring.
+  - Promtail collects logs from the services and sends them to Loki, a log aggregation system.
+  - Prometheus, a time-series database, stores container performance measurements that cAdvisor gathers.
+  - Grafana, a central dashboard, shows Loki's logs and Prometheus's metrics to give a whole picture of the system's condition.
+
 ## Test Things
 
 Collection of IoT device simulators that can be used for testing and exploration purposes of different protocols and other Web of Things mechanisms.
