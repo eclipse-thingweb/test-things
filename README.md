@@ -6,8 +6,6 @@
 </picture>
 </h1>
 
-![Architecture Diagram](./architecture-diagram.jpg)
-
 ## Test Things
 
 Collection of IoT device simulators that can be used for testing and exploration purposes of different protocols and other Web of Things mechanisms.
@@ -18,6 +16,8 @@ The protocols you can currently test are:
 - CoAP
 - MQTT
 - Modbus
+
+![Architecture Diagram](./architecture-diagram.jpg)
 
 ## How It Works
 
