@@ -20441,3 +20441,171 @@
 1749788967: New connection from 172.20.0.4:54832 on port 1883.
 1749788967: New client connected from 172.20.0.4:54832 as monitor-1749788967287 (p2, c1, k60).
 1749788967: Client monitor-1749788967287 disconnected.
+1750112473: mosquitto version 2.0.21 starting
+1750112473: Config loaded from /mosquitto/config/mosquitto.conf.
+1750112473: Opening ipv4 listen socket on port 1883.
+1750112473: Opening ipv6 listen socket on port 1883.
+1750112473: Opening websockets listen socket on port 9001.
+1750112473: mosquitto version 2.0.21 running
+1750112568: New connection from 172.20.0.1:60190 on port 1883.
+1750112568: New connection from 172.20.0.1:60186 on port 1883.
+1750112568: New client connected from 172.20.0.1:60190 as monitor-test-1750112568910 (p2, c1, k60).
+1750112568: New client connected from 172.20.0.1:60186 as monitor-test-1750112568887 (p2, c1, k60).
+1750112568: Client monitor-test-1750112568910 disconnected.
+1750112568: Client monitor-test-1750112568887 disconnected.
+1750112598: New connection from 172.20.0.1:56958 on port 1883.
+1750112598: New connection from 172.20.0.1:56948 on port 1883.
+1750112598: New client connected from 172.20.0.1:56958 as monitor-test-1750112598954 (p2, c1, k60).
+1750112598: New client connected from 172.20.0.1:56948 as monitor-test-1750112598950 (p2, c1, k60).
+1750112598: Client monitor-test-1750112598954 disconnected.
+1750112598: Client monitor-test-1750112598950 disconnected.
+1750112628: New connection from 172.20.0.1:55718 on port 1883.
+1750112628: New connection from 172.20.0.1:55716 on port 1883.
+1750112628: New client connected from 172.20.0.1:55718 as monitor-test-1750112628952 (p2, c1, k60).
+1750112628: New client connected from 172.20.0.1:55716 as monitor-test-1750112628951 (p2, c1, k60).
+1750112628: Client monitor-test-1750112628952 disconnected.
+1750112628: Client monitor-test-1750112628951 disconnected.
+1750112658: New connection from 172.20.0.1:60300 on port 1883.
+1750112658: New connection from 172.20.0.1:60314 on port 1883.
+1750112658: New client connected from 172.20.0.1:60300 as monitor-test-1750112658951 (p2, c1, k60).
+1750112658: New client connected from 172.20.0.1:60314 as monitor-test-1750112658952 (p2, c1, k60).
+1750112658: Client monitor-test-1750112658951 disconnected.
+1750112658: Client monitor-test-1750112658952 disconnected.
+1750112688: New connection from 172.20.0.1:61978 on port 1883.
+1750112688: New connection from 172.20.0.1:61966 on port 1883.
+1750112688: New client connected from 172.20.0.1:61978 as monitor-test-1750112688951 (p2, c1, k60).
+1750112688: New client connected from 172.20.0.1:61966 as monitor-test-1750112688953 (p2, c1, k60).
+1750112688: Client monitor-test-1750112688951 disconnected.
+1750112688: Client monitor-test-1750112688953 disconnected.
+1750112704: New connection from 172.20.0.1:60888 on port 1883.
+1750112704: New connection from 172.20.0.1:60902 on port 1883.
+1750112704: New client connected from 172.20.0.1:60888 as monitor-test-1750112704755 (p2, c1, k60).
+1750112704: New client connected from 172.20.0.1:60902 as monitor-test-1750112704788 (p2, c1, k60).
+1750112704: Client monitor-test-1750112704755 disconnected.
+1750112704: Client monitor-test-1750112704788 disconnected.
+1750112718: New connection from 172.20.0.1:63370 on port 1883.
+1750112718: New connection from 172.20.0.1:63376 on port 1883.
+1750112718: New client connected from 172.20.0.1:63370 as monitor-test-1750112718950 (p2, c1, k60).
+1750112718: New client connected from 172.20.0.1:63376 as monitor-test-1750112718951 (p2, c1, k60).
+1750112718: Client monitor-test-1750112718950 disconnected.
+1750112718: Client monitor-test-1750112718951 disconnected.
+1750112748: New connection from 172.20.0.1:55866 on port 1883.
+1750112748: New connection from 172.20.0.1:55850 on port 1883.
+1750112748: New client connected from 172.20.0.1:55850 as monitor-test-1750112748951 (p2, c1, k60).
+1750112748: New client connected from 172.20.0.1:55866 as monitor-test-1750112748953 (p2, c1, k60).
+1750112748: Client monitor-test-1750112748951 disconnected.
+1750112748: Client monitor-test-1750112748953 disconnected.
+1750112778: New connection from 172.20.0.1:60426 on port 1883.
+1750112778: New connection from 172.20.0.1:60442 on port 1883.
+1750112778: New client connected from 172.20.0.1:60442 as monitor-test-1750112778972 (p2, c1, k60).
+1750112778: New client connected from 172.20.0.1:60426 as monitor-test-1750112778967 (p2, c1, k60).
+1750112778: Client monitor-test-1750112778972 disconnected.
+1750112778: Client monitor-test-1750112778967 disconnected.
+1750112808: New connection from 172.20.0.1:65478 on port 1883.
+1750112808: New connection from 172.20.0.1:65480 on port 1883.
+1750112808: New client connected from 172.20.0.1:65478 as monitor-test-1750112808965 (p2, c1, k60).
+1750112808: New client connected from 172.20.0.1:65480 as monitor-test-1750112808964 (p2, c1, k60).
+1750112808: Client monitor-test-1750112808965 disconnected.
+1750112808: Client monitor-test-1750112808964 disconnected.
+1750112838: New connection from 172.20.0.1:60146 on port 1883.
+1750112838: New connection from 172.20.0.1:60162 on port 1883.
+1750112838: New client connected from 172.20.0.1:60146 as monitor-test-1750112838961 (p2, c1, k60).
+1750112838: New client connected from 172.20.0.1:60162 as monitor-test-1750112838962 (p2, c1, k60).
+1750112838: Client monitor-test-1750112838961 disconnected.
+1750112838: Client monitor-test-1750112838962 disconnected.
+1750112868: New connection from 172.20.0.1:56228 on port 1883.
+1750112868: New connection from 172.20.0.1:56236 on port 1883.
+1750112868: New client connected from 172.20.0.1:56228 as monitor-test-1750112868962 (p2, c1, k60).
+1750112868: New client connected from 172.20.0.1:56236 as monitor-test-1750112868963 (p2, c1, k60).
+1750112868: Client monitor-test-1750112868962 disconnected.
+1750112868: Client monitor-test-1750112868963 disconnected.
+1750112898: New connection from 172.20.0.1:58892 on port 1883.
+1750112898: New connection from 172.20.0.1:58884 on port 1883.
+1750112898: New client connected from 172.20.0.1:58884 as monitor-test-1750112898968 (p2, c1, k60).
+1750112898: New client connected from 172.20.0.1:58892 as monitor-test-1750112898970 (p2, c1, k60).
+1750112898: Client monitor-test-1750112898968 disconnected.
+1750112898: Client monitor-test-1750112898970 disconnected.
+1750112928: New connection from 172.20.0.1:64144 on port 1883.
+1750112928: New connection from 172.20.0.1:64156 on port 1883.
+1750112928: New client connected from 172.20.0.1:64144 as monitor-test-1750112928967 (p2, c1, k60).
+1750112928: New client connected from 172.20.0.1:64156 as monitor-test-1750112928968 (p2, c1, k60).
+1750112928: Client monitor-test-1750112928967 disconnected.
+1750112928: Client monitor-test-1750112928968 disconnected.
+1750112932: New connection from 172.20.0.1:64164 on port 1883.
+1750112932: New connection from 172.20.0.1:64174 on port 1883.
+1750112932: New client connected from 172.20.0.1:64164 as monitor-test-1750112932616 (p2, c1, k60).
+1750112932: New client connected from 172.20.0.1:64174 as monitor-test-1750112932650 (p2, c1, k60).
+1750112932: Client monitor-test-1750112932616 disconnected.
+1750112932: Client monitor-test-1750112932650 disconnected.
+1750112958: New connection from 172.20.0.1:62538 on port 1883.
+1750112958: New connection from 172.20.0.1:62550 on port 1883.
+1750112958: New client connected from 172.20.0.1:62538 as monitor-test-1750112958967 (p2, c1, k60).
+1750112958: New client connected from 172.20.0.1:62550 as monitor-test-1750112958968 (p2, c1, k60).
+1750112958: Client monitor-test-1750112958967 disconnected.
+1750112958: Client monitor-test-1750112958968 disconnected.
+1750112962: New connection from 172.20.0.1:62554 on port 1883.
+1750112962: New connection from 172.20.0.1:62568 on port 1883.
+1750112962: New client connected from 172.20.0.1:62554 as monitor-test-1750112962685 (p2, c1, k60).
+1750112962: New client connected from 172.20.0.1:62568 as monitor-test-1750112962687 (p2, c1, k60).
+1750112962: Client monitor-test-1750112962685 disconnected.
+1750112962: Client monitor-test-1750112962687 disconnected.
+1750112988: New connection from 172.20.0.1:59926 on port 1883.
+1750112988: New connection from 172.20.0.1:59924 on port 1883.
+1750112988: New client connected from 172.20.0.1:59926 as monitor-test-1750112988967 (p2, c1, k60).
+1750112988: New client connected from 172.20.0.1:59924 as monitor-test-1750112988965 (p2, c1, k60).
+1750112988: Client monitor-test-1750112988967 disconnected.
+1750112988: Client monitor-test-1750112988965 disconnected.
+1750112992: New connection from 172.20.0.1:59954 on port 1883.
+1750112992: New connection from 172.20.0.1:59942 on port 1883.
+1750112992: New client connected from 172.20.0.1:59942 as monitor-test-1750112992686 (p2, c1, k60).
+1750112992: New client connected from 172.20.0.1:59954 as monitor-test-1750112992688 (p2, c1, k60).
+1750112992: Client monitor-test-1750112992686 disconnected.
+1750112992: Client monitor-test-1750112992688 disconnected.
+1750113018: New connection from 172.20.0.1:56938 on port 1883.
+1750113018: New connection from 172.20.0.1:56940 on port 1883.
+1750113018: New client connected from 172.20.0.1:56938 as monitor-test-1750113018964 (p2, c1, k60).
+1750113018: New client connected from 172.20.0.1:56940 as monitor-test-1750113018965 (p2, c1, k60).
+1750113018: Client monitor-test-1750113018964 disconnected.
+1750113018: Client monitor-test-1750113018965 disconnected.
+1750113022: New connection from 172.20.0.1:56944 on port 1883.
+1750113022: New connection from 172.20.0.1:56956 on port 1883.
+1750113022: New client connected from 172.20.0.1:56944 as monitor-test-1750113022681 (p2, c1, k60).
+1750113022: New client connected from 172.20.0.1:56956 as monitor-test-1750113022683 (p2, c1, k60).
+1750113022: Client monitor-test-1750113022681 disconnected.
+1750113022: Client monitor-test-1750113022683 disconnected.
+1750113052: New connection from 172.20.0.1:62570 on port 1883.
+1750113052: New connection from 172.20.0.1:62582 on port 1883.
+1750113052: New client connected from 172.20.0.1:62570 as monitor-test-1750113052682 (p2, c1, k60).
+1750113052: New client connected from 172.20.0.1:62582 as monitor-test-1750113052683 (p2, c1, k60).
+1750113052: Client monitor-test-1750113052682 disconnected.
+1750113052: Client monitor-test-1750113052683 disconnected.
+1750113082: New connection from 172.20.0.1:63574 on port 1883.
+1750113082: New connection from 172.20.0.1:63582 on port 1883.
+1750113082: New client connected from 172.20.0.1:63574 as monitor-test-1750113082682 (p2, c1, k60).
+1750113082: New client connected from 172.20.0.1:63582 as monitor-test-1750113082683 (p2, c1, k60).
+1750113082: Client monitor-test-1750113082682 disconnected.
+1750113082: Client monitor-test-1750113082683 disconnected.
+1750113112: New connection from 172.20.0.1:65174 on port 1883.
+1750113112: New connection from 172.20.0.1:65188 on port 1883.
+1750113112: New client connected from 172.20.0.1:65174 as monitor-test-1750113112684 (p2, c1, k60).
+1750113112: New client connected from 172.20.0.1:65188 as monitor-test-1750113112685 (p2, c1, k60).
+1750113112: Client monitor-test-1750113112684 disconnected.
+1750113112: Client monitor-test-1750113112685 disconnected.
+1750113142: New connection from 172.20.0.1:63614 on port 1883.
+1750113142: New connection from 172.20.0.1:63622 on port 1883.
+1750113142: New client connected from 172.20.0.1:63614 as monitor-test-1750113142686 (p2, c1, k60).
+1750113142: New client connected from 172.20.0.1:63622 as monitor-test-1750113142688 (p2, c1, k60).
+1750113142: Client monitor-test-1750113142686 disconnected.
+1750113142: Client monitor-test-1750113142688 disconnected.
+1750113172: New connection from 172.20.0.1:61442 on port 1883.
+1750113172: New connection from 172.20.0.1:61454 on port 1883.
+1750113172: New client connected from 172.20.0.1:61442 as monitor-test-1750113172686 (p2, c1, k60).
+1750113172: New client connected from 172.20.0.1:61454 as monitor-test-1750113172689 (p2, c1, k60).
+1750113172: Client monitor-test-1750113172686 disconnected.
+1750113172: Client monitor-test-1750113172689 disconnected.
+1750113202: New connection from 172.20.0.1:60200 on port 1883.
+1750113202: New connection from 172.20.0.1:60208 on port 1883.
+1750113202: New client connected from 172.20.0.1:60200 as monitor-test-1750113202687 (p2, c1, k60).
+1750113202: New client connected from 172.20.0.1:60208 as monitor-test-1750113202689 (p2, c1, k60).
+1750113202: Client monitor-test-1750113202687 disconnected.
+1750113202: Client monitor-test-1750113202689 disconnected.
