@@ -16,7 +16,6 @@ The protocols you can currently test are:
 - CoAP
 - MQTT
 - Modbus
-
 ![Architecture Diagram](./architecture-diagram.jpg)
 
 ## How It Works
