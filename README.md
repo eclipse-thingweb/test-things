@@ -20,7 +20,7 @@ The protocols you can currently test are:
 
 ## How It Works
 
-- External applications—known as WoT Consumer Stacks—connect to the system. Traefik, which handles inbound HTTP requests, or a MQTT broker for real-time, event-based communication allow them to communicate with the internal services ("Things") in two main methods.
+- External applications —known as WoT Consumer Stacks— send requests to the Things. Traefik, which handles inbound HTTP requests, or an MQTT broker allow them to communicate with the internal services ("Things") in two main methods.
 - The primary application services, the "Things" (A, B, C, D) reflect several functionalities like those of a Coffee Machine or Elevator. Every service is specified by a Thing Description (TD), a standardized metadata file that explains the service's capabilities and how to interact with it.
 - **Monitoring and Observability:** The system is built up comprehensively for monitoring.
   - Promtail collects logs from the services and sends them to Loki, a log aggregation system.
