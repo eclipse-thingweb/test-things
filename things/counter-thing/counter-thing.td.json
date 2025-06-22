@@ -2,20 +2,12 @@
   "@context": [
     "https://www.w3.org/2019/wot/td/v1",
     "https://www.w3.org/2022/wot/td/v1.1",
-    { "iot": "http://example.org/iot" }
+    {
+      "iot": "http://example.org/iot"
+    }
   ],
   "title": "Counter",
-  "titles": {
-    "en": "Counter",
-    "de": "Zähler",
-    "it": "Contatore"
-  },
   "description": "Counter example Thing",
-  "descriptions": {
-    "en": "Counter example Thing",
-    "de": "Zähler Beispiel Ding",
-    "it": "Contatore di esempio"
-  },
   "support": "https://github.com/eclipse-thingweb/node-wot/",
   "links": [
     {
@@ -35,29 +27,19 @@
   "properties": {
     "count": {
       "title": "Count",
-      "titles": {
-        "en": "Count",
-        "de": "Zähler",
-        "it": "Valore"
-      },
       "type": "integer",
       "description": "Current counter value",
-      "descriptions": {
-        "en": "Current counter value",
-        "de": "Derzeitiger Zählerwert",
-        "it": "Valore attuale del contatore"
-      },
       "iot:Custom": "example annotation",
       "observable": true,
-      "readOnly": true
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/count"
+        }
+      ]
     },
     "countAsImage": {
       "description": "Current counter value as SVG image",
-      "descriptions": {
-        "en": "Current counter value as SVG image",
-        "de": "Aktueller Zählerwert als SVG-Bild",
-        "it": "Valore attuale del contatore come immagine SVG"
-      },
       "observable": false,
       "readOnly": true,
       "uriVariables": {
@@ -67,101 +49,73 @@
       },
       "forms": [
         {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/countAsImage",
           "contentType": "image/svg+xml"
         }
       ]
     },
     "redDotImage": {
       "description": "Red dot image as PNG",
-      "descriptions": {
-        "en": "Red dot image as PNG",
-        "de": "Rotes Punktbild als PNG",
-        "it": "Immagine punto rosso come PNG"
-      },
       "observable": false,
       "readOnly": true,
       "forms": [
         {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/redDotImage",
           "contentType": "image/png;base64"
         }
       ]
     },
     "lastChange": {
       "title": "Last change",
-      "titles": {
-        "en": "Last change",
-        "de": "Letzte Zählerwertänderung",
-        "it": "Ultima modifica"
-      },
       "type": "string",
       "description": "Last change of counter value",
-      "descriptions": {
-        "en": "Last change of counter value",
-        "de": "Letzte Änderung",
-        "it": "Ultima modifica del valore"
-      },
       "observable": true,
-      "readOnly": true
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/lastChange"
+        }
+      ]
     }
   },
   "actions": {
     "increment": {
       "title": "Increment",
-      "titles": {
-        "en": "Increment",
-        "de": "Erhöhen",
-        "it": "Incrementa"
-      },
       "description": "Increment counter value",
-      "descriptions": {
-        "en": "Increment counter value",
-        "de": "Zählerwert erhöhen",
-        "it": "Incrementa il valore del contatore"
-      }
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/actions/increment"
+        }
+      ]
     },
     "decrement": {
       "title": "Decrement",
-      "titles": {
-        "en": "Decrement",
-        "de": "Verringern",
-        "it": "Decrementa"
-      },
       "description": "Decrementing counter value",
-      "descriptions": {
-        "en": "Decrementing counter value",
-        "de": "Zählerwert verringern",
-        "it": "Decrementare il valore del contatore"
-      }
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/actions/decrement"
+        }
+      ]
     },
     "reset": {
       "title": "Reset",
-      "titles": {
-        "en": "Reset",
-        "de": "Zurücksetzen",
-        "it": "Reset"
-      },
       "description": "Resetting counter value",
-      "descriptions": {
-        "en": "Resetting counter value",
-        "de": "Zählerwert zurücksetzen",
-        "it": "Resettare il valore del contatore"
-      }
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/actions/reset"
+        }
+      ]
     }
   },
   "events": {
     "change": {
       "title": "Changed",
-      "titles": {
-        "en": "Changed",
-        "de": "Geändert",
-        "it": "Valore modificato"
-      },
       "description": "Change event",
-      "descriptions": {
-        "en": "Change event",
-        "de": "Änderungsereignis",
-        "it": "Valore modificato"
-      }
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/events/change"
+        }
+      ]
     }
   }
-}
+} 

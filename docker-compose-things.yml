@@ -179,6 +179,26 @@ services:
           memory: 25M
     networks:
       - things_network
+  counter-thing:
+    image: thingweb/test-things-counter-thing
+    labels:
+      - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter-thing`)
+      - traefik.http.services.counter-thing.loadbalancer.server.port=${WEB_PORT_OUT}
+    environment:
+      - HOSTNAME=${STACK_HOSTNAME}
+      - PORT=${WEB_PORT_OUT}
+      - LOKI_HOSTNAME=${LOKI_HOSTNAME}
+      - LOKI_PORT=${LOKI_PORT}
+    deploy:
+      resources:
+        limits:
+          cpus: "0.05"
+          memory: 50M
+        reservations:
+          cpus: "0.01"
+          memory: 25M
+    networks:
+      - things_network
   smart-home-presence-sensor:
     image: thingweb/test-things-smart-home-presence-sensor
     deploy:
@@ -254,17 +274,6 @@ services:
         reservations:
           cpus: "0.01"
           memory: 25M
-    networks:
-      - things_network
-  mqtt-broker:
-    image: eclipse-mosquitto:2.0
-    ports:
-      - "1883:1883"  # MQTT
-      - "9001:9001"  # WebSocket
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
     networks:
       - things_network
 
