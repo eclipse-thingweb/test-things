@@ -16,7 +16,6 @@ The protocols you can currently test are:
 - CoAP
 - MQTT
 - Modbus
-![Architecture Diagram](./architecture-diagram.jpg)
 
 ## How It Works
 
@@ -24,8 +23,11 @@ The protocols you can currently test are:
 - The primary application services, the "Things" (A, B, C, D) reflect several functionalities like those of a Coffee Machine or Elevator. Every service is specified by a Thing Description (TD), a standardized metadata file that explains the service's capabilities and how to interact with it.
 - **Monitoring and Observability:** The system is built up comprehensively for monitoring.
   - Promtail collects logs from the services and sends them to Loki, a log aggregation system.
+  - cAdvisor analyzes and collects overall metrics from docker containers
   - Prometheus, a time-series database, stores container performance measurements that cAdvisor gathers.
   - Grafana, a central dashboard, shows Loki's logs and Prometheus's metrics to give a whole picture of the system's condition.
+
+![Architecture Diagram](./architecture-diagram.jpg)
 
 ## Dependencies
 
