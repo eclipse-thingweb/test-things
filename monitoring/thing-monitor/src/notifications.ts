@@ -40,7 +40,7 @@ export class NotificationService {
 
     async sendThingDownNotification(thing: ThingStatus): Promise<void> {
         const message = this.formatThingDownMessage(thing);
-        // A pre-built link to Grafana is often more useful.
+        // A pre-built link to Grafana, shows then user clicks on the email link 
         const grafanaUrl = `http://${process.env.GRAFANA_HOSTNAME}/explore?orgId=1&left=%7B"datasource":"Loki","queries":%5B%7B"refId":"A","expr":"{service%3D%5C"thing-monitor%5C",thing%3D%5C"${thing.name}%5C"}"%7D%5D,"range":%7B"from":"now-1h","to":"now"%7D%7D`;
 
         try {

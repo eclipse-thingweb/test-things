@@ -177,7 +177,6 @@ class SimpleThingMonitor {
         const tdPromise = this.WoT.requestThingDescription(thingUrl);
         const td = await Promise.race([tdPromise, timeoutPromise]);
         await this.WoT.consume(td);
-        // Optionally, you can read a property or invoke an action to check health
     }
 
     printStatus() {

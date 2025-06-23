@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Test configuration
-// NOTE: The health check now verifies the Thing Description is available over HTTP.
-// Ensure your test Things have a TD available at the specified host/port.
+// All this is testing is whether the email configuration works. 
+// For full testing, run the test-monitor.ts file in the project root.
 const testConfig: MonitorConfig = {
     heartbeatInterval: parseInt(process.env.TEST_HEARTBEAT_INTERVAL || '5000'), // 5 seconds for testing
     heartbeatTimeout: parseInt(process.env.TEST_HEARTBEAT_TIMEOUT || '2000'),
@@ -15,7 +15,7 @@ const testConfig: MonitorConfig = {
         {
             name: 'http-test-thing',
             protocol: 'http',
-            host: 'plugfest.thingweb.io', // A public test server
+            host: 'plugfest.thingweb.io',
             port: 8080,
             path: '/things/counter'
         },
@@ -23,7 +23,7 @@ const testConfig: MonitorConfig = {
             name: 'non-existent-thing',
             protocol: 'http',
             host: 'localhost',
-            port: 9999, // A port that is likely down
+            port: 9999,
             path: '/td'
         }
     ],

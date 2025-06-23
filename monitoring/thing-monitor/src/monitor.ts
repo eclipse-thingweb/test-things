@@ -16,7 +16,7 @@ const logger = createLogger({
     ],
 });
 
-// Add Loki transport only if hostname and port are configured
+// Starts logging with Loki
 if (process.env.LOKI_HOSTNAME && process.env.LOKI_PORT) {
     logger.add(new LokiTransport({
         host: `http://${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
@@ -106,6 +106,8 @@ export class ThingMonitor {
         }
     }
 
+    // All encompasing method to deal with all things.
+    // Uses node-wot and servient to check
     private async checkThingWithWoT(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
         if (!this.WoT) throw new Error('WoT not initialized');
         let thingUrl = '';
@@ -131,12 +133,10 @@ export class ThingMonitor {
         const tdPromise = this.WoT.requestThingDescription(thingUrl);
         const td = await Promise.race([tdPromise, timeoutPromise]);
         await this.WoT.consume(td);
-        // Optionally, you can read a property or invoke an action to check health
     }
 
     private getThingUrl(thing: ThingConfig): string {
-        // This health check assumes TDs are served over HTTP, which is standard.
-        // If your non-HTTP things expose their TD differently, you'll need to adjust this logic.
+        // Gets the thing URL
         return `http://${thing.host}:${thing.port}${thing.path || ''}`;
     }
 
