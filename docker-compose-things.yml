@@ -256,17 +256,6 @@ services:
           memory: 25M
     networks:
       - things_network
-  mqtt-broker:
-    image: eclipse-mosquitto:2.0
-    ports:
-      - "1883:1883"  # MQTT
-      - "9001:9001"  # WebSocket
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
-    networks:
-      - things_network
 
 networks:
   things_network:

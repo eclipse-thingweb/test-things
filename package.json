@@ -44,7 +44,11 @@
         "prettier": "^2.3.2"
     },
     "dependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/nodemailer": "^6.4.17",
+        "cors": "^2.8.5",
         "mqtt": "^5.13.1",
-        "node-fetch": "^2.7.0"
+        "node-fetch": "^2.7.0",
+        "nodemailer": "^7.0.3"
     }
 }

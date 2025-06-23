@@ -7,8 +7,6 @@ import { createLogger, format, transports } from 'winston';
 import LokiTransport from 'winston-loki';
 import { ThingConfig, ThingStatus, MonitorConfig } from './types';
 import { NotificationService } from './notifications';
-import fetch, { Response } from 'node-fetch';
-import mqtt from 'mqtt';
 
 const logger = createLogger({
     transports: [
@@ -32,20 +30,18 @@ if (process.env.LOKI_HOSTNAME && process.env.LOKI_PORT) {
 
 export class ThingMonitor {
     private servient: Servient;
+    private WoT: any;
     private thingStatuses: Map<string, ThingStatus> = new Map();
     private notificationService: NotificationService;
 
     constructor(private config: MonitorConfig) {
         this.servient = new Servient();
-        // Add protocol bindings to the servient
         this.servient.addClientFactory(new HttpClientFactory());
         this.servient.addClientFactory(new MqttClientFactory());
         this.servient.addClientFactory(new CoapClientFactory());
         this.servient.addClientFactory(new ModbusClientFactory());
-        
         this.notificationService = new NotificationService(config.notifications);
-
-        // Initialize status for all things
+        
         config.things.forEach(thing => {
             this.thingStatuses.set(thing.name, {
                 name: thing.name,
@@ -59,19 +55,14 @@ export class ThingMonitor {
 
     async start(): Promise<void> {
         logger.info('Starting Thing Monitor service');
-        
-        // Start the WoT servient ONCE. This is a critical change.
         try {
-            await this.servient.start();
+            this.WoT = await this.servient.start();
             logger.info('WoT Servient started successfully.');
         } catch (error) {
             logger.error('Failed to start WoT Servient:', error);
-            // If the servient fails to start, we should not proceed.
             throw error;
         }
-
-        // Start periodic checks
-        this.checkAllThings(); // Initial check
+        this.checkAllThings();
         setInterval(() => this.checkAllThings(), this.config.heartbeatInterval);
     }
 
@@ -83,28 +74,9 @@ export class ThingMonitor {
     private async checkThing(thing: ThingConfig): Promise<void> {
         const currentStatus = this.thingStatuses.get(thing.name)!;
         const wasUp = currentStatus.isUp;
-
         try {
-            switch (thing.protocol) {
-                case 'http':
-                    await this.checkHttpThing(thing, currentStatus);
-                    break;
-                case 'mqtt':
-                    await this.checkMqttThing(thing, currentStatus);
-                    break;
-                case 'coap':
-                    await this.checkCoapThing(thing, currentStatus);
-                    break;
-                case 'modbus':
-                    await this.checkModbusThing(thing, currentStatus);
-                    break;
-                default:
-                    throw new Error(`Unsupported protocol: ${thing.protocol}`);
-            }
-
-            // If we reach here, the Thing is considered UP
+            await this.checkThingWithWoT(thing, currentStatus);
             if (!wasUp) {
-                // Thing was down and is now up
                 logger.info(`${thing.name} is back up.`);
                 currentStatus.isUp = true;
                 currentStatus.lastCheck = new Date();
@@ -112,134 +84,54 @@ export class ThingMonitor {
                 currentStatus.retryCount = 0;
                 await this.notificationService.sendThingUpNotification(currentStatus);
             } else {
-                // Thing continues to be up, just update the status
                 currentStatus.isUp = true;
                 currentStatus.lastCheck = new Date();
                 currentStatus.retryCount = 0;
             }
-
         } catch (error: any) {
-            // --- If we reach here, the Thing is considered DOWN ---
             const errorMessage = error instanceof Error ? error.message : String(error);
-            
             if (wasUp || currentStatus.lastError !== errorMessage) {
-                // Thing was up and is now down, or the error has changed
-                currentStatus.retryCount = 0; // Reset retry count for a new error
+                currentStatus.retryCount = 0;
                 logger.warn(`${thing.name} has failed for the first time with a new error: ${errorMessage}`);
             }
-
             currentStatus.isUp = false;
             currentStatus.lastCheck = new Date();
             currentStatus.lastError = errorMessage;
             currentStatus.retryCount++;
-            
             const thingLogger = logger.child({ thing: thing.name });
             thingLogger.warn(`Thing is down (Attempt ${currentStatus.retryCount}/${this.config.retryCount}): ${errorMessage}`);
-
-            // Send notification on the first failure and when retry count is met
             if (currentStatus.retryCount === 1 || currentStatus.retryCount === this.config.retryCount) {
                 await this.notificationService.sendThingDownNotification(currentStatus);
             }
         }
     }
 
-    private async checkHttpThing(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
-        const thingUrl = this.getThingUrl(thing);
-        const timeoutPromise = new Promise((_, reject) => 
+    private async checkThingWithWoT(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
+        if (!this.WoT) throw new Error('WoT not initialized');
+        let thingUrl = '';
+        switch (thing.protocol) {
+            case 'http':
+                thingUrl = this.getThingUrl(thing);
+                break;
+            case 'coap':
+                thingUrl = `coap://${thing.host}:${thing.port}${thing.path || ''}`;
+                break;
+            case 'modbus':
+                thingUrl = `modbus://${thing.host}:${thing.port}`;
+                break;
+            case 'mqtt':
+                thingUrl = `mqtt://${thing.host}:${thing.port}`;
+                break;
+            default:
+                throw new Error(`Unsupported protocol: ${thing.protocol}`);
+        }
+        const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Request timed out')), this.config.heartbeatTimeout)
         );
-
-        const fetchPromise = fetch(thingUrl);
-        
-        // Race the fetch against a timeout
-        const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch Thing Description: Status ${response.status} ${response.statusText}`);
-        }
-
-        // Try to parse the response as JSON to verify it's a valid Thing Description
-        const td = await response.json();
-        if (!td || typeof td !== 'object') {
-            throw new Error('Invalid Thing Description: Response is not a valid JSON object');
-        }
-    }
-
-    private async checkMqttThing(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const client = mqtt.connect(`mqtt://${thing.host}:${thing.port}`, {
-                clientId: `monitor-${Date.now()}`,
-                clean: true,
-                connectTimeout: this.config.heartbeatTimeout,
-                rejectUnauthorized: false // For testing only, remove in production
-            });
-
-            const timeout = setTimeout(() => {
-                client.end();
-                reject(new Error('MQTT connection timed out'));
-            }, this.config.heartbeatTimeout);
-
-            client.on('connect', () => {
-                clearTimeout(timeout);
-                client.end();
-                resolve();
-            });
-
-            client.on('error', (err) => {
-                clearTimeout(timeout);
-                client.end();
-                reject(err);
-            });
-        });
-    }
-
-    private async checkCoapThing(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
-        // We'll use node-fetch to try to fetch the TD over CoAP if possible, or just check if the port is open
-        // For now, we'll do a simple UDP socket connection to the port
-        const dgram = await import('dgram');
-        return new Promise((resolve, reject) => {
-            const client = dgram.createSocket('udp4');
-            const timeout = setTimeout(() => {
-                client.close();
-                reject(new Error('CoAP connection timed out'));
-            }, this.config.heartbeatTimeout);
-            client.on('error', (err) => {
-                clearTimeout(timeout);
-                client.close();
-                reject(err);
-            });
-            client.send(Buffer.from(''), thing.port, thing.host, (err) => {
-                clearTimeout(timeout);
-                client.close();
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
-    }
-
-    private async checkModbusThing(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
-        // We'll use TCP socket to check if the Modbus port is open
-        const net = await import('net');
-        return new Promise((resolve, reject) => {
-            const client = new net.Socket();
-            const timeout = setTimeout(() => {
-                client.destroy();
-                reject(new Error('Modbus connection timed out'));
-            }, this.config.heartbeatTimeout);
-            client.connect(thing.port, thing.host, () => {
-                clearTimeout(timeout);
-                client.destroy();
-                resolve();
-            });
-            client.on('error', (err) => {
-                clearTimeout(timeout);
-                client.destroy();
-                reject(err);
-            });
-        });
+        const tdPromise = this.WoT.requestThingDescription(thingUrl);
+        const td = await Promise.race([tdPromise, timeoutPromise]);
+        await this.WoT.consume(td);
+        // Optionally, you can read a property or invoke an action to check health
     }
 
     private getThingUrl(thing: ThingConfig): string {

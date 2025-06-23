@@ -8,9 +8,9 @@ dotenv.config();
 // NOTE: The health check now verifies the Thing Description is available over HTTP.
 // Ensure your test Things have a TD available at the specified host/port.
 const testConfig: MonitorConfig = {
-    heartbeatInterval: 5000, // 5 seconds for testing
-    heartbeatTimeout: 2000,
-    retryCount: 2,
+    heartbeatInterval: parseInt(process.env.TEST_HEARTBEAT_INTERVAL || '5000'), // 5 seconds for testing
+    heartbeatTimeout: parseInt(process.env.TEST_HEARTBEAT_TIMEOUT || '2000'),
+    retryCount: parseInt(process.env.TEST_RETRY_COUNT || '2'),
     things: [
         {
             name: 'http-test-thing',
@@ -56,8 +56,9 @@ async function runTests() {
         console.log('Monitor started successfully');
 
         // Let it run for a while to test notifications
-        console.log('\nMonitoring for 20 seconds...');
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        const monitoringDuration = parseInt(process.env.TEST_MONITORING_DURATION || '20000');
+        console.log(`\nMonitoring for ${monitoringDuration / 1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, monitoringDuration));
 
         // Get final statuses
         console.log('\nFinal statuses after 20 seconds:');
