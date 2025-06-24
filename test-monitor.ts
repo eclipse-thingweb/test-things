@@ -28,7 +28,7 @@ const config = {
     retryCount: 3
 };
 
-// Define the things to monitor based on your running services and correct configuration
+// Define the things to monitor
 const thingsToMonitor: ThingConfig[] = [
     {
         name: 'http-express-calculator-simple',
@@ -134,7 +134,7 @@ class SimpleThingMonitor {
         try {
             await this.checkThingWithWoT(thing, currentStatus);
             if (!wasUp) {
-                console.log(`✅ ${thing.name} is back up!`);
+                console.log(`${thing.name} is back up!`);
             }
             currentStatus.isUp = true;
             currentStatus.lastCheck = new Date();
@@ -148,7 +148,7 @@ class SimpleThingMonitor {
                 errorMessage = error;
             }
             if (wasUp || currentStatus.lastError !== errorMessage) {
-                console.log(`❌ ${thing.name} has failed: ${errorMessage}`);
+                console.log(`${thing.name} has failed: ${errorMessage}`);
                 await notificationService.sendThingDownNotification(currentStatus);
             }
             currentStatus.isUp = false;
@@ -180,7 +180,7 @@ class SimpleThingMonitor {
     }
 
     printStatus() {
-        console.log('\n📊 Current Status Report:');
+        console.log('\nCurrent Status Report:');
         console.log('='.repeat(60));
         
         let upCount = 0;
@@ -197,10 +197,9 @@ class SimpleThingMonitor {
             else downCount++;
         });
         
-        console.log('\n📈 Summary:');
-        console.log(`✅ UP: ${upCount} services`);
-        console.log(`❌ DOWN: ${downCount} services`);
-        console.log(`📊 Total: ${upCount + downCount} services`);
+        console.log('\nSummary:');
+        console.log(`UP: ${upCount} services`);
+        console.log(`DOWN: ${downCount} services`);
     }
 
     getThingStatuses() {
@@ -210,7 +209,7 @@ class SimpleThingMonitor {
 
 // Main execution
 async function main() {
-    console.log('🚀 Starting Thing Monitor Test');
+    console.log('Starting Thing Monitor Test');
     console.log('Monitoring the following services:');
     thingsToMonitor.forEach(thing => {
         console.log(`  - ${thing.name} (${thing.protocol}) at ${thing.host}:${thing.port}${thing.path || ''}`);
@@ -218,7 +217,7 @@ async function main() {
     const monitor = new SimpleThingMonitor();
     await monitor.start();
     process.on('SIGINT', () => {
-        console.log('\n👋 Stopping monitor...');
+        console.log('\nStopping monitor...');
         process.exit(0);
     });
 }
