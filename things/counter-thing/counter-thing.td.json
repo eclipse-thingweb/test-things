@@ -1,0 +1,121 @@
+{
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "iot": "http://example.org/iot"
+    }
+  ],
+  "title": "Counter",
+  "description": "Counter example Thing",
+  "support": "https://github.com/eclipse-thingweb/node-wot/",
+  "links": [
+    {
+      "href": "https://www.thingweb.io/img/favicon/favicon.png",
+      "sizes": "16x14",
+      "rel": "icon"
+    }
+  ],
+  "@type": "Thing",
+  "uriVariables": {
+    "step": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 250
+    }
+  },
+  "properties": {
+    "count": {
+      "title": "Count",
+      "type": "integer",
+      "description": "Current counter value",
+      "iot:Custom": "example annotation",
+      "observable": true,
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/count"
+        }
+      ]
+    },
+    "countAsImage": {
+      "description": "Current counter value as SVG image",
+      "observable": false,
+      "readOnly": true,
+      "uriVariables": {
+        "fill": {
+          "type": "string"
+        }
+      },
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/countAsImage",
+          "contentType": "image/svg+xml"
+        }
+      ]
+    },
+    "redDotImage": {
+      "description": "Red dot image as PNG",
+      "observable": false,
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/redDotImage",
+          "contentType": "image/png;base64"
+        }
+      ]
+    },
+    "lastChange": {
+      "title": "Last change",
+      "type": "string",
+      "description": "Last change of counter value",
+      "observable": true,
+      "readOnly": true,
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/properties/lastChange"
+        }
+      ]
+    }
+  },
+  "actions": {
+    "increment": {
+      "title": "Increment",
+      "description": "Increment counter value",
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/actions/increment"
+        }
+      ]
+    },
+    "decrement": {
+      "title": "Decrement",
+      "description": "Decrementing counter value",
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/actions/decrement"
+        }
+      ]
+    },
+    "reset": {
+      "title": "Reset",
+      "description": "Resetting counter value",
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/actions/reset"
+        }
+      ]
+    }
+  },
+  "events": {
+    "change": {
+      "title": "Changed",
+      "description": "Change event",
+      "forms": [
+        {
+          "href": "http://plugfest.thingweb.io/counter-thing/events/change"
+        }
+      ]
+    }
+  }
+} 
