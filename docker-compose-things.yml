@@ -256,6 +256,7 @@ services:
           memory: 25M
     networks:
       - things_network
+
 networks:
   things_network:
     name: things_network

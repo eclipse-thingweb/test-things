@@ -26,6 +26,7 @@
         "@types/chai-as-promised": "^7.1.8",
         "@types/mocha": "^10.0.7",
         "@types/node": "^22.4.1",
+        "@types/node-fetch": "^2.6.12",
         "@typescript-eslint/eslint-plugin": "^8.6.0",
         "@typescript-eslint/parser": "^8.6.0",
         "ajv": "^8.12.0",
@@ -41,5 +42,13 @@
         "eslint-plugin-workspaces": "^0.10.1",
         "mocha": "^10.7.3",
         "prettier": "^2.3.2"
+    },
+    "dependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/nodemailer": "^6.4.17",
+        "cors": "^2.8.5",
+        "mqtt": "^5.13.1",
+        "node-fetch": "^2.7.0",
+        "nodemailer": "^7.0.3"
     }
 }
