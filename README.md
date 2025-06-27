@@ -17,6 +17,18 @@ The protocols you can currently test are:
 - MQTT
 - Modbus
 
+## How It Works
+
+- External applications —known as WoT Consumer Stacks— send requests to the Things. Traefik, which handles inbound HTTP requests, or an MQTT broker allow them to communicate with the internal services ("Things") in two main methods.
+- The primary application services, the "Things" (A, B, C, D) reflect several functionalities like those of a Coffee Machine or Elevator. Every service is specified by a Thing Description (TD), a standardized metadata file that explains the service's capabilities and how to interact with it.
+- **Monitoring and Observability:** The system is built up comprehensively for monitoring.
+  - Promtail collects logs from the services and sends them to Loki, a log aggregation system.
+  - cAdvisor analyzes and collects overall metrics from docker containers
+  - Prometheus, a time-series database, stores container performance measurements that cAdvisor gathers.
+  - Grafana, a central dashboard, shows Loki's logs and Prometheus's metrics to give a whole picture of the system's condition.
+
+![Architecture Diagram](./architecture-diagram.jpg)
+
 ## Dependencies
 
 The project has several dependencies. Currently, `JavaScript` and `Python` are used for simulating different devices. Every device has its own dependencies and they should be handled separately. For that reason, `Node.js` is used for JS code, and `poetry` is used for Python code to run the scripts and handle the dependencies.
