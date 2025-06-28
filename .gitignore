@@ -7,5 +7,3 @@ __pycache__/
 # TS files
 dist/
 *.tsbuildinfo
-
-.DS_Store
