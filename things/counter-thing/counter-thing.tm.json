@@ -1,88 +1,88 @@
 {
-  "@context": [
-    "https://www.w3.org/2019/wot/td/v1",
-    "https://www.w3.org/2022/wot/td/v1.1",
-    { "iot": "http://example.org/iot" },
-    { "tm": "https://www.w3.org/2022/wot/td/v1.1#" }
-  ],
-  "@type": "tm:ThingModel",
-  "title": "Counter",
-  "description": "Counter example Thing",
-  "support": "https://github.com/eclipse-thingweb/node-wot/",
-  "links": [
-    {
-      "href": "https://www.thingweb.io/img/favicon/favicon.png",
-      "sizes": "16x14",
-      "rel": "icon"
-    }
-  ],
-  "uriVariables": {
-    "step": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 250
-    }
-  },
-  "properties": {
-    "count": {
-      "title": "Count",
-      "type": "integer",
-      "description": "Current counter value",
-      "iot:Custom": "example annotation",
-      "observable": true,
-      "readOnly": true
-    },
-    "countAsImage": {
-      "description": "Current counter value as SVG image",
-      "observable": false,
-      "readOnly": true,
-      "uriVariables": {
-        "fill": {
-          "type": "string"
-        }
-      },
-      "forms": [
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1",
+        "https://www.w3.org/2022/wot/td/v1.1",
+        { "iot": "http://example.org/iot" },
+        { "tm": "https://www.w3.org/2022/wot/td/v1.1#" }
+    ],
+    "@type": "tm:ThingModel",
+    "title": "Counter",
+    "description": "Counter example Thing",
+    "support": "https://github.com/eclipse-thingweb/node-wot/",
+    "links": [
         {
-          "contentType": "image/svg+xml"
+            "href": "https://www.thingweb.io/img/favicon/favicon.png",
+            "sizes": "16x14",
+            "rel": "icon"
         }
-      ]
-    },
-    "redDotImage": {
-      "description": "Red dot image as PNG",
-      "observable": false,
-      "readOnly": true,
-      "forms": [
-        {
-          "contentType": "image/png;base64"
+    ],
+    "uriVariables": {
+        "step": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 250
         }
-      ]
     },
-    "lastChange": {
-      "title": "Last change",
-      "type": "string",
-      "description": "Last change of counter value",
-      "observable": true,
-      "readOnly": true
-    }
-  },
-  "actions": {
-    "increment": {
-      "title": "Increment",
-      "description": "Increment counter value"
+    "properties": {
+        "count": {
+            "title": "Count",
+            "type": "integer",
+            "description": "Current counter value",
+            "iot:Custom": "example annotation",
+            "observable": true,
+            "readOnly": true
+        },
+        "countAsImage": {
+            "description": "Current counter value as SVG image",
+            "observable": false,
+            "readOnly": true,
+            "uriVariables": {
+                "fill": {
+                    "type": "string"
+                }
+            },
+            "forms": [
+                {
+                    "contentType": "image/svg+xml"
+                }
+            ]
+        },
+        "redDotImage": {
+            "description": "Red dot image as PNG",
+            "observable": false,
+            "readOnly": true,
+            "forms": [
+                {
+                    "contentType": "image/png;base64"
+                }
+            ]
+        },
+        "lastChange": {
+            "title": "Last change",
+            "type": "string",
+            "description": "Last change of counter value",
+            "observable": true,
+            "readOnly": true
+        }
     },
-    "decrement": {
-      "title": "Decrement",
-      "description": "Decrementing counter value"
+    "actions": {
+        "increment": {
+            "title": "Increment",
+            "description": "Increment counter value"
+        },
+        "decrement": {
+            "title": "Decrement",
+            "description": "Decrementing counter value"
+        },
+        "reset": {
+            "title": "Reset",
+            "description": "Resetting counter value"
+        }
     },
-    "reset": {
-      "title": "Reset",
-      "description": "Resetting counter value"
+    "events": {
+        "change": {
+            "title": "Changed",
+            "description": "Change event"
+        }
     }
-  },
-  "events": {
-    "change": {
-      "title": "Changed",
-      "description": "Change event"
-    }
-  }
 }
