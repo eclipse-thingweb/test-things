@@ -42,9 +42,5 @@
         "eslint-plugin-workspaces": "^0.10.1",
         "mocha": "^10.7.3",
         "prettier": "^2.3.2"
-    },
-    "dependencies": {
-        "mqtt": "^5.13.1",
-        "node-fetch": "^2.7.0"
     }
 }
