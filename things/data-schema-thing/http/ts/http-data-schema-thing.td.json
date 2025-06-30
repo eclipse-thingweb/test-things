@@ -13,7 +13,9 @@
             "scheme": "nosec"
         }
     },
-    "security": ["nosec"],
+    "security": [
+        "nosec"
+    ],
     "properties": {
         "bool": {
             "title": "Boolean",
@@ -23,12 +25,18 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/bool",
                     "contentType": "application/json",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/bool",
                     "contentType": "application/cbor",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 }
             ],
             "readOnly": false,
@@ -43,12 +51,18 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/int",
                     "contentType": "application/json",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/int",
                     "contentType": "application/cbor",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 }
             ],
             "readOnly": false,
@@ -63,12 +77,18 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/num",
                     "contentType": "application/json",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/num",
                     "contentType": "application/cbor",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 }
             ],
             "readOnly": false,
@@ -83,12 +103,18 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/string",
                     "contentType": "application/json",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/string",
                     "contentType": "application/cbor",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 }
             ],
             "readOnly": false,
@@ -104,12 +130,18 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/array",
                     "contentType": "application/json",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/array",
                     "contentType": "application/cbor",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 }
             ],
             "readOnly": false,
@@ -136,12 +168,18 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/object",
                     "contentType": "application/json",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/properties/object",
                     "contentType": "application/cbor",
-                    "op": ["readproperty", "writeproperty"]
+                    "op": [
+                        "readproperty",
+                        "writeproperty"
+                    ]
                 }
             ],
             "readOnly": false,
@@ -157,13 +195,17 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/void-void",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/void-void",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -177,13 +219,17 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/void-int",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/void-int",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -200,13 +246,17 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/int-void",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/int-void",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -226,13 +276,17 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/int-int",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/int-int",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -252,13 +306,17 @@
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/int-string",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/int-string",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -278,19 +336,26 @@
                         "type": "string"
                     }
                 },
-                "required": ["prop1", "prop2"]
+                "required": [
+                    "prop1",
+                    "prop2"
+                ]
             },
             "forms": [
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/void-obj",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/void-obj",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -310,19 +375,26 @@
                         "type": "string"
                     }
                 },
-                "required": ["prop1", "prop2"]
+                "required": [
+                    "prop1",
+                    "prop2"
+                ]
             },
             "forms": [
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/obj-void",
                     "contentType": "application/json",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/actions/obj-void",
                     "contentType": "application/cbor",
-                    "op": ["invokeaction"],
+                    "op": [
+                        "invokeaction"
+                    ],
                     "htv:methodName": "POST"
                 }
             ],
@@ -342,13 +414,19 @@
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-bool",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-bool",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 }
             ]
         },
@@ -363,13 +441,19 @@
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-int",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-int",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 }
             ]
         },
@@ -384,13 +468,19 @@
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-num",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-num",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 }
             ]
         },
@@ -405,13 +495,19 @@
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-string",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-string",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 }
             ]
         },
@@ -426,13 +522,19 @@
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-array",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-array",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 }
             ]
         },
@@ -447,18 +549,24 @@
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-object",
                     "contentType": "application/json",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 },
                 {
                     "href": "http://localhost:3000/http-data-schema-thing/events/on-object",
                     "contentType": "application/cbor",
                     "subprotocol": "longpoll",
-                    "op": ["subscribeevent", "unsubscribeevent"]
+                    "op": [
+                        "subscribeevent",
+                        "unsubscribeevent"
+                    ]
                 }
             ]
         }
     },
-    "id": "urn:uuid:f7de1594-ac8b-40cb-8bdf-5e29d0aa22ab",
+    "id": "urn:uuid:330682a9-c9e7-4afd-882e-bfa2f87744fd",
     "description": "Test Thing",
     "base": "http://localhost:3000/http-data-schema-thing",
     "forms": [
