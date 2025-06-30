@@ -14,9 +14,7 @@
             "scheme": "nosec"
         }
     },
-    "security": [
-        "nosec_sc"
-    ],
+    "security": ["nosec_sc"],
     "base": "modbus+tcp://0.0.0.0:8502/1",
     "properties": {
         "lightSwitch": {
@@ -49,10 +47,7 @@
             "forms": [
                 {
                     "href": "modbus+tcp://0.0.0.0:8502/1/10001?quantity=1",
-                    "op": [
-                        "readproperty",
-                        "observeproperty"
-                    ],
+                    "op": ["readproperty", "observeproperty"],
                     "modv:entity": "DiscreteInput",
                     "modv:function": "readDiscreteInput",
                     "modv:pollingTime": 1000,
