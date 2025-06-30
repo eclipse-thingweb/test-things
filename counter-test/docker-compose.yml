@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  counter1:
+    build:
+      context: ../things/counter-thing
+      dockerfile: Dockerfile
+    container_name: counter-thing-1
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    networks:
+      - counter-network
+    restart: unless-stopped
+
+  counter2:
+    build:
+      context: ../things/counter-thing
+      dockerfile: Dockerfile
+    container_name: counter-thing-2
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    networks:
+      - counter-network
+    restart: unless-stopped
+
+networks:
+  counter-network:
+    driver: bridge

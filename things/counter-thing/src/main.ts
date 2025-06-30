@@ -16,7 +16,6 @@
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
 import { createLogger, transports, format } from "winston";
-import LokiTransport from "winston-loki";
 import dotenv from "dotenv";
 import { parseArgs } from "node:util";
 import * as fs from "node:fs";
@@ -30,14 +29,6 @@ const thingName = "counter";
 
 const logger = createLogger({
     transports: [
-        new LokiTransport({
-            host: `http://${process.env.LOKI_HOSTNAME ?? "localhost"}:${process.env.LOKI_PORT ?? "3100"}`,
-            labels: { thing: thingName },
-            json: true,
-            format: format.json(),
-            replaceTimestamp: true,
-            onConnectionError: (err: unknown) => console.error(err),
-        }),
         new transports.Console({
             format: format.combine(format.simple(), format.colorize()),
         }),
@@ -76,7 +67,7 @@ const setCount = (value: number) => {
     });
 };
 
-const thingDescription = JSON.parse(fs.readFileSync(path.join(__dirname, "../../counter-thing.tm.json"), "utf8"));
+const thingDescription = JSON.parse(fs.readFileSync(path.join(__dirname, "../../counter-thing.td.json"), "utf8"));
 
 const servient = new Servient();
 servient.addServer(
