@@ -458,7 +458,7 @@
             ]
         }
     },
-    "id": "urn:uuid:330682a9-c9e7-4afd-882e-bfa2f87744fd",
+    "id": "urn:uuid:f7de1594-ac8b-40cb-8bdf-5e29d0aa22ab",
     "description": "Test Thing",
     "base": "http://localhost:3000/http-data-schema-thing",
     "forms": [

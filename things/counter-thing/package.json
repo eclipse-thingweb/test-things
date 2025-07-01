@@ -9,8 +9,8 @@
         "dev": "ts-node src/main.ts"
     },
     "dependencies": {
-        "@node-wot/binding-http": "^0.8.0",
-        "@node-wot/core": "^0.8.0",
+        "@node-wot/binding-http": "0.9.1",
+        "@node-wot/core": "0.9.1",
         "dotenv": "^16.0.3",
         "winston": "^3.8.2"
     },

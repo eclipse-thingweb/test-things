@@ -1,10 +1,7 @@
 {
     "@context": [
         "https://www.w3.org/2019/wot/td/v1",
-        "https://www.w3.org/2022/wot/td/v1.1",
-        {
-            "iot": "http://example.org/iot"
-        }
+        "https://www.w3.org/2022/wot/td/v1.1"
     ],
     "title": "Counter",
     "description": "Counter example Thing",
@@ -29,7 +26,6 @@
             "title": "Count",
             "type": "integer",
             "description": "Current counter value",
-            "iot:Custom": "example annotation",
             "observable": true,
             "readOnly": true,
             "forms": [
