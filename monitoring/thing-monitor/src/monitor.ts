@@ -131,21 +131,25 @@ export class ThingMonitor {
         currentStatus: ThingStatus
     ): Promise<void> {
         if (!this.WoT) throw new Error("WoT not initialized");
-        
+
         const thingUrl = this.buildThingUrl(thing);
-        
+
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Request timed out")), this.config.heartbeatTimeout)
+            setTimeout(
+                () => reject(new Error("Request timed out")),
+                this.config.heartbeatTimeout
+            )
         );
-        
-        const checkPromise = this.WoT.requestThingDescription(thingUrl)
-            .then((td: any) => {
-                if (!td || typeof td !== 'object' || !td.title) {
+
+        const checkPromise = this.WoT.requestThingDescription(thingUrl).then(
+            (td: any) => {
+                if (!td || typeof td !== "object" || !td.title) {
                     throw new Error("Invalid Thing Description");
                 }
                 return this.WoT.consume(td);
-            });
-        
+            }
+        );
+
         await Promise.race([checkPromise, timeoutPromise]);
     }
 

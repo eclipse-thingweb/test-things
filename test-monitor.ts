@@ -171,21 +171,25 @@ class SimpleThingMonitor {
 
     async checkThingWithWoT(thing: ThingConfig, currentStatus: ThingStatus) {
         if (!this.WoT) throw new Error("WoT not initialized");
-        
+
         const thingUrl = this.buildThingUrl(thing);
-        
+
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Request timed out")), config.heartbeatTimeout)
+            setTimeout(
+                () => reject(new Error("Request timed out")),
+                config.heartbeatTimeout
+            )
         );
-        
-        const checkPromise = this.WoT.requestThingDescription(thingUrl)
-            .then((td: any) => {
-                if (!td || typeof td !== 'object' || !td.title) {
+
+        const checkPromise = this.WoT.requestThingDescription(thingUrl).then(
+            (td: any) => {
+                if (!td || typeof td !== "object" || !td.title) {
                     throw new Error("Invalid Thing Description");
                 }
                 return this.WoT.consume(td);
-            });
-        
+            }
+        );
+
         await Promise.race([checkPromise, timeoutPromise]);
     }
 
@@ -196,7 +200,9 @@ class SimpleThingMonitor {
             case "coap":
                 return `coap://${thing.host}:${thing.port}${thing.path || ""}`;
             case "mqtt":
-                return `mqtt://${process.env.BROKER_URI || thing.host}:${thing.port}`;
+                return `mqtt://${process.env.BROKER_URI || thing.host}:${
+                    thing.port
+                }`;
             case "modbus":
                 return `modbus+tcp://${thing.host}:${thing.port}`;
             default:
