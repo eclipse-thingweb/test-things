@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer';
-import { NotificationConfig, ThingStatus } from './types';
-import { createLogger, format, transports } from 'winston';
-import LokiTransport from 'winston-loki';
+import nodemailer from "nodemailer";
+import { NotificationConfig, ThingStatus } from "./types";
+import { createLogger, format, transports } from "winston";
+import LokiTransport from "winston-loki";
 
 const logger = createLogger({
     transports: [
@@ -13,14 +13,16 @@ const logger = createLogger({
 
 // Add Loki transport only if hostname and port are configured
 if (process.env.LOKI_HOSTNAME && process.env.LOKI_PORT) {
-    logger.add(new LokiTransport({
-        host: `http://${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
-        labels: { service: 'thing-monitor-notifications' },
-        json: true,
-        format: format.json(),
-        replaceTimestamp: true,
-        onConnectionError: (err) => console.error(err),
-    }));
+    logger.add(
+        new LokiTransport({
+            host: `http://${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
+            labels: { service: "thing-monitor-notifications" },
+            json: true,
+            format: format.json(),
+            replaceTimestamp: true,
+            onConnectionError: (err) => console.error(err),
+        })
+    );
 }
 
 export class NotificationService {
@@ -40,7 +42,7 @@ export class NotificationService {
 
     async sendThingDownNotification(thing: ThingStatus): Promise<void> {
         const message = this.formatThingDownMessage(thing);
-        // A pre-built link to Grafana, shows then user clicks on the email link 
+        // A pre-built link to Grafana, shows then user clicks on the email link
         const grafanaUrl = `http://${process.env.GRAFANA_HOSTNAME}/explore?orgId=1&left=%7B"datasource":"Loki","queries":%5B%7B"refId":"A","expr":"{service%3D%5C"thing-monitor%5C",thing%3D%5C"${thing.name}%5C"}"%7D%5D,"range":%7B"from":"now-1h","to":"now"%7D%7D`;
 
         try {
@@ -50,9 +52,13 @@ export class NotificationService {
                 subject: `[ALERT] Thing '${thing.name}' is DOWN`,
                 html: `${message}<br><br>View logs in Grafana: <a href="${grafanaUrl}">Click Here</a>`,
             });
-            logger.info(`Sent email notification for ${thing.name} being down.`);
+            logger.info(
+                `Sent email notification for ${thing.name} being down.`
+            );
         } catch (error) {
-            logger.error(`Failed to send email notification for ${thing.name}. Error: ${error}`);
+            logger.error(
+                `Failed to send email notification for ${thing.name}. Error: ${error}`
+            );
         }
     }
 
@@ -68,7 +74,9 @@ export class NotificationService {
             });
             logger.info(`Sent email recovery notification for ${thing.name}.`);
         } catch (error) {
-            logger.error(`Failed to send recovery notification for ${thing.name}: ${error}`);
+            logger.error(
+                `Failed to send recovery notification for ${thing.name}: ${error}`
+            );
         }
     }
 
@@ -84,7 +92,7 @@ export class NotificationService {
             <br>
             <b>Last Check:</b> ${thing.lastCheck.toISOString()}
             <br>
-            <b>Error:</b> ${thing.lastError || 'Unknown error'}
+            <b>Error:</b> ${thing.lastError || "Unknown error"}
             <br>
             <b>Retry Count:</b> ${thing.retryCount}
         `;

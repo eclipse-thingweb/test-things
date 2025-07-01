@@ -1,12 +1,12 @@
-import { Servient } from '@node-wot/core';
-import { HttpClientFactory } from '@node-wot/binding-http';
-import { MqttClientFactory } from '@node-wot/binding-mqtt';
-import { CoapClientFactory } from '@node-wot/binding-coap';
-import { ModbusClientFactory } from '@node-wot/binding-modbus';
-import { createLogger, format, transports } from 'winston';
-import LokiTransport from 'winston-loki';
-import { ThingConfig, ThingStatus, MonitorConfig } from './types';
-import { NotificationService } from './notifications';
+import { Servient } from "@node-wot/core";
+import { HttpClientFactory } from "@node-wot/binding-http";
+import { MqttClientFactory } from "@node-wot/binding-mqtt";
+import { CoapClientFactory } from "@node-wot/binding-coap";
+import { ModbusClientFactory } from "@node-wot/binding-modbus";
+import { createLogger, format, transports } from "winston";
+import LokiTransport from "winston-loki";
+import { ThingConfig, ThingStatus, MonitorConfig } from "./types";
+import { NotificationService } from "./notifications";
 
 const logger = createLogger({
     transports: [
@@ -18,14 +18,16 @@ const logger = createLogger({
 
 // Starts logging with Loki
 if (process.env.LOKI_HOSTNAME && process.env.LOKI_PORT) {
-    logger.add(new LokiTransport({
-        host: `http://${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
-        labels: { service: 'thing-monitor' },
-        json: true,
-        format: format.json(),
-        replaceTimestamp: true,
-        onConnectionError: (err) => console.error(err),
-    }));
+    logger.add(
+        new LokiTransport({
+            host: `http://${process.env.LOKI_HOSTNAME}:${process.env.LOKI_PORT}`,
+            labels: { service: "thing-monitor" },
+            json: true,
+            format: format.json(),
+            replaceTimestamp: true,
+            onConnectionError: (err) => console.error(err),
+        })
+    );
 }
 
 export class ThingMonitor {
@@ -40,26 +42,28 @@ export class ThingMonitor {
         this.servient.addClientFactory(new MqttClientFactory());
         this.servient.addClientFactory(new CoapClientFactory());
         this.servient.addClientFactory(new ModbusClientFactory());
-        this.notificationService = new NotificationService(config.notifications);
-        
-        config.things.forEach(thing => {
+        this.notificationService = new NotificationService(
+            config.notifications
+        );
+
+        config.things.forEach((thing) => {
             this.thingStatuses.set(thing.name, {
                 name: thing.name,
                 protocol: thing.protocol,
                 isUp: false,
                 lastCheck: new Date(),
-                retryCount: 0
+                retryCount: 0,
             });
         });
     }
 
     async start(): Promise<void> {
-        logger.info('Starting Thing Monitor service');
+        logger.info("Starting Thing Monitor service");
         try {
             this.WoT = await this.servient.start();
-            logger.info('WoT Servient started successfully.');
+            logger.info("WoT Servient started successfully.");
         } catch (error) {
-            logger.error('Failed to start WoT Servient:', error);
+            logger.error("Failed to start WoT Servient:", error);
             throw error;
         }
         this.checkAllThings();
@@ -67,7 +71,9 @@ export class ThingMonitor {
     }
 
     private async checkAllThings(): Promise<void> {
-        const checkPromises = this.config.things.map(thing => this.checkThing(thing));
+        const checkPromises = this.config.things.map((thing) =>
+            this.checkThing(thing)
+        );
         await Promise.all(checkPromises);
     }
 
@@ -82,53 +88,73 @@ export class ThingMonitor {
                 currentStatus.lastCheck = new Date();
                 currentStatus.lastError = undefined;
                 currentStatus.retryCount = 0;
-                await this.notificationService.sendThingUpNotification(currentStatus);
+                await this.notificationService.sendThingUpNotification(
+                    currentStatus
+                );
             } else {
                 currentStatus.isUp = true;
                 currentStatus.lastCheck = new Date();
                 currentStatus.retryCount = 0;
             }
         } catch (error: any) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorMessage =
+                error instanceof Error ? error.message : String(error);
             if (wasUp || currentStatus.lastError !== errorMessage) {
                 currentStatus.retryCount = 0;
-                logger.warn(`${thing.name} has failed for the first time with a new error: ${errorMessage}`);
+                logger.warn(
+                    `${thing.name} has failed for the first time with a new error: ${errorMessage}`
+                );
             }
             currentStatus.isUp = false;
             currentStatus.lastCheck = new Date();
             currentStatus.lastError = errorMessage;
             currentStatus.retryCount++;
             const thingLogger = logger.child({ thing: thing.name });
-            thingLogger.warn(`Thing is down (Attempt ${currentStatus.retryCount}/${this.config.retryCount}): ${errorMessage}`);
-            if (currentStatus.retryCount === 1 || currentStatus.retryCount === this.config.retryCount) {
-                await this.notificationService.sendThingDownNotification(currentStatus);
+            thingLogger.warn(
+                `Thing is down (Attempt ${currentStatus.retryCount}/${this.config.retryCount}): ${errorMessage}`
+            );
+            if (
+                currentStatus.retryCount === 1 ||
+                currentStatus.retryCount === this.config.retryCount
+            ) {
+                await this.notificationService.sendThingDownNotification(
+                    currentStatus
+                );
             }
         }
     }
 
     // All encompasing method to deal with all things.
     // Uses node-wot and servient to check
-    private async checkThingWithWoT(thing: ThingConfig, currentStatus: ThingStatus): Promise<void> {
-        if (!this.WoT) throw new Error('WoT not initialized');
-        let thingUrl = '';
+    private async checkThingWithWoT(
+        thing: ThingConfig,
+        currentStatus: ThingStatus
+    ): Promise<void> {
+        if (!this.WoT) throw new Error("WoT not initialized");
+        let thingUrl = "";
         switch (thing.protocol) {
-            case 'http':
+            case "http":
                 thingUrl = this.getThingUrl(thing);
                 break;
-            case 'coap':
-                thingUrl = `coap://${thing.host}:${thing.port}${thing.path || ''}`;
+            case "coap":
+                thingUrl = `coap://${thing.host}:${thing.port}${
+                    thing.path || ""
+                }`;
                 break;
-            case 'modbus':
+            case "modbus":
                 thingUrl = `modbus://${thing.host}:${thing.port}`;
                 break;
-            case 'mqtt':
+            case "mqtt":
                 thingUrl = `mqtt://${thing.host}:${thing.port}`;
                 break;
             default:
                 throw new Error(`Unsupported protocol: ${thing.protocol}`);
         }
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timed out')), this.config.heartbeatTimeout)
+            setTimeout(
+                () => reject(new Error("Request timed out")),
+                this.config.heartbeatTimeout
+            )
         );
         const tdPromise = this.WoT.requestThingDescription(thingUrl);
         const td = await Promise.race([tdPromise, timeoutPromise]);
@@ -137,7 +163,7 @@ export class ThingMonitor {
 
     private getThingUrl(thing: ThingConfig): string {
         // Gets the thing URL
-        return `http://${thing.host}:${thing.port}${thing.path || ''}`;
+        return `http://${thing.host}:${thing.port}${thing.path || ""}`;
     }
 
     getThingStatuses(): ThingStatus[] {

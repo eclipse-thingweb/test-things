@@ -1,4 +1,4 @@
-export type ThingProtocol = 'http' | 'mqtt' | 'coap' | 'modbus';
+export type ThingProtocol = "http" | "mqtt" | "coap" | "modbus";
 
 export interface ThingConfig {
     name: string;
