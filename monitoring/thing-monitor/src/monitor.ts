@@ -131,39 +131,41 @@ export class ThingMonitor {
         currentStatus: ThingStatus
     ): Promise<void> {
         if (!this.WoT) throw new Error("WoT not initialized");
-        let thingUrl = "";
+        
+        const thingUrl = this.buildThingUrl(thing);
+        
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Request timed out")), this.config.heartbeatTimeout)
+        );
+        
+        const checkPromise = this.WoT.requestThingDescription(thingUrl)
+            .then((td: any) => {
+                if (!td || typeof td !== 'object' || !td.title) {
+                    throw new Error("Invalid Thing Description");
+                }
+                return this.WoT.consume(td);
+            });
+        
+        await Promise.race([checkPromise, timeoutPromise]);
+    }
+
+    private buildThingUrl(thing: ThingConfig): string {
         switch (thing.protocol) {
             case "http":
-                thingUrl = this.getThingUrl(thing);
-                break;
+                return `http://${thing.host}:${thing.port}${thing.path || ""}`;
             case "coap":
-                thingUrl = `coap://${thing.host}:${thing.port}${
-                    thing.path || ""
-                }`;
-                break;
-            case "modbus":
-                thingUrl = `modbus://${thing.host}:${thing.port}`;
-                break;
+                return `coap://${thing.host}:${thing.port}${thing.path || ""}`;
             case "mqtt":
-                thingUrl = `mqtt://${thing.host}:${thing.port}`;
-                break;
+                return `mqtt://${thing.host}:${thing.port}`;
+            case "modbus":
+                return `modbus+tcp://${thing.host}:${thing.port}`;
             default:
                 throw new Error(`Unsupported protocol: ${thing.protocol}`);
         }
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(
-                () => reject(new Error("Request timed out")),
-                this.config.heartbeatTimeout
-            )
-        );
-        const tdPromise = this.WoT.requestThingDescription(thingUrl);
-        const td = await Promise.race([tdPromise, timeoutPromise]);
-        await this.WoT.consume(td);
     }
 
     private getThingUrl(thing: ThingConfig): string {
-        // Gets the thing URL
-        return `http://${thing.host}:${thing.port}${thing.path || ""}`;
+        return this.buildThingUrl(thing);
     }
 
     getThingStatuses(): ThingStatus[] {

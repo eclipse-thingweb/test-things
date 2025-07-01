@@ -1,6 +1,8 @@
 import { Servient } from "@node-wot/core";
 import { HttpClientFactory } from "@node-wot/binding-http";
 import { MqttClientFactory } from "@node-wot/binding-mqtt";
+import { CoapClientFactory } from "@node-wot/binding-coap";
+import { ModbusClientFactory } from "@node-wot/binding-modbus";
 import { NotificationService } from "./monitoring/thing-monitor/src/notifications";
 import {
     NotificationConfig,
@@ -75,10 +77,10 @@ const thingsToMonitor: ThingConfig[] = [
         port: 1883,
     },
     {
-        name: "mqtt-broker",
-        protocol: "mqtt",
-        host: process.env.BROKER_URI || "localhost",
-        port: 1883,
+        name: "modbus-elevator",
+        protocol: "modbus",
+        host: process.env.STACK_HOSTNAME || "localhost",
+        port: Number(process.env.MODBUS_ELEVATOR_PORT_OUT) || 3179,
     },
 ];
 
@@ -103,6 +105,8 @@ class SimpleThingMonitor {
         this.servient = new Servient();
         this.servient.addClientFactory(new HttpClientFactory());
         this.servient.addClientFactory(new MqttClientFactory());
+        this.servient.addClientFactory(new CoapClientFactory());
+        this.servient.addClientFactory(new ModbusClientFactory());
         thingsToMonitor.forEach((thing) => {
             this.thingStatuses.set(thing.name, {
                 name: thing.name,
@@ -167,28 +171,37 @@ class SimpleThingMonitor {
 
     async checkThingWithWoT(thing: ThingConfig, currentStatus: ThingStatus) {
         if (!this.WoT) throw new Error("WoT not initialized");
-        let thingUrl = "";
+        
+        const thingUrl = this.buildThingUrl(thing);
+        
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Request timed out")), config.heartbeatTimeout)
+        );
+        
+        const checkPromise = this.WoT.requestThingDescription(thingUrl)
+            .then((td: any) => {
+                if (!td || typeof td !== 'object' || !td.title) {
+                    throw new Error("Invalid Thing Description");
+                }
+                return this.WoT.consume(td);
+            });
+        
+        await Promise.race([checkPromise, timeoutPromise]);
+    }
+
+    private buildThingUrl(thing: ThingConfig): string {
         switch (thing.protocol) {
             case "http":
-                thingUrl = `http://${thing.host}:${thing.port}${
-                    thing.path || ""
-                }`;
-                break;
+                return `http://${thing.host}:${thing.port}${thing.path || ""}`;
+            case "coap":
+                return `coap://${thing.host}:${thing.port}${thing.path || ""}`;
             case "mqtt":
-                thingUrl = `mqtt://${thing.host}:${thing.port}`;
-                break;
+                return `mqtt://${process.env.BROKER_URI || thing.host}:${thing.port}`;
+            case "modbus":
+                return `modbus+tcp://${thing.host}:${thing.port}`;
             default:
                 throw new Error(`Unsupported protocol: ${thing.protocol}`);
         }
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(
-                () => reject(new Error("Request timed out")),
-                config.heartbeatTimeout
-            )
-        );
-        const tdPromise = this.WoT.requestThingDescription(thingUrl);
-        const td = await Promise.race([tdPromise, timeoutPromise]);
-        await this.WoT.consume(td);
     }
 
     printStatus() {
