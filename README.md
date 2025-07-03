@@ -22,10 +22,10 @@ The protocols you can currently test are:
 - External applications —known as WoT Consumer Stacks— send requests to the Things. Traefik, which handles inbound HTTP requests, or an MQTT broker allow them to communicate with the internal services ("Things") in two main methods.
 - The primary application services, the "Things" (A, B, C, D) reflect several functionalities like those of a Coffee Machine or Elevator. Every service is specified by a Thing Description (TD), a standardized metadata file that explains the service's capabilities and how to interact with it.
 - **Monitoring and Observability:** The system is built up comprehensively for monitoring.
-  - Promtail collects logs from the services and sends them to Loki, a log aggregation system.
-  - cAdvisor analyzes and collects overall metrics from docker containers
-  - Prometheus, a time-series database, stores container performance measurements that cAdvisor gathers.
-  - Grafana, a central dashboard, shows Loki's logs and Prometheus's metrics to give a whole picture of the system's condition.
+    - Promtail collects logs from the services and sends them to Loki, a log aggregation system.
+    - cAdvisor analyzes and collects overall metrics from docker containers
+    - Prometheus, a time-series database, stores container performance measurements that cAdvisor gathers.
+    - Grafana, a central dashboard, shows Loki's logs and Prometheus's metrics to give a whole picture of the system's condition.
 
 ![Architecture Diagram](./architecture-diagram.jpg)
 
@@ -106,15 +106,15 @@ The Test Thing is a total toy device that users can try different types of prope
 #### Supported Protocols and Programming Languages
 
 - HTTP
-  - TypeScript node-wot
-  - JavaScript Express framework
-  - Python Flask framework
+    - TypeScript node-wot
+    - JavaScript Express framework
+    - Python Flask framework
 - CoAP
-  - JavaScript
+    - JavaScript
 - MQTT
-  - JavaScript
+    - JavaScript
 - Modbus
-  - JavaScript
+    - JavaScript
 
 ## Current Mashups
 

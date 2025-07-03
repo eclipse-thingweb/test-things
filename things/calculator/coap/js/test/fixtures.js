@@ -37,11 +37,7 @@ const mochaGlobalSetup = async function () {
 
     try {
         response = await getInitiateMain("node", [
-            path.join(
-                __dirname,
-                "..",
-                "coap-content-negotiation-calculator.js"
-            ),
+            path.join(__dirname, "..", "coap-content-negotiation-calculator.js"),
             "-p",
             `${contentNegotiationPort}`,
         ]);

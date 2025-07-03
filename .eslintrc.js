@@ -11,8 +11,7 @@ module.exports = {
         "notice/notice": [
             "error",
             {
-                mustMatch:
-                    "Copyright \\(c\\) [0-9]{0,4} Contributors to the Eclipse Foundation",
+                mustMatch: "Copyright \\(c\\) [0-9]{0,4} Contributors to the Eclipse Foundation",
                 templateFile: __dirname + "/license.template.txt",
                 onNonMatchingHeader: "replace",
             },
@@ -43,12 +42,7 @@ module.exports = {
                 "plugin:@typescript-eslint/recommended",
                 "plugin:workspaces/recommended",
             ],
-            plugins: [
-                "@typescript-eslint",
-                "unused-imports",
-                "workspaces",
-                "notice",
-            ],
+            plugins: ["@typescript-eslint", "unused-imports", "workspaces", "notice"],
             env: {
                 es6: true,
                 node: true,
@@ -58,8 +52,7 @@ module.exports = {
                 "notice/notice": [
                     "error",
                     {
-                        mustMatch:
-                            "Copyright \\(c\\) [0-9]{0,4} Contributors to the Eclipse Foundation",
+                        mustMatch: "Copyright \\(c\\) [0-9]{0,4} Contributors to the Eclipse Foundation",
                         templateFile: __dirname + "/license.template.txt",
                         onNonMatchingHeader: "replace",
                     },

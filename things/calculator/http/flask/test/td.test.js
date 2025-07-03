@@ -46,9 +46,7 @@ describe("Calculator HTTP Flask", () => {
                     });
 
                     response.on("end", () => {
-                        const tdSchema = JSON.parse(
-                            Buffer.concat(body).toString()
-                        );
+                        const tdSchema = JSON.parse(Buffer.concat(body).toString());
                         validate = ajv.compile(tdSchema);
                         resolve("Success");
                     });
@@ -71,24 +69,19 @@ describe("Calculator HTTP Flask", () => {
     it("should have a valid TD", (done) => {
         // wait for server to initiate
         setTimeout(() => {
-            http.get(
-                `http://127.0.0.1:${port}/http-flask-calculator`,
-                function (response) {
-                    const body = [];
-                    response.on("data", (chunk) => {
-                        body.push(chunk);
-                    });
+            http.get(`http://127.0.0.1:${port}/http-flask-calculator`, function (response) {
+                const body = [];
+                response.on("data", (chunk) => {
+                    body.push(chunk);
+                });
 
-                    response.on("end", () => {
-                        const result = JSON.parse(
-                            Buffer.concat(body).toString()
-                        );
-                        const valid = validate(result);
-                        expect(valid).to.be.true;
-                        done();
-                    });
-                }
-            );
+                response.on("end", () => {
+                    const result = JSON.parse(Buffer.concat(body).toString());
+                    const valid = validate(result);
+                    expect(valid).to.be.true;
+                    done();
+                });
+            });
         }, 1000);
     });
 });

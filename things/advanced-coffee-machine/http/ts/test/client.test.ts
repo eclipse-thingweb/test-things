@@ -76,10 +76,7 @@ describe("Client Tests", () => {
         const makeCoffee = await thing.invokeAction("makeDrink", undefined, {
             uriVariables: { drinkId: "latte", size: "l", quantity: 3 },
         });
-        const makeCoffeeValue = (await makeCoffee?.value()) as Record<
-            string,
-            unknown
-        >;
+        const makeCoffeeValue = (await makeCoffee?.value()) as Record<string, unknown>;
         expect(makeCoffeeValue.result).to.be.not.null;
     });
 

@@ -101,13 +101,11 @@ describe("Client Tests", () => {
         });
 
         it.skip("should not write a value when the value is below 0", async () => {
-            await expect(writeProperty(thing, "floorNumber", -1)).to.be
-                .rejected;
+            await expect(writeProperty(thing, "floorNumber", -1)).to.be.rejected;
         });
 
         it.skip("should not write a value when the value is above 15", async () => {
-            await expect(writeProperty(thing, "floorNumber", 16)).to.be
-                .rejected;
+            await expect(writeProperty(thing, "floorNumber", 16)).to.be.rejected;
         });
     });
 });

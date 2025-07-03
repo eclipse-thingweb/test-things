@@ -139,12 +139,7 @@ for (const key in thingDescription.events) {
     thingDescription.events[key].forms.push(newForm);
 }
 
-fs.writeFile(
-    `${thingName}.td.json`,
-    JSON.stringify(thingDescription, 4, 4),
-    "utf-8",
-    function () {}
-);
+fs.writeFile(`${thingName}.td.json`, JSON.stringify(thingDescription, 4, 4), "utf-8", function () {});
 
 broker.on("connect", () => {
     console.log(`Connected to broker via port ${portNumber}`);
@@ -253,16 +248,8 @@ broker.on("message", (topic, payload, packet) => {
                         messageType: "actionOutput",
                     },
                 });
-                broker.publish(
-                    `${thingName}/${PROPERTIES}/result`,
-                    `${result}`,
-                    { retain: true }
-                );
-                broker.publish(
-                    `${thingName}/${PROPERTIES}/lastChange`,
-                    `${lastChange}`,
-                    { retain: true }
-                );
+                broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true });
+                broker.publish(`${thingName}/${PROPERTIES}/lastChange`, `${lastChange}`, { retain: true });
             }
         }
 
@@ -298,16 +285,8 @@ broker.on("message", (topic, payload, packet) => {
                         messageType: "actionOutput",
                     },
                 });
-                broker.publish(
-                    `${thingName}/${PROPERTIES}/result`,
-                    `${result}`,
-                    { retain: true }
-                );
-                broker.publish(
-                    `${thingName}/${PROPERTIES}/lastChange`,
-                    `${lastChange}`,
-                    { retain: true }
-                );
+                broker.publish(`${thingName}/${PROPERTIES}/result`, `${result}`, { retain: true });
+                broker.publish(`${thingName}/${PROPERTIES}/lastChange`, `${lastChange}`, { retain: true });
             }
         }
     }
