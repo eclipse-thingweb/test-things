@@ -8,9 +8,9 @@ Your task is to write a script that brews the coffee of your choice when you pas
 
 This mashup consist of three Things:
 
-- Presence Sensor (MQTT)
-- Simple Coffee Machine (HTTP)
-- Smart Clock (CoAP)
+-   Presence Sensor (MQTT)
+-   Simple Coffee Machine (HTTP)
+-   Smart Clock (CoAP)
 
 Their logic is written in TypeScript and ran with the help of node-wot.
 Their .ts files can be found under [things](./things/) folder.
