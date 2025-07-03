@@ -20,12 +20,16 @@
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
     "license": "EPL-2.0 OR W3C-20150513",
     "devDependencies": {
+        "@node-wot/binding-coap": "~0.8.16",
         "@node-wot/binding-http": "~0.8.16",
+        "@node-wot/binding-modbus": "~0.8.16",
+        "@node-wot/binding-mqtt": "~0.8.16",
         "@node-wot/core": "~0.8.16",
         "@types/chai": "^4.3.17",
         "@types/chai-as-promised": "^7.1.8",
         "@types/mocha": "^10.0.7",
         "@types/node": "^22.4.1",
+        "@types/node-fetch": "^2.6.12",
         "@typescript-eslint/eslint-plugin": "^8.6.0",
         "@typescript-eslint/parser": "^8.6.0",
         "ajv": "^8.12.0",
@@ -35,11 +39,21 @@
         "eslint-config-prettier": "^9.1.0",
         "eslint-config-standard": "^17.1.0",
         "eslint-plugin-import": "^2.30.0",
+        "eslint-plugin-n": "^17.20.0",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-notice": "^1.0.0",
+        "eslint-plugin-promise": "^7.2.1",
         "eslint-plugin-unused-imports": "^4.1.4",
         "eslint-plugin-workspaces": "^0.10.1",
         "mocha": "^10.7.3",
         "prettier": "^2.3.2"
+    },
+    "dependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/nodemailer": "^6.4.17",
+        "cors": "^2.8.5",
+        "mqtt": "^5.13.1",
+        "node-fetch": "^2.7.0",
+        "nodemailer": "^7.0.3"
     }
 }
