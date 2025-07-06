@@ -26,10 +26,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const hostname = process.env.HOSTNAME ?? "localhost";
-let portNumber =
-    process.env.PORT != null && process.env.PORT !== ""
-        ? parseInt(process.env.PORT)
-        : 3000;
+let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "http-data-schema-thing";
 
 const logger = createLogger({
@@ -57,11 +54,7 @@ function checkPropertyWrite(expected: string, actual: unknown) {
     }
 }
 
-function checkActionInvocation(
-    name: string,
-    expected: string,
-    actual: unknown
-) {
+function checkActionInvocation(name: string, expected: string, actual: unknown) {
     const output = "Action " + name + " invoked with " + actual;
     if (expected === actual) {
         console.info("PASS: " + output);
@@ -93,9 +86,7 @@ if (process.platform === "win32") {
 
 let thingModel;
 if (tmPath != null && tmPath !== "") {
-    thingModel = JSON.parse(
-        fs.readFileSync(path.join(__dirname, tmPath)).toString()
-    );
+    thingModel = JSON.parse(fs.readFileSync(path.join(__dirname, tmPath)).toString());
 }
 
 const placeholderReplacer = new JsonPlaceholderReplacer();
@@ -290,11 +281,7 @@ servient.start().then((WoT) => {
                             affordanceName: "void-void",
                         },
                     });
-                    checkActionInvocation(
-                        "void-void",
-                        "undefined",
-                        typeof (await parameters.value())
-                    );
+                    checkActionInvocation("void-void", "undefined", typeof (await parameters.value()));
                     return undefined;
                 })
                 .setActionHandler("void-int", async (parameters) => {
@@ -307,11 +294,7 @@ servient.start().then((WoT) => {
                             affordanceName: "void-int",
                         },
                     });
-                    checkActionInvocation(
-                        "void-int",
-                        "undefined",
-                        typeof (await parameters.value())
-                    );
+                    checkActionInvocation("void-int", "undefined", typeof (await parameters.value()));
                     logger.info({
                         message: `${value}`,
                         labels: {
@@ -342,17 +325,10 @@ servient.start().then((WoT) => {
                             messageType: "actionInput",
                         },
                     });
-                    if (
-                        localParameters ===
-                        Math.floor(localParameters as number)
-                    ) {
+                    if (localParameters === Math.floor(localParameters as number)) {
                         checkActionInvocation("int-void", "integer", "integer");
                     } else {
-                        checkActionInvocation(
-                            "int-void",
-                            "integer",
-                            typeof parameters
-                        );
+                        checkActionInvocation("int-void", "integer", typeof parameters);
                     }
                     return undefined;
                 })
@@ -375,17 +351,10 @@ servient.start().then((WoT) => {
                             messageType: "actionInput",
                         },
                     });
-                    if (
-                        localParameters ===
-                        Math.floor(localParameters as number)
-                    ) {
+                    if (localParameters === Math.floor(localParameters as number)) {
                         checkActionInvocation("int-int", "integer", "integer");
                     } else {
-                        checkActionInvocation(
-                            "int-int",
-                            "integer",
-                            typeof localParameters
-                        );
+                        checkActionInvocation("int-int", "integer", typeof localParameters);
                     }
                     const value = (localParameters as number) + 1;
                     logger.info({
@@ -419,21 +388,10 @@ servient.start().then((WoT) => {
                             messageType: "actionInput",
                         },
                     });
-                    if (
-                        localParameters ===
-                        Math.floor(localParameters as number)
-                    ) {
-                        checkActionInvocation(
-                            "int-string",
-                            "integer",
-                            "integer"
-                        );
+                    if (localParameters === Math.floor(localParameters as number)) {
+                        checkActionInvocation("int-string", "integer", "integer");
                     } else {
-                        checkActionInvocation(
-                            "int-string",
-                            "integer",
-                            typeof localParameters
-                        );
+                        checkActionInvocation("int-string", "integer", typeof localParameters);
                     }
 
                     let value: string;
@@ -473,11 +431,7 @@ servient.start().then((WoT) => {
                             affordanceName: "void-obj",
                         },
                     });
-                    checkActionInvocation(
-                        "void-complex",
-                        "undefined",
-                        typeof (await parameters.value())
-                    );
+                    checkActionInvocation("void-complex", "undefined", typeof (await parameters.value()));
                     const value = { prop1: 123, prop2: "abc" };
                     logger.info({
                         message: `${JSON.stringify(value)}`,
@@ -509,11 +463,7 @@ servient.start().then((WoT) => {
                             messageType: "actionInput",
                         },
                     });
-                    checkActionInvocation(
-                        "complex-void",
-                        "object",
-                        typeof (await parameters.value())
-                    );
+                    checkActionInvocation("complex-void", "object", typeof (await parameters.value()));
                     return undefined;
                 });
 

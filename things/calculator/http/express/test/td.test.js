@@ -36,28 +36,23 @@ describe("Calculator HTTP JS", () => {
 
     describe("Calculator Simple", () => {
         it("should have a valid TD", (done) => {
-            http.get(
-                `http://localhost:${simplePort}/http-express-calculator-simple`,
-                function (response) {
-                    const body = [];
-                    response.on("data", (chunk) => {
-                        body.push(chunk);
-                    });
+            http.get(`http://localhost:${simplePort}/http-express-calculator-simple`, function (response) {
+                const body = [];
+                response.on("data", (chunk) => {
+                    body.push(chunk);
+                });
 
-                    response.on("end", () => {
-                        try {
-                            const result = JSON.parse(
-                                Buffer.concat(body).toString()
-                            );
-                            const valid = validate(result);
-                            expect(valid).to.be.true;
-                            done();
-                        } catch (error) {
-                            console.log(error);
-                        }
-                    });
-                }
-            );
+                response.on("end", () => {
+                    try {
+                        const result = JSON.parse(Buffer.concat(body).toString());
+                        const valid = validate(result);
+                        expect(valid).to.be.true;
+                        done();
+                    } catch (error) {
+                        console.log(error);
+                    }
+                });
+            });
         });
     });
 
@@ -81,9 +76,7 @@ describe("Calculator HTTP JS", () => {
 
                     response.on("end", () => {
                         try {
-                            const result = JSON.parse(
-                                Buffer.concat(body).toString()
-                            );
+                            const result = JSON.parse(Buffer.concat(body).toString());
                             const valid = validate(result);
                             expect(valid).to.be.true;
                             done();

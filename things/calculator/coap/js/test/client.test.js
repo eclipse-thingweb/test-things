@@ -53,9 +53,7 @@ describe("Client Tests", () => {
 
         before(async () => {
             try {
-                const td = await WoT.requestThingDescription(
-                    `coap://localhost:${simplePort}/coap-calculator-simple`
-                );
+                const td = await WoT.requestThingDescription(`coap://localhost:${simplePort}/coap-calculator-simple`);
                 thing = await WoT.consume(td);
             } catch (error) {
                 console.error(error);
@@ -81,9 +79,7 @@ describe("Client Tests", () => {
                 const valueToSubtract = 3;
                 await thing.invokeAction("subtract", valueToSubtract);
                 const newResultValue = await readProperty(thing, "result");
-                expect(newResultValue).to.be.equal(
-                    resultValue - valueToSubtract
-                );
+                expect(newResultValue).to.be.equal(resultValue - valueToSubtract);
             });
         });
 
@@ -94,12 +90,9 @@ describe("Client Tests", () => {
                 }, 200);
 
                 let value;
-                const subscription = thing.observeProperty(
-                    "lastChange",
-                    async (response) => {
-                        value = await response.value();
-                    }
-                );
+                const subscription = thing.observeProperty("lastChange", async (response) => {
+                    value = await response.value();
+                });
 
                 setTimeout(async () => {
                     expect(value).to.be.not.undefined;
@@ -122,14 +115,9 @@ describe("Client Tests", () => {
             it("should return sum when subtracting value from the existing result", async () => {
                 const resultValue = await readProperty(thing, "result");
                 const valueToSubtract = 3;
-                const response = await thing.invokeAction(
-                    "subtract",
-                    valueToSubtract
-                );
+                const response = await thing.invokeAction("subtract", valueToSubtract);
                 const actionResultValue = await response.value();
-                expect(actionResultValue).to.be.equal(
-                    resultValue - valueToSubtract
-                );
+                expect(actionResultValue).to.be.equal(resultValue - valueToSubtract);
             });
         });
 
@@ -142,14 +130,9 @@ describe("Client Tests", () => {
                     await thing.invokeAction("add", valueToAdd);
                 }, 200);
 
-                const subscription = await thing.subscribeEvent(
-                    "update",
-                    async (response) => {
-                        await expect(
-                            response.value
-                        ).to.have.eventually.be.equal(resultValue + valueToAdd);
-                    }
-                );
+                const subscription = await thing.subscribeEvent("update", async (response) => {
+                    await expect(response.value).to.have.eventually.be.equal(resultValue + valueToAdd);
+                });
 
                 await subscription.stop();
             });
@@ -189,9 +172,7 @@ describe("Client Tests", () => {
                 const valueToSubtract = 3;
                 await thing.invokeAction("subtract", valueToSubtract);
                 const newResultValue = await readProperty(thing, "result");
-                expect(newResultValue).to.be.equal(
-                    resultValue - valueToSubtract
-                );
+                expect(newResultValue).to.be.equal(resultValue - valueToSubtract);
             });
         });
 
@@ -202,12 +183,9 @@ describe("Client Tests", () => {
                 }, 200);
 
                 let value;
-                const subscription = thing.observeProperty(
-                    "lastChange",
-                    async (response) => {
-                        value = await response.value();
-                    }
-                );
+                const subscription = thing.observeProperty("lastChange", async (response) => {
+                    value = await response.value();
+                });
 
                 setTimeout(async () => {
                     expect(value).to.be.not.undefined;
@@ -230,14 +208,9 @@ describe("Client Tests", () => {
             it("should return sum when subtracting value from the existing result", async () => {
                 const resultValue = await readProperty(thing, "result");
                 const valueToSubtract = 3;
-                const response = await thing.invokeAction(
-                    "subtract",
-                    valueToSubtract
-                );
+                const response = await thing.invokeAction("subtract", valueToSubtract);
                 const actionResultValue = await response.value();
-                expect(actionResultValue).to.be.equal(
-                    resultValue - valueToSubtract
-                );
+                expect(actionResultValue).to.be.equal(resultValue - valueToSubtract);
             });
         });
 
@@ -250,14 +223,9 @@ describe("Client Tests", () => {
                     await thing.invokeAction("add", valueToAdd);
                 }, 200);
 
-                const subscription = await thing.subscribeEvent(
-                    "update",
-                    async (response) => {
-                        await expect(
-                            response.value
-                        ).to.have.eventually.be.equal(resultValue + valueToAdd);
-                    }
-                );
+                const subscription = await thing.subscribeEvent("update", async (response) => {
+                    await expect(response.value).to.have.eventually.be.equal(resultValue + valueToAdd);
+                });
 
                 await subscription.stop();
             });

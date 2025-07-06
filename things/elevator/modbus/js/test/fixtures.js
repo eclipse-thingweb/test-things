@@ -22,12 +22,7 @@ const port = 8502;
 
 exports.mochaGlobalSetup = async function () {
     try {
-        response = await getInitiateMain("node", [
-            path.join(__dirname, "..", "main.js"),
-            "-p",
-            `${port}`,
-            "-t",
-        ]);
+        response = await getInitiateMain("node", [path.join(__dirname, "..", "main.js"), "-p", `${port}`, "-t"]);
         thingProcess = response.process;
     } catch (error) {
         console.log(error);

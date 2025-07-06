@@ -113,8 +113,7 @@ for (const key in thingDescription.properties) {
             newFormRead["cov:contentFormat"] = formatIdentifiers[identifier];
             newFormRead["cov:accept"] = formatIdentifiers[identifier];
             newFormRead.response.contentType = identifier;
-            newFormRead.response["cov:contentFormat"] =
-                formatIdentifiers[identifier];
+            newFormRead.response["cov:contentFormat"] = formatIdentifiers[identifier];
             thingDescription.properties[key].forms.push(newFormRead);
 
             const newFormObs = JSON.parse(JSON.stringify(newFormRead));
@@ -155,8 +154,7 @@ for (const key in thingDescription.actions) {
             newForm["cov:contentFormat"] = formatIdentifiers[identifier];
             newForm["cov:accept"] = formatIdentifiers[identifier];
             newForm.response.contentType = identifier;
-            newForm.response["cov:contentFormat"] =
-                formatIdentifiers[identifier];
+            newForm.response["cov:contentFormat"] = formatIdentifiers[identifier];
             thingDescription.actions[key].forms.push(newForm);
 
             /**
@@ -168,21 +166,17 @@ for (const key in thingDescription.actions) {
                     const newFormAccept = JSON.parse(JSON.stringify(newForm));
                     newFormAccept["cov:accept"] = formatIdentifiers[identifier];
                     newFormAccept.response.contentType = identifier;
-                    newFormAccept.response["cov:contentFormat"] =
-                        formatIdentifiers[identifier];
+                    newFormAccept.response["cov:contentFormat"] = formatIdentifiers[identifier];
                     thingDescription.actions[key].forms.push(newFormAccept);
                 }
             }
         } else {
             for (const identifier in formatIdentifiers) {
-                if (
-                    originalForm["cov:accept"] !== formatIdentifiers[identifier]
-                ) {
+                if (originalForm["cov:accept"] !== formatIdentifiers[identifier]) {
                     const newForm = JSON.parse(JSON.stringify(originalForm));
                     newForm["cov:accept"] = formatIdentifiers[identifier];
                     newForm.response.contentType = identifier;
-                    newForm.response["cov:contentFormat"] =
-                        formatIdentifiers[identifier];
+                    newForm.response["cov:contentFormat"] = formatIdentifiers[identifier];
                     thingDescription.actions[key].forms.push(newForm);
                 }
             }
@@ -217,8 +211,7 @@ for (const key in thingDescription.events) {
             newForm["cov:contentFormat"] = formatIdentifiers[identifier];
             newForm["cov:accept"] = formatIdentifiers[identifier];
             newForm.response.contentType = identifier;
-            newForm.response["cov:contentFormat"] =
-                formatIdentifiers[identifier];
+            newForm.response["cov:contentFormat"] = formatIdentifiers[identifier];
             thingDescription.events[key].forms.push(newForm);
         }
     }
@@ -226,10 +219,7 @@ for (const key in thingDescription.events) {
 
 // Creating the TD for testing purposes
 try {
-    fs.writeFileSync(
-        "coap-content-negotiation-calculator-thing.td.jsonld",
-        JSON.stringify(thingDescription, null, 2)
-    );
+    fs.writeFileSync("coap-content-negotiation-calculator-thing.td.jsonld", JSON.stringify(thingDescription, null, 2));
 } catch (err) {
     console.log(err);
 }
@@ -243,8 +233,7 @@ let lastChange = new Date().toISOString();
 server.on("request", (req, res) => {
     const segments = req.url.split("/");
     const acceptHeaders = req.headers.Accept || [];
-    const reqContentType =
-        req.headers["Content-Type"] || req.headers["Content-Format"] || [];
+    const reqContentType = req.headers["Content-Type"] || req.headers["Content-Format"] || [];
 
     if (segments[1] !== thingName) {
         res.code = 404;
@@ -261,9 +250,7 @@ server.on("request", (req, res) => {
                     res.setOption("Content-Format", "application/json");
                     res.end(JSON.stringify(thingDescription));
                 } else if (acceptHeaders.includes("application/cbor")) {
-                    const cborData = cbor.encode(
-                        JSON.stringify(thingDescription)
-                    );
+                    const cborData = cbor.encode(JSON.stringify(thingDescription));
                     res.setOption("Content-Format", "application/cbor");
                     res.end(cborData);
                 } else {
@@ -296,9 +283,7 @@ server.on("request", (req, res) => {
                             if (oldResult !== result) {
                                 res.statusCode = 205;
                                 if (
-                                    acceptHeaders.includes(
-                                        "application/json"
-                                    ) ||
+                                    acceptHeaders.includes("application/json") ||
                                     acceptHeaders.includes("application/*") ||
                                     acceptHeaders === "*/*"
                                 ) {
@@ -313,9 +298,7 @@ server.on("request", (req, res) => {
                         }, 1000);
 
                         res.on("finish", () => {
-                            console.log(
-                                "Result property observation has been closed"
-                            );
+                            console.log("Result property observation has been closed");
                             clearInterval(changeInterval);
                         });
                     } else {
@@ -344,9 +327,7 @@ server.on("request", (req, res) => {
                             if (oldDate !== lastChange) {
                                 res.statusCode = 205;
                                 if (
-                                    acceptHeaders.includes(
-                                        "application/json"
-                                    ) ||
+                                    acceptHeaders.includes("application/json") ||
                                     acceptHeaders.includes("application/*") ||
                                     acceptHeaders === "*/*"
                                 ) {
@@ -361,9 +342,7 @@ server.on("request", (req, res) => {
                         }, 1000);
 
                         res.on("finish", () => {
-                            console.log(
-                                "lastChange property observation has been closed"
-                            );
+                            console.log("lastChange property observation has been closed");
                             clearInterval(changeInterval);
                         });
                     } else {
@@ -434,17 +413,12 @@ server.on("request", (req, res) => {
                         let numberToSubtract;
 
                         if (reqContentType.includes("application/json")) {
-                            numberToSubtract = JSON.parse(
-                                req.payload.toString()
-                            );
+                            numberToSubtract = JSON.parse(req.payload.toString());
                         } else {
                             numberToSubtract = cbor.decode(req.payload);
                         }
 
-                        if (
-                            typeof numberToSubtract !== "number" ||
-                            !numberToSubtract
-                        ) {
+                        if (typeof numberToSubtract !== "number" || !numberToSubtract) {
                             res.code = 400;
                             res.end();
                         } else {

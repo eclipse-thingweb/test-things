@@ -134,14 +134,11 @@ async function getLatestChange(acceptType) {
  * Create an EventSource for the last change observe property.
  */
 function listenToLastChangeProperty(acceptType) {
-    const lastChangeEventSource = new EventSource(
-        url + lastChangeEndPointObserve,
-        {
-            headers: {
-                Accept: acceptType,
-            },
-        }
-    );
+    const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve, {
+        headers: {
+            Accept: acceptType,
+        },
+    });
 
     lastChangeEventSource.onmessage = (e) => {
         const body = e.data;
@@ -174,10 +171,7 @@ function listenToLastChangeProperty(acceptType) {
  * @returns addedNumber - the number to be added to the calculator
  */
 async function addNumber(number, contentType, acceptType) {
-    const inputNumber =
-        contentType === "application/json"
-            ? JSON.stringify(number)
-            : cbor.encode(number);
+    const inputNumber = contentType === "application/json" ? JSON.stringify(number) : cbor.encode(number);
 
     const res = await fetch(url + additionEndPoint, {
         method: "POST",
@@ -211,10 +205,7 @@ async function addNumber(number, contentType, acceptType) {
  * @returns subtractedNumber - the number to be added to the calculator
  */
 async function subtractNumber(number, contentType, acceptType) {
-    const inputNumber =
-        contentType === "application/json"
-            ? JSON.stringify(number)
-            : cbor.encode(number);
+    const inputNumber = contentType === "application/json" ? JSON.stringify(number) : cbor.encode(number);
 
     const res = await fetch(url + subtractionEndPoint, {
         method: "POST",
@@ -280,31 +271,17 @@ async function runCalculatorInteractions() {
     try {
         console.log("-------- Basic functionality --------\n");
         console.log("Full thing: \n", await getFullTD("application/cbor"));
-        console.log(
-            "Current number: ",
-            await getCurrentResult("application/json")
-        );
+        console.log("Current number: ", await getCurrentResult("application/json"));
         console.log("Last Change: ", await getLatestChange("application/cbor"));
-        console.log(
-            "Result of the addition is: ",
-            await addNumber(5, "application/cbor", "application/json")
-        );
-        console.log(
-            "Result of the subtraction is: ",
-            await subtractNumber(3, "application/json", "application/cbor")
-        );
-        console.log(
-            "Current number: ",
-            await getCurrentResult("application/cbor")
-        );
+        console.log("Result of the addition is: ", await addNumber(5, "application/cbor", "application/json"));
+        console.log("Result of the subtraction is: ", await subtractNumber(3, "application/json", "application/cbor"));
+        console.log("Current number: ", await getCurrentResult("application/cbor"));
         console.log("Last Change: ", await getLatestChange("application/json"));
 
         /**
          * Start listening to the update event, result property and lastChange property.
          */
-        console.log(
-            "\n-------- Start listening to properties and events --------\n"
-        );
+        console.log("\n-------- Start listening to properties and events --------\n");
         listenToResultProperty("application/cbor");
         listenToUpdateEvent("application/json");
         listenToLastChangeProperty("application/cbor");
