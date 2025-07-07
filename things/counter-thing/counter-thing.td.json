@@ -1,8 +1,5 @@
 {
-    "@context": [
-        "https://www.w3.org/2019/wot/td/v1",
-        "https://www.w3.org/2022/wot/td/v1.1"
-    ],
+    "@context": ["https://www.w3.org/2019/wot/td/v1", "https://www.w3.org/2022/wot/td/v1.1"],
     "title": "Counter",
     "description": "Counter example Thing",
     "support": "https://github.com/eclipse-thingweb/node-wot/",

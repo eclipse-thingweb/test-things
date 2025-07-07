@@ -25,10 +25,7 @@ import * as path from "node:path";
 dotenv.config();
 
 const hostname = process.env.HOSTNAME ?? "localhost";
-let portNumber =
-    process.env.PORT != null && process.env.PORT !== ""
-        ? parseInt(process.env.PORT)
-        : 3000;
+let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "counter";
 
 const logger = createLogger({
@@ -91,9 +88,7 @@ const setLastChange = (value: string) => {
     });
 };
 
-const thingDescription = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "../../counter-thing.td.json"), "utf8")
-);
+const thingDescription = JSON.parse(fs.readFileSync(path.join(__dirname, "../../counter-thing.td.json"), "utf8"));
 
 // Create Servient and add HTTP binding with port configuration
 const servient = new Servient();
@@ -112,34 +107,24 @@ servient.start().then((WoT) => {
             // Set property handlers
             thing.setPropertyReadHandler("count", async () => count);
             thing.setPropertyReadHandler("lastChange", async () => lastChange);
-            thing.setPropertyReadHandler(
-                "countAsImage",
-                async (options: any) => {
-                    let fill = "black";
-                    if (
-                        options &&
-                        typeof options === "object" &&
-                        "uriVariables" in options
-                    ) {
-                        if (
-                            options.uriVariables &&
-                            "fill" in options.uriVariables
-                        ) {
-                            const uriVariables = options.uriVariables;
-                            fill = uriVariables.fill as string;
-                        }
+            thing.setPropertyReadHandler("countAsImage", async (options: any) => {
+                let fill = "black";
+                if (options && typeof options === "object" && "uriVariables" in options) {
+                    if (options.uriVariables && "fill" in options.uriVariables) {
+                        const uriVariables = options.uriVariables;
+                        fill = uriVariables.fill as string;
                     }
-                    return (
-                        "<svg xmlns='http://www.w3.org/2000/svg' height='30' width='200'>" +
-                        "<text x='0' y='15' fill='" +
-                        fill +
-                        "'>" +
-                        count +
-                        "</text>" +
-                        "</svg>"
-                    );
                 }
-            );
+                return (
+                    "<svg xmlns='http://www.w3.org/2000/svg' height='30' width='200'>" +
+                    "<text x='0' y='15' fill='" +
+                    fill +
+                    "'>" +
+                    count +
+                    "</text>" +
+                    "</svg>"
+                );
+            });
             thing.setPropertyReadHandler(
                 "redDotImage",
                 async () =>
@@ -147,121 +132,97 @@ servient.start().then((WoT) => {
             );
 
             // Set action handlers
-            thing.setActionHandler(
-                "increment",
-                async (params: any, options: any) => {
-                    logger.info({
-                        message: "Action invoked.",
-                        labels: {
-                            affordance: "action",
-                            op: "invokeaction",
-                            affordanceName: "increment",
-                        },
-                    });
+            thing.setActionHandler("increment", async (params: any, options: any) => {
+                logger.info({
+                    message: "Action invoked.",
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "increment",
+                    },
+                });
 
-                    let step = 1;
-                    if (
-                        options &&
-                        typeof options === "object" &&
-                        "uriVariables" in options
-                    ) {
-                        if (
-                            options.uriVariables &&
-                            "step" in options.uriVariables
-                        ) {
-                            const uriVariables = options.uriVariables;
-                            step = uriVariables.step as number;
-                            logger.info({
-                                message: `${step}`,
-                                labels: {
-                                    affordance: "action",
-                                    op: "invokeaction",
-                                    affordanceName: "increment",
-                                    messageType: "actionInput",
-                                },
-                            });
-                        }
+                let step = 1;
+                if (options && typeof options === "object" && "uriVariables" in options) {
+                    if (options.uriVariables && "step" in options.uriVariables) {
+                        const uriVariables = options.uriVariables;
+                        step = uriVariables.step as number;
+                        logger.info({
+                            message: `${step}`,
+                            labels: {
+                                affordance: "action",
+                                op: "invokeaction",
+                                affordanceName: "increment",
+                                messageType: "actionInput",
+                            },
+                        });
                     }
-
-                    const newValue = count + step;
-                    setCount(newValue);
-                    setLastChange(new Date().toISOString());
-                    thing.emitEvent("change", count);
-                    thing.emitPropertyChange("count");
-
-                    logger.info({
-                        message: `Action completed. Count incremented from ${
-                            count - step
-                        } to ${newValue} (step: ${step})`,
-                        labels: {
-                            affordance: "action",
-                            op: "invokeaction",
-                            affordanceName: "increment",
-                            messageType: "actionOutput",
-                        },
-                    });
-
-                    return undefined;
                 }
-            );
 
-            thing.setActionHandler(
-                "decrement",
-                async (params: any, options: any) => {
-                    logger.info({
-                        message: "Action invoked.",
-                        labels: {
-                            affordance: "action",
-                            op: "invokeaction",
-                            affordanceName: "decrement",
-                        },
-                    });
+                const newValue = count + step;
+                setCount(newValue);
+                setLastChange(new Date().toISOString());
+                thing.emitEvent("change", count);
+                thing.emitPropertyChange("count");
 
-                    let step = 1;
-                    if (
-                        options &&
-                        typeof options === "object" &&
-                        "uriVariables" in options
-                    ) {
-                        if (
-                            options.uriVariables &&
-                            "step" in options.uriVariables
-                        ) {
-                            const uriVariables = options.uriVariables;
-                            step = uriVariables.step as number;
-                            logger.info({
-                                message: `${step}`,
-                                labels: {
-                                    affordance: "action",
-                                    op: "invokeaction",
-                                    affordanceName: "decrement",
-                                    messageType: "actionInput",
-                                },
-                            });
-                        }
+                logger.info({
+                    message: `Action completed. Count incremented from ${count - step} to ${newValue} (step: ${step})`,
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "increment",
+                        messageType: "actionOutput",
+                    },
+                });
+
+                return undefined;
+            });
+
+            thing.setActionHandler("decrement", async (params: any, options: any) => {
+                logger.info({
+                    message: "Action invoked.",
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "decrement",
+                    },
+                });
+
+                let step = 1;
+                if (options && typeof options === "object" && "uriVariables" in options) {
+                    if (options.uriVariables && "step" in options.uriVariables) {
+                        const uriVariables = options.uriVariables;
+                        step = uriVariables.step as number;
+                        logger.info({
+                            message: `${step}`,
+                            labels: {
+                                affordance: "action",
+                                op: "invokeaction",
+                                affordanceName: "decrement",
+                                messageType: "actionInput",
+                            },
+                        });
                     }
-
-                    const newValue = count - step;
-                    setCount(newValue);
-                    setLastChange(new Date().toISOString());
-                    thing.emitEvent("change", count);
-                    thing.emitPropertyChange("count");
-
-                    logger.info({
-                        message: `Action completed. Count decremented from ${
-                            count + step
-                        } to ${newValue} (step: ${step})`,
-                        labels: {
-                            affordance: "action",
-                            op: "invokeaction",
-                            affordanceName: "decrement",
-                            messageType: "actionOutput",
-                        },
-                    });
-
-                    return undefined;
                 }
-            );
+
+                const newValue = count - step;
+                setCount(newValue);
+                setLastChange(new Date().toISOString());
+                thing.emitEvent("change", count);
+                thing.emitPropertyChange("count");
+
+                logger.info({
+                    message: `Action completed. Count decremented from ${count + step} to ${newValue} (step: ${step})`,
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "decrement",
+                        messageType: "actionOutput",
+                    },
+                });
+
+                return undefined;
+            });
 
             thing.setActionHandler("reset", async () => {
                 logger.info({
