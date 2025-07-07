@@ -23,12 +23,18 @@ require("dotenv").config();
 const { createLogger, transports, format } = require("winston");
 const LokiTransport = require("winston-loki");
 
+// Import OpenTelemetry tracing
+const { initTracing, traceMessage, traceOperation, traceAsyncOperation } = require("../../../../util/tracing");
+
 const app = express();
 app.use(express.json({ strict: false }));
 
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT ?? 3000;
 const thingName = "http-express-calculator-simple";
+
+// Initialize OpenTelemetry tracing
+initTracing(thingName);
 
 const logger = createLogger({
     transports: [
@@ -173,6 +179,15 @@ const reqParser = bodyParser.text({ type: "*/*" });
 // Logging and monitoring variables and functions
 const setResult = (value) => {
     result = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: result", {
+        affordance: "property",
+        affordanceName: "result",
+        messageType: "updateProperty",
+        value: value
+    });
+    
     logger.info({
         message: `${result}`,
         labels: {
@@ -185,6 +200,15 @@ const setResult = (value) => {
 
 const setLastChange = (value) => {
     lastChange = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: lastChange", {
+        affordance: "property",
+        affordanceName: "lastChange",
+        messageType: "updateProperty",
+        value: value
+    });
+    
     logger.info({
         message: `${lastChange}`,
         labels: {
@@ -483,12 +507,23 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
-    try {
-        const bodyInput = JSON.parse(req.body);
+    return traceAsyncOperation("add_action", async () => {
+        try {
+            const bodyInput = JSON.parse(req.body);
 
-        if (typeof bodyInput !== "number") {
-            res.status(400).json("Input should be a valid number");
-        } else {
+            if (typeof bodyInput !== "number") {
+                res.status(400).json("Input should be a valid number");
+                return;
+            }
+            
+            // Add OpenTelemetry tracing
+            traceMessage("Action invoked: add", {
+                affordance: "action",
+                op: "invokeaction",
+                affordanceName: "add",
+                input: bodyInput
+            });
+            
             logger.info({
                 message: "Action invoked.",
                 labels: {
@@ -518,20 +553,34 @@ app.post(additionEndPoint, reqParser, (req, res) => {
                 },
             });
             res.json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(400).json("Input should be a valid number");
         }
-    } catch (error) {
-        console.error(error);
-        res.status(400).json("Input should be a valid number");
-    }
+    }, {
+        affordance: "action",
+        affordanceName: "add"
+    });
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
-    try {
-        const bodyInput = JSON.parse(req.body);
+    return traceAsyncOperation("subtract_action", async () => {
+        try {
+            const bodyInput = JSON.parse(req.body);
 
-        if (typeof bodyInput !== "number") {
-            res.status(400).json("Input should be a valid number");
-        } else {
+            if (typeof bodyInput !== "number") {
+                res.status(400).json("Input should be a valid number");
+                return;
+            }
+            
+            // Add OpenTelemetry tracing
+            traceMessage("Action invoked: subtract", {
+                affordance: "action",
+                op: "invokeaction",
+                affordanceName: "subtract",
+                input: bodyInput
+            });
+            
             logger.info({
                 message: "Action invoked.",
                 labels: {
@@ -561,11 +610,14 @@ app.post(subtractionEndPoint, reqParser, (req, res) => {
                 },
             });
             res.json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(400).json("Input should be a valid number");
         }
-    } catch (error) {
-        console.error(error);
-        res.status(400).json("Input should be a valid number");
-    }
+    }, {
+        affordance: "action",
+        affordanceName: "subtract"
+    });
 });
 
 app.get(updateEndPoint, (req, res) => {

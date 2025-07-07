@@ -23,11 +23,18 @@ import { HttpServer } from "@node-wot/binding-http";
 import { createLogger, transports, format } from "winston";
 import LokiTransport from "winston-loki";
 import dotenv from "dotenv";
+
+// Minimal tracing import
+const { initTracing, traceMessage } = require("../../../../util/tracing");
+
 dotenv.config();
 
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "http-data-schema-thing";
+
+// Initialize OpenTelemetry tracing
+initTracing(thingName);
 
 const logger = createLogger({
     transports: [
@@ -108,6 +115,7 @@ let bool: boolean;
 
 const setBool = (value: boolean) => {
     bool = value;
+    traceMessage("Property updated: bool", { value });
     logger.info({
         message: `${bool}`,
         labels: {
@@ -124,6 +132,16 @@ let int: number;
 
 const setInt = (value: number) => {
     int = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: int", {
+        affordance: "property",
+        affordanceName: "int",
+        messageType: "updateProperty",
+        value: value,
+        type: typeof value
+    });
+    
     logger.info({
         message: `${int}`,
         labels: {
@@ -140,6 +158,16 @@ let num: number;
 
 const setNum = (value: number) => {
     num = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: num", {
+        affordance: "property",
+        affordanceName: "num",
+        messageType: "updateProperty",
+        value: value,
+        type: typeof value
+    });
+    
     logger.info({
         message: `${num}`,
         labels: {
@@ -156,6 +184,16 @@ let string: string;
 
 const setString = (value: string) => {
     string = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: string", {
+        affordance: "property",
+        affordanceName: "string",
+        messageType: "updateProperty",
+        value: value,
+        type: typeof value
+    });
+    
     logger.info({
         message: `${string}`,
         labels: {
@@ -172,6 +210,17 @@ let array: unknown[];
 
 const setArray = (value: unknown[]) => {
     array = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: array", {
+        affordance: "property",
+        affordanceName: "array",
+        messageType: "updateProperty",
+        value: JSON.stringify(value),
+        type: typeof value,
+        length: value.length
+    });
+    
     logger.info({
         message: `${array}`,
         labels: {
@@ -188,6 +237,17 @@ let object: Record<string, unknown>;
 
 const setObject = (value: Record<string, unknown>) => {
     object = value;
+    
+    // Add OpenTelemetry tracing
+    traceMessage("Property updated: object", {
+        affordance: "property",
+        affordanceName: "object",
+        messageType: "updateProperty",
+        value: JSON.stringify(value),
+        type: typeof value,
+        keys: Object.keys(value)
+    });
+    
     logger.info({
         message: `${JSON.stringify(object)}`,
         labels: {
@@ -273,14 +333,7 @@ servient.start().then((WoT) => {
             // set action handlers
             thing
                 .setActionHandler("void-void", async (parameters) => {
-                    logger.info({
-                        message: "Action invoked.",
-                        labels: {
-                            affordance: "action",
-                            op: "invokeaction",
-                            affordanceName: "void-void",
-                        },
-                    });
+                    traceMessage("Action invoked: void-void", {});
                     checkActionInvocation("void-void", "undefined", typeof (await parameters.value()));
                     return undefined;
                 })

@@ -1,0 +1,26 @@
+{
+    "name": "test-things-util",
+    "version": "1.0.0",
+    "description": "Utility functions for test-things including OpenTelemetry tracing",
+    "main": "tracing.js",
+    "scripts": {
+        "test": "echo \"No tests specified\" && exit 0"
+    },
+    "keywords": [
+        "wot",
+        "thing",
+        "iot",
+        "tracing",
+        "opentelemetry"
+    ],
+    "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+    "license": "EPL-2.0 OR W3C-20150513",
+    "dependencies": {
+        "@opentelemetry/api": "^1.7.0",
+        "@opentelemetry/exporter-jaeger": "^1.21.0",
+        "@opentelemetry/resources": "^1.21.0",
+        "@opentelemetry/sdk-trace-base": "^1.21.0",
+        "@opentelemetry/sdk-trace-node": "^1.21.0",
+        "@opentelemetry/semantic-conventions": "^1.21.0"
+    }
+} 

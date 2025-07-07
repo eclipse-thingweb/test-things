@@ -25,6 +25,10 @@ import { JsonPlaceholderReplacer } from "json-placeholder-replacer";
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
 import dotenv from "dotenv";
+
+// Minimal tracing import
+const { initTracing, traceMessage } = require("../../../../util/tracing");
+
 dotenv.config();
 
 const hostname = process.env.HOSTNAME ?? "localhost";
@@ -168,6 +172,7 @@ servient
 
             // Set up a handler for makeDrink action
             thing.setActionHandler("makeDrink", async (_params, options) => {
+                traceMessage("Action invoked: makeDrink", {});
                 // Default values
                 let drinkId = "americano";
                 let size = "m";
@@ -241,6 +246,7 @@ servient
                 for (const resource in newResources) {
                     if (newResources[resource] <= 0) {
                         thing.emitEvent("outOfResource", `Low level of ${resource}: ${newResources[resource]}%`);
+                        
                         return {
                             result: false,
                             message: `${resource} level is not sufficient`,
@@ -296,3 +302,6 @@ servient
     .catch((e: Error) => {
         console.log(e);
     });
+
+// Initialize OpenTelemetry tracing
+initTracing(thingName);
