@@ -278,6 +278,6 @@ services:
       - things_network
 
 networks:
-  things_network:
-    name: things_network
-    external: true
+    things_network:
+        name: things_network
+        external: true

@@ -28,10 +28,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const hostname = process.env.HOSTNAME ?? "localhost";
-let portNumber =
-    process.env.PORT != null && process.env.PORT !== ""
-        ? parseInt(process.env.PORT)
-        : 3000;
+let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "http-advanced-coffee-machine";
 
 let allAvailableResources: Record<string, number>;
@@ -75,9 +72,7 @@ if (process.platform === "win32") {
 let thingModel;
 
 if (tmPath != null && tmPath !== "") {
-    thingModel = JSON.parse(
-        fs.readFileSync(path.join(__dirname, tmPath)).toString()
-    );
+    thingModel = JSON.parse(fs.readFileSync(path.join(__dirname, tmPath)).toString());
 }
 
 const placeholderReplacer = new JsonPlaceholderReplacer();
@@ -113,29 +108,13 @@ servient
                 chocolate: readFromSensor("chocolate"),
                 coffeeBeans: readFromSensor("coffeeBeans"),
             };
-            possibleDrinks = [
-                "espresso",
-                "americano",
-                "cappuccino",
-                "latte",
-                "hotChocolate",
-                "hotWater",
-            ];
+            possibleDrinks = ["espresso", "americano", "cappuccino", "latte", "hotChocolate", "hotWater"];
             maintenanceNeeded = false;
             schedules = [];
 
-            thing.setPropertyReadHandler(
-                "allAvailableResources",
-                async () => allAvailableResources
-            );
-            thing.setPropertyReadHandler(
-                "possibleDrinks",
-                async () => possibleDrinks
-            );
-            thing.setPropertyReadHandler(
-                "maintenanceNeeded",
-                async () => maintenanceNeeded
-            );
+            thing.setPropertyReadHandler("allAvailableResources", async () => allAvailableResources);
+            thing.setPropertyReadHandler("possibleDrinks", async () => possibleDrinks);
+            thing.setPropertyReadHandler("maintenanceNeeded", async () => maintenanceNeeded);
             thing.setPropertyReadHandler("schedules", async () => schedules);
 
             // Override a write handler for servedCounter property,
@@ -160,53 +139,32 @@ servient
 
             // Override a write handler for availableResourceLevel property,
             // utilizing the uriVariables properly
-            thing.setPropertyWriteHandler(
-                "availableResourceLevel",
-                async (val, options) => {
-                    // Check if uriVariables are provided
-                    if (
-                        options &&
-                        typeof options === "object" &&
-                        "uriVariables" in options
-                    ) {
-                        const uriVariables = options.uriVariables as Record<
-                            string,
-                            string
-                        >;
-                        if ("id" in uriVariables) {
-                            const id = uriVariables.id;
-                            allAvailableResources[id] =
-                                (await val.value()) as number;
-                            return;
-                        }
+            thing.setPropertyWriteHandler("availableResourceLevel", async (val, options) => {
+                // Check if uriVariables are provided
+                if (options && typeof options === "object" && "uriVariables" in options) {
+                    const uriVariables = options.uriVariables as Record<string, string>;
+                    if ("id" in uriVariables) {
+                        const id = uriVariables.id;
+                        allAvailableResources[id] = (await val.value()) as number;
+                        return;
                     }
-                    throw Error("Please specify id variable as uriVariables.");
                 }
-            );
+                throw Error("Please specify id variable as uriVariables.");
+            });
 
             // Override a read handler for availableResourceLevel property,
             // utilizing the uriVariables properly
-            thing.setPropertyReadHandler(
-                "availableResourceLevel",
-                async (options) => {
-                    // Check if uriVariables are provided
-                    if (
-                        options &&
-                        typeof options === "object" &&
-                        "uriVariables" in options
-                    ) {
-                        const uriVariables = options.uriVariables as Record<
-                            string,
-                            string
-                        >;
-                        if ("id" in uriVariables) {
-                            const id = uriVariables.id;
-                            return allAvailableResources[id];
-                        }
+            thing.setPropertyReadHandler("availableResourceLevel", async (options) => {
+                // Check if uriVariables are provided
+                if (options && typeof options === "object" && "uriVariables" in options) {
+                    const uriVariables = options.uriVariables as Record<string, string>;
+                    if ("id" in uriVariables) {
+                        const id = uriVariables.id;
+                        return allAvailableResources[id];
                     }
-                    throw Error("Please specify id variable as uriVariables.");
                 }
-            );
+                throw Error("Please specify id variable as uriVariables.");
+            });
 
             // Set up a handler for makeDrink action
             thing.setActionHandler("makeDrink", async (_params, options) => {
@@ -263,59 +221,26 @@ servient
                 };
 
                 // Check if uriVariables are provided
-                if (
-                    options &&
-                    typeof options === "object" &&
-                    "uriVariables" in options
-                ) {
-                    const uriVariables = options.uriVariables as Record<
-                        string,
-                        string | number
-                    >;
-                    drinkId =
-                        "drinkId" in uriVariables
-                            ? (uriVariables.drinkId as string)
-                            : drinkId;
-                    size =
-                        "size" in uriVariables
-                            ? (uriVariables.size as string)
-                            : size;
-                    quantity =
-                        "quantity" in uriVariables
-                            ? (uriVariables.quantity as number)
-                            : quantity;
+                if (options && typeof options === "object" && "uriVariables" in options) {
+                    const uriVariables = options.uriVariables as Record<string, string | number>;
+                    drinkId = "drinkId" in uriVariables ? (uriVariables.drinkId as string) : drinkId;
+                    size = "size" in uriVariables ? (uriVariables.size as string) : size;
+                    quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
                 }
 
                 // Calculate the new level of resources
                 const newResources = Object.assign({}, allAvailableResources);
-                newResources.water -= Math.ceil(
-                    quantity *
-                        sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].water
-                );
-                newResources.milk -= Math.ceil(
-                    quantity *
-                        sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].milk
-                );
-                newResources.chocolate -= Math.ceil(
-                    quantity *
-                        sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].chocolate
-                );
+                newResources.water -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].water);
+                newResources.milk -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].milk);
+                newResources.chocolate -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate);
                 newResources.coffeeBeans -= Math.ceil(
-                    quantity *
-                        sizeQuantifiers[size] *
-                        drinkRecipes[drinkId].coffeeBeans
+                    quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].coffeeBeans
                 );
 
                 // Check if the amount of available resources is sufficient to make a drink
                 for (const resource in newResources) {
                     if (newResources[resource] <= 0) {
-                        thing.emitEvent(
-                            "outOfResource",
-                            `Low level of ${resource}: ${newResources[resource]}%`
-                        );
+                        thing.emitEvent("outOfResource", `Low level of ${resource}: ${newResources[resource]}%`);
                         return {
                             result: false,
                             message: `${resource} level is not sufficient`,
@@ -336,24 +261,14 @@ servient
 
             // Set up a handler for setSchedule action
             thing.setActionHandler("setSchedule", async (params, options) => {
-                const paramsp = (await params.value()) as Record<
-                    string,
-                    unknown
-                >; //  : any = await Helpers.parseInteractionOutput(params);
+                const paramsp = (await params.value()) as Record<string, unknown>; //  : any = await Helpers.parseInteractionOutput(params);
 
                 // Check if uriVariables are provided
-                if (
-                    paramsp != null &&
-                    typeof paramsp === "object" &&
-                    "time" in paramsp &&
-                    "mode" in paramsp
-                ) {
+                if (paramsp != null && typeof paramsp === "object" && "time" in paramsp && "mode" in paramsp) {
                     // Use default values if not provided
-                    paramsp.drinkId =
-                        "drinkId" in paramsp ? paramsp.drinkId : "americano";
+                    paramsp.drinkId = "drinkId" in paramsp ? paramsp.drinkId : "americano";
                     paramsp.size = "size" in paramsp ? paramsp.size : "m";
-                    paramsp.quantity =
-                        "quantity" in paramsp ? paramsp.quantity : 1;
+                    paramsp.quantity = "quantity" in paramsp ? paramsp.quantity : 1;
 
                     // Now add a new schedule
                     schedules.push(paramsp);

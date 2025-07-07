@@ -81,9 +81,7 @@ async function getLatestChange() {
  * Uncomment to test the SSE functionality.
  */
 function listenToLastChange() {
-    const lastChangeEventSource = new EventSource(
-        url + lastChangeEndPointObserve
-    );
+    const lastChangeEventSource = new EventSource(url + lastChangeEndPointObserve);
 
     lastChangeEventSource.onmessage = (e) => {
         console.log("lastChange SSE:", JSON.parse(e.data));
@@ -173,9 +171,7 @@ async function runCalculatorInteractions() {
         /**
          * Start listening to the update event, result property and lastChange property.
          */
-        console.log(
-            "\n-------- Start listening to properties and events --------\n"
-        );
+        console.log("\n-------- Start listening to properties and events --------\n");
         listenToUpdateEvent();
         listenToLastChange();
         listenToResult();

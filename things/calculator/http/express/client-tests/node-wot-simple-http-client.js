@@ -22,9 +22,7 @@ servient.addClientFactory(new HttpClientFactory(null));
 servient
     .start()
     .then(async (WoT) => {
-        const td = await WoT.requestThingDescription(
-            "http://localhost:3000/http-express-calculator-simple"
-        );
+        const td = await WoT.requestThingDescription("http://localhost:3000/http-express-calculator-simple");
 
         const thing = await WoT.consume(td);
         console.log(td);
@@ -33,9 +31,7 @@ servient
         const result = await (await thing.readProperty("result")).value();
         console.log("Read result:", result);
 
-        const lastChange = await (
-            await thing.readProperty("lastChange")
-        ).value();
+        const lastChange = await (await thing.readProperty("lastChange")).value();
         console.log("Read lastChange:", lastChange);
 
         // Update event observation

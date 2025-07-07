@@ -28,10 +28,7 @@ servient.addClientFactory(new HttpClientFactory());
 
 let thing: WoT.ConsumedThing;
 
-const readProperty = async (
-    thing: WoT.ConsumedThing,
-    name: string
-): Promise<WoT.DataSchemaValue> => {
+const readProperty = async (thing: WoT.ConsumedThing, name: string): Promise<WoT.DataSchemaValue> => {
     try {
         const res = await thing.readProperty(name);
         const value = await res.value();
@@ -147,14 +144,12 @@ describe("Client Tests", () => {
 
         it("should fail to write value 13", async () => {
             const stringValue = 13;
-            await expect(thing.writeProperty("string", stringValue)).to.be
-                .rejected;
+            await expect(thing.writeProperty("string", stringValue)).to.be.rejected;
         });
 
         it("should fail to write value null", async () => {
             const stringValue = null;
-            await expect(thing.writeProperty("string", stringValue)).to.be
-                .rejected;
+            await expect(thing.writeProperty("string", stringValue)).to.be.rejected;
         });
     });
 
@@ -178,8 +173,7 @@ describe("Client Tests", () => {
 
         it("should fail to write value null", async () => {
             const arrayValue = null;
-            await expect(thing.writeProperty("array", arrayValue)).to.be
-                .rejected;
+            await expect(thing.writeProperty("array", arrayValue)).to.be.rejected;
         });
     });
 
@@ -198,14 +192,12 @@ describe("Client Tests", () => {
 
         it("should fail to write value null", async () => {
             const objectValue = null;
-            await expect(thing.writeProperty("object", objectValue)).to.be
-                .rejected;
+            await expect(thing.writeProperty("object", objectValue)).to.be.rejected;
         });
 
         it("should fail to write array value", async () => {
             const objectValue = [24, "dark"];
-            await expect(thing.writeProperty("object", objectValue)).to.be
-                .rejected;
+            await expect(thing.writeProperty("object", objectValue)).to.be.rejected;
         });
     });
 });

@@ -143,12 +143,7 @@ const minFloorNumber = 0;
 const maxFloorNumber = 15;
 thingDescription.properties.floorNumber.forms = floorNumberForms;
 
-fs.writeFile(
-    `${thingName}.td.json`,
-    JSON.stringify(thingDescription, 4, 4),
-    "utf-8",
-    function () {}
-);
+fs.writeFile(`${thingName}.td.json`, JSON.stringify(thingDescription, 4, 4), "utf-8", function () {});
 
 const coilMemoryRange = [1, 9999];
 const discreteInputMemoryRange = [10001, 19999];
@@ -172,10 +167,7 @@ const vector = {
             }
 
             console.log(`Reading discrete input @${addr}`);
-            const normalizedAddress = getNormalizedAddress(
-                addr,
-                discreteInputMemoryRange
-            );
+            const normalizedAddress = getNormalizedAddress(addr, discreteInputMemoryRange);
 
             if (normalizedAddress === onTheMoveAddress) {
                 if (onTheMoveIsPolled) {
@@ -211,10 +203,7 @@ const vector = {
                 return;
             }
 
-            const normalizedAddress = getNormalizedAddress(
-                addr,
-                holdingRegisterMemoryRange
-            );
+            const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange);
 
             setTimeout(function () {
                 callback(null, holdingRegisters[normalizedAddress]);
@@ -230,10 +219,7 @@ const vector = {
 
             return new Promise(function (resolve) {
                 console.log(`Reading coil @${addr}`);
-                const normalizedAddress = getNormalizedAddress(
-                    addr,
-                    coilMemoryRange
-                );
+                const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange);
                 resolve(coils[normalizedAddress]);
             });
         }
@@ -246,36 +232,24 @@ const vector = {
             }
 
             console.log(`Setting register @${addr} to ${value}`);
-            const normalizedAddress = getNormalizedAddress(
-                addr,
-                holdingRegisterMemoryRange
-            );
+            const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange);
             // trying to change floor number
             holdingRegisters[normalizedAddress] = value;
 
             // writing last part of the value and running the thing logic
-            if (
-                normalizedAddress ===
-                floorNumberAddress + floorNumberQuantity - 1
-            ) {
+            if (normalizedAddress === floorNumberAddress + floorNumberQuantity - 1) {
                 // elevator is on the move
                 if (discreteInputs[onTheMoveAddress] && !isTestRun) {
-                    console.log(
-                        "Elevator is on the move, cannot change the floor number"
-                    );
+                    console.log("Elevator is on the move, cannot change the floor number");
                 } else {
                     const floorNumberValue = getFloorNumberValue();
                     if (floorNumberValue < minFloorNumber) {
-                        console.log(
-                            `Floor number should not be under ${minFloorNumber}`
-                        );
+                        console.log(`Floor number should not be under ${minFloorNumber}`);
                         return -1;
                     }
 
                     if (floorNumberValue > maxFloorNumber) {
-                        console.log(
-                            `Floor number should not be above ${maxFloorNumber}`
-                        );
+                        console.log(`Floor number should not be above ${maxFloorNumber}`);
                         return -1;
                     }
 
@@ -300,10 +274,7 @@ const vector = {
                 return;
             }
 
-            const normalizedAddress = getNormalizedAddress(
-                addr,
-                coilMemoryRange
-            );
+            const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange);
 
             console.log(`Setting coil @${addr} to ${value}`);
             coils[normalizedAddress] = value;
