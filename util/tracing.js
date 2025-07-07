@@ -37,7 +37,7 @@ function initTracing(serviceName = "test-things") {
     });
 
     const exporter = new JaegerExporter({
-        endpoint: process.env.JAEGER_ENDPOINT || "http://localhost:14268/api/traces"
+        endpoint: process.env.JAEGER_ENDPOINT || "http://localhost:14268/api/traces",
     });
 
     provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
@@ -45,7 +45,7 @@ function initTracing(serviceName = "test-things") {
 
     tracer = trace.getTracer(serviceName);
     isInitialized = true;
-    
+
     console.log(`Tracing initialized for: ${serviceName}`);
 }
 
@@ -61,8 +61,8 @@ function traceMessage(message, labels = {}) {
     const span = tracer.startSpan(message, {
         attributes: {
             message: message,
-            ...labels
-        }
+            ...labels,
+        },
     });
 
     span.setStatus({ code: SpanStatusCode.OK });
@@ -81,8 +81,8 @@ function traceOperation(operationName, operation, labels = {}) {
     const span = tracer.startSpan(operationName, {
         attributes: {
             operation: operationName,
-            ...labels
-        }
+            ...labels,
+        },
     });
 
     try {
@@ -90,9 +90,9 @@ function traceOperation(operationName, operation, labels = {}) {
         span.setStatus({ code: SpanStatusCode.OK });
         return result;
     } catch (error) {
-        span.setStatus({ 
-            code: SpanStatusCode.ERROR, 
-            message: error.message 
+        span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: error.message,
         });
         span.recordException(error);
         throw error;
@@ -113,8 +113,8 @@ async function traceAsyncOperation(operationName, operation, labels = {}) {
     const span = tracer.startSpan(operationName, {
         attributes: {
             operation: operationName,
-            ...labels
-        }
+            ...labels,
+        },
     });
 
     try {
@@ -122,9 +122,9 @@ async function traceAsyncOperation(operationName, operation, labels = {}) {
         span.setStatus({ code: SpanStatusCode.OK });
         return result;
     } catch (error) {
-        span.setStatus({ 
-            code: SpanStatusCode.ERROR, 
-            message: error.message 
+        span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: error.message,
         });
         span.recordException(error);
         throw error;
@@ -137,5 +137,5 @@ module.exports = {
     initTracing,
     traceMessage,
     traceOperation,
-    traceAsyncOperation
-}; 
+    traceAsyncOperation,
+};

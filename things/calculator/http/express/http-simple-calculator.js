@@ -179,15 +179,15 @@ const reqParser = bodyParser.text({ type: "*/*" });
 // Logging and monitoring variables and functions
 const setResult = (value) => {
     result = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: result", {
         affordance: "property",
         affordanceName: "result",
         messageType: "updateProperty",
-        value: value
+        value: value,
     });
-    
+
     logger.info({
         message: `${result}`,
         labels: {
@@ -200,15 +200,15 @@ const setResult = (value) => {
 
 const setLastChange = (value) => {
     lastChange = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: lastChange", {
         affordance: "property",
         affordanceName: "lastChange",
         messageType: "updateProperty",
-        value: value
+        value: value,
     });
-    
+
     logger.info({
         message: `${lastChange}`,
         labels: {
@@ -507,117 +507,125 @@ app.get(lastChangeEndPointObserve, (req, res) => {
 });
 
 app.post(additionEndPoint, reqParser, (req, res) => {
-    return traceAsyncOperation("add_action", async () => {
-        try {
-            const bodyInput = JSON.parse(req.body);
+    return traceAsyncOperation(
+        "add_action",
+        async () => {
+            try {
+                const bodyInput = JSON.parse(req.body);
 
-            if (typeof bodyInput !== "number") {
+                if (typeof bodyInput !== "number") {
+                    res.status(400).json("Input should be a valid number");
+                    return;
+                }
+
+                // Add OpenTelemetry tracing
+                traceMessage("Action invoked: add", {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "add",
+                    input: bodyInput,
+                });
+
+                logger.info({
+                    message: "Action invoked.",
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "add",
+                    },
+                });
+                logger.info({
+                    message: `${bodyInput}`,
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "add",
+                        messageType: "actionInput",
+                    },
+                });
+                setResult(result + bodyInput);
+                setLastChange(new Date());
+                logger.info({
+                    message: `${result}`,
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "add",
+                        messageType: "actionOutput",
+                    },
+                });
+                res.json(result);
+            } catch (error) {
+                console.error(error);
                 res.status(400).json("Input should be a valid number");
-                return;
             }
-            
-            // Add OpenTelemetry tracing
-            traceMessage("Action invoked: add", {
-                affordance: "action",
-                op: "invokeaction",
-                affordanceName: "add",
-                input: bodyInput
-            });
-            
-            logger.info({
-                message: "Action invoked.",
-                labels: {
-                    affordance: "action",
-                    op: "invokeaction",
-                    affordanceName: "add",
-                },
-            });
-            logger.info({
-                message: `${bodyInput}`,
-                labels: {
-                    affordance: "action",
-                    op: "invokeaction",
-                    affordanceName: "add",
-                    messageType: "actionInput",
-                },
-            });
-            setResult(result + bodyInput);
-            setLastChange(new Date());
-            logger.info({
-                message: `${result}`,
-                labels: {
-                    affordance: "action",
-                    op: "invokeaction",
-                    affordanceName: "add",
-                    messageType: "actionOutput",
-                },
-            });
-            res.json(result);
-        } catch (error) {
-            console.error(error);
-            res.status(400).json("Input should be a valid number");
+        },
+        {
+            affordance: "action",
+            affordanceName: "add",
         }
-    }, {
-        affordance: "action",
-        affordanceName: "add"
-    });
+    );
 });
 
 app.post(subtractionEndPoint, reqParser, (req, res) => {
-    return traceAsyncOperation("subtract_action", async () => {
-        try {
-            const bodyInput = JSON.parse(req.body);
+    return traceAsyncOperation(
+        "subtract_action",
+        async () => {
+            try {
+                const bodyInput = JSON.parse(req.body);
 
-            if (typeof bodyInput !== "number") {
+                if (typeof bodyInput !== "number") {
+                    res.status(400).json("Input should be a valid number");
+                    return;
+                }
+
+                // Add OpenTelemetry tracing
+                traceMessage("Action invoked: subtract", {
+                    affordance: "action",
+                    op: "invokeaction",
+                    affordanceName: "subtract",
+                    input: bodyInput,
+                });
+
+                logger.info({
+                    message: "Action invoked.",
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "subtract",
+                    },
+                });
+                logger.info({
+                    message: `${bodyInput}`,
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "subtract",
+                        messageType: "actionInput",
+                    },
+                });
+                setResult(result - bodyInput);
+                setLastChange(new Date());
+                logger.info({
+                    message: `${result}`,
+                    labels: {
+                        affordance: "action",
+                        op: "invokeaction",
+                        affordanceName: "subtract",
+                        messageType: "actionOutput",
+                    },
+                });
+                res.json(result);
+            } catch (error) {
+                console.error(error);
                 res.status(400).json("Input should be a valid number");
-                return;
             }
-            
-            // Add OpenTelemetry tracing
-            traceMessage("Action invoked: subtract", {
-                affordance: "action",
-                op: "invokeaction",
-                affordanceName: "subtract",
-                input: bodyInput
-            });
-            
-            logger.info({
-                message: "Action invoked.",
-                labels: {
-                    affordance: "action",
-                    op: "invokeaction",
-                    affordanceName: "subtract",
-                },
-            });
-            logger.info({
-                message: `${bodyInput}`,
-                labels: {
-                    affordance: "action",
-                    op: "invokeaction",
-                    affordanceName: "subtract",
-                    messageType: "actionInput",
-                },
-            });
-            setResult(result - bodyInput);
-            setLastChange(new Date());
-            logger.info({
-                message: `${result}`,
-                labels: {
-                    affordance: "action",
-                    op: "invokeaction",
-                    affordanceName: "subtract",
-                    messageType: "actionOutput",
-                },
-            });
-            res.json(result);
-        } catch (error) {
-            console.error(error);
-            res.status(400).json("Input should be a valid number");
+        },
+        {
+            affordance: "action",
+            affordanceName: "subtract",
         }
-    }, {
-        affordance: "action",
-        affordanceName: "subtract"
-    });
+    );
 });
 
 app.get(updateEndPoint, (req, res) => {

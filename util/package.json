@@ -23,4 +23,4 @@
         "@opentelemetry/sdk-trace-node": "^1.21.0",
         "@opentelemetry/semantic-conventions": "^1.21.0"
     }
-} 
+}

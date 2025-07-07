@@ -132,16 +132,16 @@ let int: number;
 
 const setInt = (value: number) => {
     int = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: int", {
         affordance: "property",
         affordanceName: "int",
         messageType: "updateProperty",
         value: value,
-        type: typeof value
+        type: typeof value,
     });
-    
+
     logger.info({
         message: `${int}`,
         labels: {
@@ -158,16 +158,16 @@ let num: number;
 
 const setNum = (value: number) => {
     num = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: num", {
         affordance: "property",
         affordanceName: "num",
         messageType: "updateProperty",
         value: value,
-        type: typeof value
+        type: typeof value,
     });
-    
+
     logger.info({
         message: `${num}`,
         labels: {
@@ -184,16 +184,16 @@ let string: string;
 
 const setString = (value: string) => {
     string = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: string", {
         affordance: "property",
         affordanceName: "string",
         messageType: "updateProperty",
         value: value,
-        type: typeof value
+        type: typeof value,
     });
-    
+
     logger.info({
         message: `${string}`,
         labels: {
@@ -210,7 +210,7 @@ let array: unknown[];
 
 const setArray = (value: unknown[]) => {
     array = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: array", {
         affordance: "property",
@@ -218,9 +218,9 @@ const setArray = (value: unknown[]) => {
         messageType: "updateProperty",
         value: JSON.stringify(value),
         type: typeof value,
-        length: value.length
+        length: value.length,
     });
-    
+
     logger.info({
         message: `${array}`,
         labels: {
@@ -237,7 +237,7 @@ let object: Record<string, unknown>;
 
 const setObject = (value: Record<string, unknown>) => {
     object = value;
-    
+
     // Add OpenTelemetry tracing
     traceMessage("Property updated: object", {
         affordance: "property",
@@ -245,9 +245,9 @@ const setObject = (value: Record<string, unknown>) => {
         messageType: "updateProperty",
         value: JSON.stringify(value),
         type: typeof value,
-        keys: Object.keys(value)
+        keys: Object.keys(value),
     });
-    
+
     logger.info({
         message: `${JSON.stringify(object)}`,
         labels: {

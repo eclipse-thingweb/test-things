@@ -246,7 +246,7 @@ servient
                 for (const resource in newResources) {
                     if (newResources[resource] <= 0) {
                         thing.emitEvent("outOfResource", `Low level of ${resource}: ${newResources[resource]}%`);
-                        
+
                         return {
                             result: false,
                             message: `${resource} level is not sufficient`,

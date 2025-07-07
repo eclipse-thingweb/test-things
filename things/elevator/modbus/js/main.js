@@ -166,279 +166,302 @@ const getNormalizedAddress = (address, range) => {
 
 const vector = {
     getDiscreteInput: function (addr, unitID) {
-        return traceOperation("getDiscreteInput", () => {
-            if (thingUnitID === unitID) {
-                if (!isAddressInRange(addr, discreteInputMemoryRange)) {
-                    console.log(`Address is out of discrete input memory range.`);
-                    return;
-                }
-
-                console.log(`Reading discrete input @${addr}`);
-                const normalizedAddress = getNormalizedAddress(addr, discreteInputMemoryRange);
-
-                if (normalizedAddress === onTheMoveAddress) {
-                    if (onTheMoveIsPolled) {
-                        console.log(
-                            `Polling onTheMove too frequently. You should poll it every ${onTheMovePollingTime} ms.`
-                        );
+        return traceOperation(
+            "getDiscreteInput",
+            () => {
+                if (thingUnitID === unitID) {
+                    if (!isAddressInRange(addr, discreteInputMemoryRange)) {
+                        console.log(`Address is out of discrete input memory range.`);
                         return;
                     }
 
-                    onTheMoveIsPolled = true;
-                    let returnValue;
+                    console.log(`Reading discrete input @${addr}`);
+                    const normalizedAddress = getNormalizedAddress(addr, discreteInputMemoryRange);
 
-                    if (isTestRun) {
-                        onTheMoveIsPolled = false;
-                        returnValue = discreteInputs[normalizedAddress];
-                        discreteInputs[normalizedAddress] = 0;
-                    } else {
-                        setTimeout(function () {
+                    if (normalizedAddress === onTheMoveAddress) {
+                        if (onTheMoveIsPolled) {
+                            console.log(
+                                `Polling onTheMove too frequently. You should poll it every ${onTheMovePollingTime} ms.`
+                            );
+                            return;
+                        }
+
+                        onTheMoveIsPolled = true;
+                        let returnValue;
+
+                        if (isTestRun) {
                             onTheMoveIsPolled = false;
-                        }, onTheMovePollingTime);
+                            returnValue = discreteInputs[normalizedAddress];
+                            discreteInputs[normalizedAddress] = 0;
+                        } else {
+                            setTimeout(function () {
+                                onTheMoveIsPolled = false;
+                            }, onTheMovePollingTime);
 
-                        returnValue = discreteInputs[normalizedAddress];
+                            returnValue = discreteInputs[normalizedAddress];
+                        }
+
+                        // Add tracing for onTheMove property read
+                        traceMessage("Property read: onTheMove", {
+                            affordance: "property",
+                            affordanceName: "onTheMove",
+                            op: "readproperty",
+                            value: returnValue,
+                            address: addr,
+                            normalizedAddress: normalizedAddress,
+                        });
+
+                        return returnValue;
                     }
-
-                    // Add tracing for onTheMove property read
-                    traceMessage("Property read: onTheMove", {
-                        affordance: "property",
-                        affordanceName: "onTheMove",
-                        op: "readproperty",
-                        value: returnValue,
-                        address: addr,
-                        normalizedAddress: normalizedAddress
-                    });
-
-                    return returnValue;
                 }
+            },
+            {
+                affordance: "property",
+                affordanceName: "onTheMove",
+                operation: "getDiscreteInput",
+                address: addr,
+                unitID: unitID,
             }
-        }, {
-            affordance: "property",
-            affordanceName: "onTheMove",
-            operation: "getDiscreteInput",
-            address: addr,
-            unitID: unitID
-        });
+        );
     },
     getHoldingRegister: function (addr, unitID, callback) {
-        return traceOperation("getHoldingRegister", () => {
-            if (thingUnitID === unitID) {
-                if (!isAddressInRange(addr, holdingRegisterMemoryRange)) {
-                    console.log(`Address is out of holding register memory range.`);
-                    return;
+        return traceOperation(
+            "getHoldingRegister",
+            () => {
+                if (thingUnitID === unitID) {
+                    if (!isAddressInRange(addr, holdingRegisterMemoryRange)) {
+                        console.log(`Address is out of holding register memory range.`);
+                        return;
+                    }
+
+                    const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange);
+
+                    setTimeout(function () {
+                        const value = holdingRegisters[normalizedAddress];
+
+                        // Add tracing for floorNumber property read
+                        if (
+                            normalizedAddress >= floorNumberAddress &&
+                            normalizedAddress < floorNumberAddress + floorNumberQuantity
+                        ) {
+                            traceMessage("Property read: floorNumber", {
+                                affordance: "property",
+                                affordanceName: "floorNumber",
+                                op: "readproperty",
+                                value: value,
+                                address: addr,
+                                normalizedAddress: normalizedAddress,
+                                registerIndex: normalizedAddress - floorNumberAddress,
+                            });
+                        }
+
+                        callback(null, value);
+                    }, 10);
                 }
+            },
+            {
+                affordance: "property",
+                affordanceName: "floorNumber",
+                operation: "getHoldingRegister",
+                address: addr,
+                unitID: unitID,
+            }
+        );
+    },
+    getCoil: function (addr, unitID) {
+        return traceOperation(
+            "getCoil",
+            () => {
+                if (thingUnitID === unitID) {
+                    if (!isAddressInRange(addr, coilMemoryRange)) {
+                        console.log(`Address is out of coil memory range.`);
+                        return;
+                    }
 
-                const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange);
+                    return new Promise(function (resolve) {
+                        console.log(`Reading coil @${addr}`);
+                        const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange);
+                        const value = coils[normalizedAddress];
 
-                setTimeout(function () {
-                    const value = holdingRegisters[normalizedAddress];
-                    
-                    // Add tracing for floorNumber property read
-                    if (normalizedAddress >= floorNumberAddress && normalizedAddress < floorNumberAddress + floorNumberQuantity) {
-                        traceMessage("Property read: floorNumber", {
+                        // Add tracing for lightSwitch property read
+                        traceMessage("Property read: lightSwitch", {
                             affordance: "property",
-                            affordanceName: "floorNumber",
+                            affordanceName: "lightSwitch",
                             op: "readproperty",
                             value: value,
                             address: addr,
                             normalizedAddress: normalizedAddress,
-                            registerIndex: normalizedAddress - floorNumberAddress
                         });
-                    }
-                    
-                    callback(null, value);
-                }, 10);
-            }
-        }, {
-            affordance: "property",
-            affordanceName: "floorNumber",
-            operation: "getHoldingRegister",
-            address: addr,
-            unitID: unitID
-        });
-    },
-    getCoil: function (addr, unitID) {
-        return traceOperation("getCoil", () => {
-            if (thingUnitID === unitID) {
-                if (!isAddressInRange(addr, coilMemoryRange)) {
-                    console.log(`Address is out of coil memory range.`);
-                    return;
-                }
 
-                return new Promise(function (resolve) {
-                    console.log(`Reading coil @${addr}`);
-                    const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange);
-                    const value = coils[normalizedAddress];
-                    
-                    // Add tracing for lightSwitch property read
-                    traceMessage("Property read: lightSwitch", {
-                        affordance: "property",
-                        affordanceName: "lightSwitch",
-                        op: "readproperty",
-                        value: value,
-                        address: addr,
-                        normalizedAddress: normalizedAddress
+                        resolve(value);
                     });
-                    
-                    resolve(value);
-                });
+                }
+            },
+            {
+                affordance: "property",
+                affordanceName: "lightSwitch",
+                operation: "getCoil",
+                address: addr,
+                unitID: unitID,
             }
-        }, {
-            affordance: "property",
-            affordanceName: "lightSwitch",
-            operation: "getCoil",
-            address: addr,
-            unitID: unitID
-        });
+        );
     },
     setRegister: function (addr, value, unitID) {
-        return traceOperation("setRegister", () => {
-            if (thingUnitID === unitID) {
-                if (!isAddressInRange(addr, holdingRegisterMemoryRange)) {
-                    console.log(`Address is out of holding register memory range.`);
-                    return;
-                }
-
-                console.log(`Setting register @${addr} to ${value}`);
-                const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange);
-                // trying to change floor number
-                holdingRegisters[normalizedAddress] = value;
-
-                // writing last part of the value and running the thing logic
-                if (normalizedAddress === floorNumberAddress + floorNumberQuantity - 1) {
-                    // elevator is on the move
-                    if (discreteInputs[onTheMoveAddress] && !isTestRun) {
-                        console.log("Elevator is on the move, cannot change the floor number");
-                        
-                        traceMessage("Property write failed: floorNumber - elevator moving", {
-                            affordance: "property",
-                            affordanceName: "floorNumber",
-                            op: "writeproperty",
-                            result: false,
-                            reason: "elevator_moving",
-                            requestedValue: value,
-                            currentFloor: getFloorNumberValue()
-                        });
-                        
-                        return -1;
+        return traceOperation(
+            "setRegister",
+            () => {
+                if (thingUnitID === unitID) {
+                    if (!isAddressInRange(addr, holdingRegisterMemoryRange)) {
+                        console.log(`Address is out of holding register memory range.`);
+                        return;
                     }
 
-                    const floorNumberValue = getFloorNumberValue();
-                    if (floorNumberValue < minFloorNumber) {
-                        console.log(`Floor number should not be under ${minFloorNumber}`);
-                        
-                        traceMessage("Property write failed: floorNumber - below minimum", {
-                            affordance: "property",
-                            affordanceName: "floorNumber",
-                            op: "writeproperty",
-                            result: false,
-                            reason: "below_minimum",
-                            requestedValue: floorNumberValue,
-                            minimum: minFloorNumber
-                        });
-                        
-                        return -1;
-                    }
+                    console.log(`Setting register @${addr} to ${value}`);
+                    const normalizedAddress = getNormalizedAddress(addr, holdingRegisterMemoryRange);
+                    // trying to change floor number
+                    holdingRegisters[normalizedAddress] = value;
 
-                    if (floorNumberValue > maxFloorNumber) {
-                        console.log(`Floor number should not be above ${maxFloorNumber}`);
-                        
-                        traceMessage("Property write failed: floorNumber - above maximum", {
-                            affordance: "property",
-                            affordanceName: "floorNumber",
-                            op: "writeproperty",
-                            result: false,
-                            reason: "above_maximum",
-                            requestedValue: floorNumberValue,
-                            maximum: maxFloorNumber
-                        });
-                        
-                        return -1;
-                    }
+                    // writing last part of the value and running the thing logic
+                    if (normalizedAddress === floorNumberAddress + floorNumberQuantity - 1) {
+                        // elevator is on the move
+                        if (discreteInputs[onTheMoveAddress] && !isTestRun) {
+                            console.log("Elevator is on the move, cannot change the floor number");
 
-                    console.log(`Changing the floor number to ${value}`);
-
-                    // Add tracing for successful floor change
-                    traceMessage("Property write: floorNumber", {
-                        affordance: "property",
-                        affordanceName: "floorNumber",
-                        op: "writeproperty",
-                        result: true,
-                        value: floorNumberValue,
-                        address: addr,
-                        normalizedAddress: normalizedAddress
-                    });
-
-                    // simulating elevator movement
-                    discreteInputs[onTheMoveAddress] = 1;
-                    
-                    // Add tracing for elevator movement start
-                    traceMessage("Elevator movement started", {
-                        affordance: "property",
-                        affordanceName: "onTheMove",
-                        op: "writeproperty",
-                        value: true,
-                        fromFloor: getFloorNumberValue(),
-                        duration: 5000
-                    });
-                    
-                    // elevator completes its movement in 5 seconds
-                    if (!isTestRun) {
-                        setTimeout(() => {
-                            discreteInputs[onTheMoveAddress] = 0;
-                            
-                            // Add tracing for elevator movement completion
-                            traceMessage("Elevator movement completed", {
+                            traceMessage("Property write failed: floorNumber - elevator moving", {
                                 affordance: "property",
-                                affordanceName: "onTheMove",
+                                affordanceName: "floorNumber",
                                 op: "writeproperty",
-                                value: false,
-                                toFloor: getFloorNumberValue()
+                                result: false,
+                                reason: "elevator_moving",
+                                requestedValue: value,
+                                currentFloor: getFloorNumberValue(),
                             });
-                        }, 5000);
+
+                            return -1;
+                        }
+
+                        const floorNumberValue = getFloorNumberValue();
+                        if (floorNumberValue < minFloorNumber) {
+                            console.log(`Floor number should not be under ${minFloorNumber}`);
+
+                            traceMessage("Property write failed: floorNumber - below minimum", {
+                                affordance: "property",
+                                affordanceName: "floorNumber",
+                                op: "writeproperty",
+                                result: false,
+                                reason: "below_minimum",
+                                requestedValue: floorNumberValue,
+                                minimum: minFloorNumber,
+                            });
+
+                            return -1;
+                        }
+
+                        if (floorNumberValue > maxFloorNumber) {
+                            console.log(`Floor number should not be above ${maxFloorNumber}`);
+
+                            traceMessage("Property write failed: floorNumber - above maximum", {
+                                affordance: "property",
+                                affordanceName: "floorNumber",
+                                op: "writeproperty",
+                                result: false,
+                                reason: "above_maximum",
+                                requestedValue: floorNumberValue,
+                                maximum: maxFloorNumber,
+                            });
+
+                            return -1;
+                        }
+
+                        console.log(`Changing the floor number to ${value}`);
+
+                        // Add tracing for successful floor change
+                        traceMessage("Property write: floorNumber", {
+                            affordance: "property",
+                            affordanceName: "floorNumber",
+                            op: "writeproperty",
+                            result: true,
+                            value: floorNumberValue,
+                            address: addr,
+                            normalizedAddress: normalizedAddress,
+                        });
+
+                        // simulating elevator movement
+                        discreteInputs[onTheMoveAddress] = 1;
+
+                        // Add tracing for elevator movement start
+                        traceMessage("Elevator movement started", {
+                            affordance: "property",
+                            affordanceName: "onTheMove",
+                            op: "writeproperty",
+                            value: true,
+                            fromFloor: getFloorNumberValue(),
+                            duration: 5000,
+                        });
+
+                        // elevator completes its movement in 5 seconds
+                        if (!isTestRun) {
+                            setTimeout(() => {
+                                discreteInputs[onTheMoveAddress] = 0;
+
+                                // Add tracing for elevator movement completion
+                                traceMessage("Elevator movement completed", {
+                                    affordance: "property",
+                                    affordanceName: "onTheMove",
+                                    op: "writeproperty",
+                                    value: false,
+                                    toFloor: getFloorNumberValue(),
+                                });
+                            }, 5000);
+                        }
                     }
                 }
+            },
+            {
+                affordance: "property",
+                affordanceName: "floorNumber",
+                operation: "setRegister",
+                address: addr,
+                value: value,
+                unitID: unitID,
             }
-        }, {
-            affordance: "property",
-            affordanceName: "floorNumber",
-            operation: "setRegister",
-            address: addr,
-            value: value,
-            unitID: unitID
-        });
+        );
     },
     setCoil: function (addr, value, unitID) {
-        return traceOperation("setCoil", () => {
-            if (thingUnitID === unitID) {
-                if (!isAddressInRange(addr, coilMemoryRange)) {
-                    console.log(`Address is out of coil memory range.`);
-                    return;
+        return traceOperation(
+            "setCoil",
+            () => {
+                if (thingUnitID === unitID) {
+                    if (!isAddressInRange(addr, coilMemoryRange)) {
+                        console.log(`Address is out of coil memory range.`);
+                        return;
+                    }
+
+                    const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange);
+
+                    console.log(`Setting coil @${addr} to ${value}`);
+                    coils[normalizedAddress] = value;
+
+                    // Add tracing for lightSwitch property write
+                    traceMessage("Property write: lightSwitch", {
+                        affordance: "property",
+                        affordanceName: "lightSwitch",
+                        op: "writeproperty",
+                        value: value,
+                        address: addr,
+                        normalizedAddress: normalizedAddress,
+                    });
                 }
-
-                const normalizedAddress = getNormalizedAddress(addr, coilMemoryRange);
-
-                console.log(`Setting coil @${addr} to ${value}`);
-                coils[normalizedAddress] = value;
-                
-                // Add tracing for lightSwitch property write
-                traceMessage("Property write: lightSwitch", {
-                    affordance: "property",
-                    affordanceName: "lightSwitch",
-                    op: "writeproperty",
-                    value: value,
-                    address: addr,
-                    normalizedAddress: normalizedAddress
-                });
+            },
+            {
+                affordance: "property",
+                affordanceName: "lightSwitch",
+                operation: "setCoil",
+                address: addr,
+                value: value,
+                unitID: unitID,
             }
-        }, {
-            affordance: "property",
-            affordanceName: "lightSwitch",
-            operation: "setCoil",
-            address: addr,
-            value: value,
-            unitID: unitID
-        });
+        );
     },
 };
 
@@ -452,7 +475,7 @@ traceMessage("Modbus server started", {
     operation: "startup",
     hostname: hostname,
     port: portNumber,
-    unitID: thingUnitID
+    unitID: thingUnitID,
 });
 
 const serverTCP = new ServerTCP(vector, {
@@ -465,13 +488,13 @@ const serverTCP = new ServerTCP(vector, {
 serverTCP.on("socketError", function (err) {
     // Handle socket error if needed, can be ignored
     console.error(err);
-    
+
     // Add tracing for socket errors
     traceMessage("Modbus socket error", {
         affordance: "server",
         operation: "socketError",
         error: err.message,
         hostname: hostname,
-        port: portNumber
+        port: portNumber,
     });
 });
