@@ -20,6 +20,12 @@
     "dependencies": {
         "@node-wot/binding-http": "~0.8.16",
         "@node-wot/core": "~0.8.16",
+        "@opentelemetry/api": "^1.7.0",
+        "@opentelemetry/exporter-jaeger": "^1.21.0",
+        "@opentelemetry/resources": "^1.21.0",
+        "@opentelemetry/sdk-trace-base": "^1.21.0",
+        "@opentelemetry/sdk-trace-node": "^1.21.0",
+        "@opentelemetry/semantic-conventions": "^1.21.0",
         "dotenv": "^16.4.5",
         "json-placeholder-replacer": "^2.0.5",
         "wot-typescript-definitions": "^0.8.0-SNAPSHOT.29",
