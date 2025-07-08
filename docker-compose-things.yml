@@ -179,6 +179,26 @@ services:
                     memory: 25M
         networks:
             - things_network
+    counter-thing:
+        image: thingweb/test-things-counter-thing
+        labels:
+            - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter-thing`)
+            - traefik.http.services.counter-thing.loadbalancer.server.port=${WEB_PORT_OUT}
+        environment:
+            - HOSTNAME=${STACK_HOSTNAME}
+            - PORT=${WEB_PORT_OUT}
+            - LOKI_HOSTNAME=${LOKI_HOSTNAME}
+            - LOKI_PORT=${LOKI_PORT}
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.05"
+                    memory: 50M
+                reservations:
+                    cpus: "0.01"
+                    memory: 25M
+        networks:
+            - things_network
     smart-home-presence-sensor:
         image: thingweb/test-things-smart-home-presence-sensor
         deploy:
@@ -256,6 +276,7 @@ services:
                     memory: 25M
         networks:
             - things_network
+
 networks:
     things_network:
         name: things_network
