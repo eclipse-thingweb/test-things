@@ -13,11 +13,14 @@
     "dependencies": {
         "@node-wot/core": "~0.8.16",
         "@node-wot/binding-http": "~0.8.16",
-        "axios": "^1.6.0"
+        "@node-wot/binding-coap": "~0.8.16",
+        "@node-wot/binding-mqtt": "~0.8.16",
+        "winston": "^3.11.0",
+        "dotenv": "^16.3.1"
     },
     "devDependencies": {
         "@types/node": "^20.8.0",
         "typescript": "^5.2.2",
         "ts-node": "^10.9.1"
     }
-} 
+}
