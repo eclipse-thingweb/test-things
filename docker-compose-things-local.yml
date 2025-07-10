@@ -308,4 +308,4 @@ services:
 networks:
     things_network:
         name: things_network
-        external: true 
+        external: true
