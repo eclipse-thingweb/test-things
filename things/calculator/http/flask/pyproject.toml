@@ -5,6 +5,7 @@ description = "HTTP Flask Calculator"
 authors = ["Eclipse Thingweb <thingweb-dev@eclipse.org>"]
 license = "EPL-2.0 OR W3C-20150513"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
