@@ -8,7 +8,7 @@ This calculator thing provides basic arithmetic operations through various proto
 
 ## Features
 
-- Basic arithmetic operations (add, subtract, multiply, divide)
-- Multiple protocol support (HTTP, CoAP, MQTT)
-- Content negotiation support
-- Flask-based HTTP implementation 
+-   Basic arithmetic operations (add, subtract, multiply, divide)
+-   Multiple protocol support (HTTP, CoAP, MQTT)
+-   Content negotiation support
+-   Flask-based HTTP implementation
