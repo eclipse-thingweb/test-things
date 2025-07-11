@@ -9,14 +9,6 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${COAP_SIMPLE_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     coap-calculator-content-negotiation:
@@ -29,14 +21,6 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${COAP_NEGOTIATION_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     http-express-calculator-simple:
@@ -51,14 +35,6 @@ services:
             - PORT=${WEB_PORT_OUT}
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         healthcheck:
             test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
             interval: ${HC_INTERVAL}
@@ -77,14 +53,6 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         healthcheck:
             test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-content-negotiation || exit 1
             interval: ${HC_INTERVAL}
@@ -103,14 +71,6 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         healthcheck:
             test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-flask-calculator || exit 1
             interval: ${HC_INTERVAL}
@@ -121,38 +81,22 @@ services:
             - things_network
     mqtt-calculator:
         build:
-            context: ./things/calculator
-            dockerfile: ./mqtt/js/Dockerfile
+            context: ./things/calculator/mqtt/js
+            dockerfile: Dockerfile
         environment:
             - BROKER_URI=${BROKER_URI}
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     modbus-elevator:
         build:
-            context: ./things/elevator
-            dockerfile: ./modbus/js/Dockerfile
+            context: ./things/elevator/modbus/js
+            dockerfile: Dockerfile
         labels:
             - traefik.tcp.routers.modbus-elevator.entrypoints=modbus-elevator
             - traefik.tcp.routers.modbus-elevator.rule=HostSNI(`*`)
             - traefik.tcp.services.modbus-elevator.loadbalancer.server.port=${MODBUS_ELEVATOR_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     http-advanced-coffee-machine:
@@ -165,14 +109,6 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     http-data-schema-thing:
@@ -187,20 +123,12 @@ services:
             - PORT=${WEB_PORT_OUT}
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     counter-thing:
         build:
             context: ./things/counter-thing
-            dockerfile: ./Dockerfile
+            dockerfile: Dockerfile
         labels:
             - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter-thing`)
             - traefik.http.services.counter-thing.loadbalancer.server.port=${WEB_PORT_OUT}
@@ -209,28 +137,12 @@ services:
             - PORT=${WEB_PORT_OUT}
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     smart-home-presence-sensor:
         build:
             context: ./mashups/smart-home
             dockerfile: ./dockerfiles/presence-sensor.Dockerfile
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     smart-home-simple-coffee-machine:
@@ -247,14 +159,6 @@ services:
             # In production we will have a dedicated address and this issue won't be a problem.
             - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
             - PORT=${WEB_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
     smart-home-smart-clock:
@@ -270,14 +174,6 @@ services:
             # In production we will have a dedicated address and this issue won't be a problem.
             - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
             - PORT=${SMART_HOME_SMART_CLOCK_PORT_OUT}
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 200M
-                reservations:
-                    cpus: "0.01"
-                    memory: 50M
         networks:
             - things_network
     smart-home-mashup:
@@ -294,14 +190,6 @@ services:
             - smart-home-simple-coffee-machine
             - smart-home-smart-clock
         restart: on-failure
-        deploy:
-            resources:
-                limits:
-                    cpus: "0.05"
-                    memory: 50M
-                reservations:
-                    cpus: "0.01"
-                    memory: 25M
         networks:
             - things_network
 
