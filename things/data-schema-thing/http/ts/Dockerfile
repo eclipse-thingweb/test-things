@@ -4,13 +4,10 @@ WORKDIR /app
 COPY ./data-schema-thing.tm.json .
 COPY ./http/ts .
 
-# Use the existing tsconfig.json file
-
 RUN npm install
 
 RUN npm run build
 
-# Copy TM file to dist directory so compiled code can find it
 RUN cp ./data-schema-thing.tm.json ./dist/ && ls -l ./dist
 
 ENV TM_PATH="./data-schema-thing.tm.json"
