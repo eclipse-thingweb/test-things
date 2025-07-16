@@ -17,7 +17,7 @@ This advanced coffee machine simulates a device with resource management, drink 
 
 ## Protocol Support
 
--   HTTP (TypeScript)
+-   HTTP
 
 ## Usage
 
