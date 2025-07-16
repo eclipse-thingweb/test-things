@@ -7,7 +7,6 @@ COPY ./http/ts .
 # Use the existing tsconfig.json file
 
 RUN npm install
-RUN npm install --save-dev @types/debug @types/node-fetch
 
 RUN npm run build
 
