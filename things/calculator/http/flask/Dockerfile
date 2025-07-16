@@ -6,7 +6,6 @@ WORKDIR /app
 
 COPY ./calculator.tm.json .
 COPY ./http/flask .
-COPY ./README.md .
 
 ENV TM_PATH=./calculator.tm.json 
 
