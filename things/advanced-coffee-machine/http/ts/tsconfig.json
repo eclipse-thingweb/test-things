@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "lib": ["dom"],
-        "skipLibCheck": true,
+        "target": "ES2020",
         "module": "commonjs",
+        "lib": ["ES2020", "dom"],
         "outDir": "dist",
         "rootDir": "src",
         "strict": true,
@@ -21,7 +20,9 @@
         "resolveJsonModule": false,
         "skipDefaultLibCheck": true,
         "allowJs": false,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
     },
     "include": ["src/**/*"]
 }

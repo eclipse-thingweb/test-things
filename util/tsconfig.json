@@ -1,12 +1,27 @@
 {
     "compilerOptions": {
-        "outDir": "dist",
-        "target": "ES2018",
-        "module": "commonjs",
+        "target": "es6",
+        "lib": ["dom"],
         "skipLibCheck": false,
+        "module": "commonjs",
+        "outDir": "dist",
         "strict": true,
-        "sourceMap": false,
+        "composite": true,
+        "incremental": true,
+        "sourceMap": true,
+        "noImplicitReturns": true,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "experimentalDecorators": true,
+        "declaration": true,
         "esModuleInterop": true,
-        "removeComments": false
-    }
+        "moduleResolution": "node",
+        "resolveJsonModule": false,
+        "skipDefaultLibCheck": false,
+        "allowJs": false,
+        "strictNullChecks": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": ["*.ts"]
 }

@@ -27,7 +27,7 @@ test_service() {
     echo "Testing $service..."
     
     # Start service in background
-    docker-compose -f docker-compose-things-local.yml up -d $service
+    docker-compose -f docker-compose-things-local.yml up --build -d $service
     
     # Wait for service to start
     sleep 10
