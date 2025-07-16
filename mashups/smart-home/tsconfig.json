@@ -1,22 +1,27 @@
 {
     "compilerOptions": {
-        "outDir": "dist",
-        "rootDir": "./",
-        "target": "ES2018",
+        "target": "es6",
+        "lib": ["dom"],
+        "skipLibCheck": false,
         "module": "commonjs",
-        "skipLibCheck": true,
+        "outDir": "dist",
         "strict": true,
-        "sourceMap": false,
-        "esModuleInterop": true,
-        "removeComments": false,
-        "moduleResolution": "node",
-        "declaration": true,
+        "composite": true,
+        "incremental": true,
+        "sourceMap": true,
         "noImplicitReturns": true,
+        "removeComments": true,
+        "noLib": false,
         "preserveConstEnums": true,
         "experimentalDecorators": true,
-        "skipDefaultLibCheck": true,
+        "declaration": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": false,
+        "skipDefaultLibCheck": false,
         "allowJs": false,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "forceConsistentCasingInFileNames": true
     },
     "include": ["./mashup-logic.ts", "./things/**.ts"]
 }
