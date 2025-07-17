@@ -10,14 +10,19 @@ This counter thing provides increment, decrement, and reset operations, exposing
 
 -   Increment, decrement, and reset operations
 -   Read-only count property
--   SVG and PNG image property representations
+-   SVG and PNG image property representations. These are provided for testing different content types
 -   Event emission on count change
 -   TypeScript implementation using node-wot
 
 ## Protocol Support
 
--   HTTP (TypeScript)
+-   HTTP
+
+## Programming Language and Framework
+
+-   **Language**: TypeScript
+-   **Framework**: node-wot
 
 ## Usage
 
-The counter exposes properties and actions for interacting with the count value. See the Thing Description for details on endpoints and data formats. 
+The counter exposes properties and actions for interacting with the count value. See the [Thing Description](http://localhost:3000) for details on endpoints and data formats. 

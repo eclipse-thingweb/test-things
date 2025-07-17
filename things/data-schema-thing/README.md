@@ -11,12 +11,17 @@ This thing provides a variety of properties and actions to test different data t
 -   Properties for all major JSON data types
 -   Actions with various input/output combinations
 -   Events for property changes
--   HTTP protocol implementation (TypeScript)
+-   HTTP protocol implementation
 
 ## Protocol Support
 
--   HTTP (TypeScript)
+-   HTTP
+
+## Programming Language and Framework
+
+-   **Language**: TypeScript
+-   **Framework**: node-wot
 
 ## Usage
 
-The data schema thing exposes properties, actions, and events for testing schema compliance. See the Thing Description for details on endpoints and data formats. 
+The data schema thing exposes properties, actions, and events for testing schema compliance. See the [Thing Description](http://plugfest.thingweb.io/http-data-schema-thing) for details on endpoints and data formats. 
