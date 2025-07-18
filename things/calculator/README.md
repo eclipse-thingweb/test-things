@@ -30,9 +30,9 @@ This calculator thing provides basic arithmetic operations through various proto
 
 The calculator exposes basic arithmetic operations through multiple protocols. See the Thing Descriptions for details on endpoints and data formats:
 
-- [HTTP Express Simple Calculator](http://plugfest.thingweb.io/http-express-calculator-simple)
-- [HTTP Express Content Negotiation Calculator](http://plugfest.thingweb.io/http-express-calculator-content-negotiation)
+- [HTTP Express Simple Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/http/express/http-simple-calculator-thing.td.jsonld)
+- [HTTP Express Content Negotiation Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/http/express/http-content-negotiation-calculator-thing.td.jsonld)
 - [HTTP Flask Calculator](http://plugfest.thingweb.io/http-flask-calculator)
-- [CoAP Simple Calculator](coap://localhost:5683/coap-calculator-simple)
-- [CoAP Content Negotiation Calculator](coap://localhost:5684/coap-calculator-content-negotiation)
-- [MQTT Calculator](mqtt://test.mosquitto.org:1883/mqtt-calculator)
+- [CoAP Simple Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/coap/js/coap-simple-calculator-thing.td.jsonld)
+- [CoAP Content Negotiation Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/coap/js/coap-content-negotiation-calculator-thing.td.jsonld)
+- [MQTT Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/mqtt/js/mqtt-calculator.td.json)

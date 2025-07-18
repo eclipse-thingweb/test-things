@@ -24,4 +24,4 @@ This elevator thing simulates an elevator with properties for light switch, floo
 
 ## Usage
 
-The elevator exposes properties for floor number, movement, and light switch. See the [Thing Description](modbus+tcp://localhost:3179/1) for details on endpoints and data formats. 
+The elevator exposes properties for floor number, movement, and light switch. See the [Thing Description](https://github.com/eclipse-thingweb/test-things/blob/main/things/elevator/modbus/js/modbus-elevator.td.json) for details on endpoints and data formats. 
