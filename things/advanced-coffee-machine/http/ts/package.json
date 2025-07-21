@@ -24,7 +24,12 @@
         "@node-wot/core": "^0.8.14",
         "dotenv": "^16.4.5",
         "json-placeholder-replacer": "^2.0.5",
-        "wot-typescript-definitions": "^0.8.0-SNAPSHOT.29"
+        "wot-typescript-definitions": "^0.8.0-SNAPSHOT.29",
+        "@opentelemetry/api": "1.9.0",
+        "@opentelemetry/sdk-trace-node": "1.9.0",
+        "@opentelemetry/exporter-jaeger": "1.9.0",
+        "@opentelemetry/resources": "1.9.0",
+        "@opentelemetry/semantic-conventions": "1.9.0"
     },
     "devDependencies": {
         "@types/node": "^22.1.0",
