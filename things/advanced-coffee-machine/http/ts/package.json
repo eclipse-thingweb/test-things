@@ -20,11 +20,11 @@
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
     "license": "EPL-2.0 OR W3C-20150513",
     "dependencies": {
-        "@node-wot/binding-http": "^0.8.14",
-        "@node-wot/core": "^0.8.14",
+        "@node-wot/binding-http": "0.8.16",
+        "@node-wot/core": "0.8.16",
         "dotenv": "^16.4.5",
         "json-placeholder-replacer": "^2.0.5",
-        "wot-typescript-definitions": "^0.8.0-SNAPSHOT.29",
+        "wot-typescript-definitions": "0.8.0-SNAPSHOT.29",
         "@opentelemetry/api": "1.9.0",
         "@opentelemetry/sdk-trace-node": "1.9.0",
         "@opentelemetry/exporter-jaeger": "1.9.0",
@@ -33,6 +33,8 @@
     },
     "devDependencies": {
         "@types/node": "^22.1.0",
+        "@types/debug": "^4.1.12",
+        "@types/node-fetch": "^2.6.11",
         "typescript": "^4.7.4"
     }
 }

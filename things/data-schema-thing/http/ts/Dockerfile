@@ -8,6 +8,8 @@ RUN npm install
 
 RUN npm run build
 
-ENV TM_PATH="../data-schema-thing.tm.json"
+RUN cp ./data-schema-thing.tm.json ./dist/ && ls -l ./dist
+
+ENV TM_PATH="./data-schema-thing.tm.json"
 
 CMD ["node", "./dist/main.js"]

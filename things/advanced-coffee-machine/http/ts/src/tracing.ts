@@ -10,7 +10,7 @@ const provider = new NodeTracerProvider({
   }),
 });
 const exporter = new JaegerExporter({
-  endpoint: process.env.JAEGER_ENDPOINT || "http://localhost:14268/api/traces"
+  endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces"
 });
 provider.addSpanProcessor(new BatchSpanProcessor(exporter));
 provider.register();
