@@ -132,6 +132,20 @@ You can either start all the devices at [the same time](#using-docker-compose) o
 2. Start the infrastructure services via `docker-compose up -f docker-compose-services.yml`
 3. Start the Things via `docker-compose up -f docker-compose-things.yml`
 
+**Local Development Option:**
+
+If you want to build and run the Things from your local source code (for development or debugging), you can use the `docker-compose-things-local.yml` file instead. This will build the images from your local codebase.
+
+1. Make sure you have Docker and Docker Compose installed.
+2. From the project root, run:
+   ```sh
+   docker-compose -f docker-compose-things-local.yml build
+   docker-compose -f docker-compose-things-local.yml up
+   ```
+3. The Things will be accessible at the same local URLs as below (e.g., `http://localhost/http-advanced-coffee-machine`).
+
+This is useful for local development, debugging, or when you want to test changes before pushing to a remote repository.
+
 After the run, as default, the devices are accessible at:
 
 | Thing Title                                 | Local Access URL                                               |
@@ -148,7 +162,7 @@ After the run, as default, the devices are accessible at:
 
 For custom configuration, take a look at the `Dockerfile` of each device or `docker-compose-things.yml`.
 
-Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
+Docker-compose (non-local) file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
 
 ```
 docker buildx build \
