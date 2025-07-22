@@ -237,7 +237,9 @@ servient
                         const newResources = Object.assign({}, allAvailableResources);
                         newResources.water -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].water);
                         newResources.milk -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].milk);
-                        newResources.chocolate -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate);
+                        newResources.chocolate -= Math.ceil(
+                            quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate
+                        );
                         newResources.coffeeBeans -= Math.ceil(
                             quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].coffeeBeans
                         );
@@ -245,8 +247,14 @@ servient
                         // Check if the amount of available resources is sufficient to make a drink
                         for (const resource in newResources) {
                             if (newResources[resource] <= 0) {
-                                thing.emitEvent("outOfResource", `Low level of ${resource}: ${newResources[resource]}%`);
-                                span.setStatus({ code: SpanStatusCode.ERROR, message: `${resource} level is not sufficient` });
+                                thing.emitEvent(
+                                    "outOfResource",
+                                    `Low level of ${resource}: ${newResources[resource]}%`
+                                );
+                                span.setStatus({
+                                    code: SpanStatusCode.ERROR,
+                                    message: `${resource} level is not sufficient`,
+                                });
                                 return {
                                     result: false,
                                     message: `${resource} level is not sufficient`,
@@ -295,7 +303,10 @@ servient
                                 message: `Your schedule has been set!`,
                             };
                         }
-                        span.setStatus({ code: SpanStatusCode.ERROR, message: `Missing required parameters: time and mode.` });
+                        span.setStatus({
+                            code: SpanStatusCode.ERROR,
+                            message: `Missing required parameters: time and mode.`,
+                        });
                         return {
                             result: false,
                             message: `Please provide all the required parameters: time and mode.`,

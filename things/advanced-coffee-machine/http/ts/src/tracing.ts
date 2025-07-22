@@ -5,12 +5,12 @@ import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 
 const provider = new NodeTracerProvider({
-  resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: "advanced-coffee-machine"
-  }),
+    resource: new Resource({
+        [SemanticResourceAttributes.SERVICE_NAME]: "advanced-coffee-machine",
+    }),
 });
 const exporter = new JaegerExporter({
-  endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces"
+    endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces",
 });
 provider.addSpanProcessor(new BatchSpanProcessor(exporter));
 provider.register();
