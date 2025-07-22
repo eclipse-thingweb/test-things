@@ -138,10 +138,10 @@ If you want to build and run the Things from your local source code (for develop
 
 1. Make sure you have Docker and Docker Compose installed.
 2. From the project root, run:
-   ```sh
-   docker-compose -f docker-compose-things-local.yml build
-   docker-compose -f docker-compose-things-local.yml up
-   ```
+    ```sh
+    docker-compose -f docker-compose-things-local.yml build
+    docker-compose -f docker-compose-things-local.yml up
+    ```
 3. The Things will be accessible at the same local URLs as below (e.g., `http://localhost/http-advanced-coffee-machine`).
 
 This is useful for local development, debugging, or when you want to test changes before pushing to a remote repository.
