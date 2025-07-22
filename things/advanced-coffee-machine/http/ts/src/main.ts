@@ -141,7 +141,7 @@ servient
             // utilizing the uriVariables properly
             thing.setPropertyWriteHandler("availableResourceLevel", async (val, options) => {
                 // Check if uriVariables are provided
-                if ((Boolean(options)) && typeof options === "object" && "uriVariables" in options) {
+                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
                     const uriVariables = options.uriVariables as Record<string, string>;
                     if ("id" in uriVariables) {
                         const id = uriVariables.id;
@@ -156,7 +156,7 @@ servient
             // utilizing the uriVariables properly
             thing.setPropertyReadHandler("availableResourceLevel", async (options) => {
                 // Check if uriVariables are provided
-                if ((Boolean(options)) && typeof options === "object" && "uriVariables" in options) {
+                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
                     const uriVariables = options.uriVariables as Record<string, string>;
                     if ("id" in uriVariables) {
                         const id = uriVariables.id;
@@ -221,7 +221,7 @@ servient
                 };
 
                 // Check if uriVariables are provided
-                if ((Boolean(options)) && typeof options === "object" && "uriVariables" in options) {
+                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
                     const uriVariables = options.uriVariables as Record<string, string | number>;
                     drinkId = "drinkId" in uriVariables ? (uriVariables.drinkId as string) : drinkId;
                     size = "size" in uriVariables ? (uriVariables.size as string) : size;
