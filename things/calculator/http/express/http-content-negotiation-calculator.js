@@ -129,11 +129,7 @@ for (const key in thingDescription.properties) {
     const originalForm = thingDescription.properties[key].forms[0];
 
     supportedContentTypes.forEach((type) => {
-        if (
-            !thingDescription.properties[key].forms[0].contentType.includes(
-                type
-            )
-        ) {
+        if (!thingDescription.properties[key].forms[0].contentType.includes(type)) {
             const newFormRead = JSON.parse(JSON.stringify(originalForm));
             newFormRead.contentType = type;
             newFormRead.response.contentType = type;
@@ -167,19 +163,13 @@ for (const key in thingDescription.actions) {
     const originalForm = thingDescription.actions[key].forms[0];
 
     supportedContentTypes.forEach((type) => {
-        if (
-            !thingDescription.actions[key].forms[0].contentType.includes(type)
-        ) {
+        if (!thingDescription.actions[key].forms[0].contentType.includes(type)) {
             const newForm = JSON.parse(JSON.stringify(originalForm));
             newForm.contentType = type;
             thingDescription.actions[key].forms.push(newForm);
 
             supportedContentTypes.forEach((type) => {
-                if (
-                    !thingDescription.actions[
-                        key
-                    ].forms[0].response.contentType.includes(type)
-                ) {
+                if (!thingDescription.actions[key].forms[0].response.contentType.includes(type)) {
                     const newFormAccept = JSON.parse(JSON.stringify(newForm));
                     newFormAccept.response.contentType = type;
                     newFormAccept["htv:headers"][0].fieldValue = type;
@@ -233,10 +223,7 @@ for (const key in thingDescription.events) {
 
 // Creating the TD for testing purposes
 try {
-    fs.writeFileSync(
-        "http-content-negotiation-calculator-thing.td.jsonld",
-        JSON.stringify(thingDescription, null, 2)
-    );
+    fs.writeFileSync("http-content-negotiation-calculator-thing.td.jsonld", JSON.stringify(thingDescription, null, 2));
 } catch (err) {
     console.log(err);
 }
@@ -290,9 +277,7 @@ app.use((req, res, next) => {
     const acceptHeader = req.get("Accept");
 
     if (acceptHeader === undefined) {
-        res.status(406).json(
-            "Not Acceptable: Supported formats are application/json, and application/cbor"
-        );
+        res.status(406).json("Not Acceptable: Supported formats are application/json, and application/cbor");
     } else if (
         acceptHeader.includes("*/*") ||
         acceptHeader.includes("application/*") ||
@@ -303,9 +288,7 @@ app.use((req, res, next) => {
     ) {
         next();
     } else {
-        res.status(406).json(
-            "Not Acceptable: Supported formats are application/json, and application/cbor"
-        );
+        res.status(406).json("Not Acceptable: Supported formats are application/json, and application/cbor");
     }
 });
 

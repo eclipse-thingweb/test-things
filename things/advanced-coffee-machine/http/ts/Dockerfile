@@ -4,10 +4,12 @@ WORKDIR /app
 COPY ./advanced-coffee-machine.tm.json .
 COPY ./http/ts .
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 RUN npm run build
 
-ENV TM_PATH="../advanced-coffee-machine.tm.json"
+RUN cp ./advanced-coffee-machine.tm.json ./dist/
+
+ENV TM_PATH="./advanced-coffee-machine.tm.json"
 
 CMD ["node", "./dist/main.js"]

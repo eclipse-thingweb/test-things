@@ -2,9 +2,9 @@
     "compilerOptions": {
         "target": "es6",
         "lib": ["dom"],
-        "skipLibCheck": false,
+        "skipLibCheck": true,
         "module": "commonjs",
-        "outDir": "dist",
+        "outDir": "./dist",
         "strict": true,
         "composite": true,
         "incremental": true,
@@ -16,18 +16,15 @@
         "experimentalDecorators": true,
         "declaration": true,
         "esModuleInterop": true,
-        "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
+        "moduleResolution": "node",
         "resolveJsonModule": false,
         "skipDefaultLibCheck": false,
         "allowJs": false,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "forceConsistentCasingInFileNames": true,
+        "typeRoots": ["./node_modules/@types"],
+        "types": ["node", "debug", "node-fetch"]
     },
-    "references": [
-        { "path": "./things/advanced-coffee-machine/http/ts" },
-        { "path": "./things/data-schema-thing/http/ts" }
-    ],
-    "include": [
-        /** specifically nothing here */
-    ],
-    "exclude": []
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "dist"]
 }

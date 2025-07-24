@@ -37,9 +37,7 @@ describe("Calculator CoAP JS", () => {
 
     describe("Calculator Simple", () => {
         it("should have a valid TD", (done) => {
-            const req = coap.request(
-                `coap://localhost:${simplePort}/coap-calculator-simple`
-            );
+            const req = coap.request(`coap://localhost:${simplePort}/coap-calculator-simple`);
 
             req.on("response", (res) => {
                 const valid = validate(JSON.parse(res.payload.toString()));

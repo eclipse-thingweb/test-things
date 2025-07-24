@@ -35,20 +35,16 @@ describe("Elevator Modbus JS", () => {
     });
 
     it("should have a valid TD", (done) => {
-        fs.readFile(
-            path.join(__dirname, "../modbus-elevator.td.json"),
-            "utf-8",
-            (err, data) => {
-                if (err) {
-                    console.log(err);
-                    done(err);
-                }
-
-                const result = JSON.parse(data.toString());
-                const valid = validate(result);
-                expect(valid).to.be.true;
-                done();
+        fs.readFile(path.join(__dirname, "../modbus-elevator.td.json"), "utf-8", (err, data) => {
+            if (err) {
+                console.log(err);
+                done(err);
             }
-        );
+
+            const result = JSON.parse(data.toString());
+            const valid = validate(result);
+            expect(valid).to.be.true;
+            done();
+        });
     });
 });

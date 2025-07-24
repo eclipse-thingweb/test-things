@@ -45,20 +45,11 @@ function getFullTD(acceptType) {
     getThingDescription.on("response", (res) => {
         // TODO: Fix the problem with block wise transfer to be able to parse the response accordingly
         if (res.code === "2.05") {
-            if (
-                acceptType === "application/json" ||
-                acceptType === "application/td+json"
-            ) {
-                console.log(
-                    "Thing Description (json):\n",
-                    JSON.parse(res.payload.toString())
-                );
+            if (acceptType === "application/json" || acceptType === "application/td+json") {
+                console.log("Thing Description (json):\n", JSON.parse(res.payload.toString()));
             } else {
                 const decodedData = cbor.decode(res.payload);
-                console.log(
-                    "Thing Description (cbor):\n",
-                    JSON.parse(decodedData)
-                );
+                console.log("Thing Description (cbor):\n", JSON.parse(decodedData));
             }
         } else {
             console.error(`Failed to get Thing Description: ${res.code}`);
@@ -88,10 +79,7 @@ function getResult(acceptType) {
 
         if (res.code === "2.05") {
             if (contentType.includes("application/json")) {
-                console.log(
-                    "Result (json): ",
-                    JSON.parse(res.payload.toString())
-                );
+                console.log("Result (json): ", JSON.parse(res.payload.toString()));
             } else {
                 const decodedData = cbor.decode(res.payload);
                 console.log("Result (cbor): ", decodedData);
@@ -125,16 +113,10 @@ function observeResultProperty(acceptType) {
 
             if (res.code === "2.05") {
                 if (contentType.includes("application/json")) {
-                    console.log(
-                        "Observe result property (json): ",
-                        JSON.parse(res.payload.toString())
-                    );
+                    console.log("Observe result property (json): ", JSON.parse(res.payload.toString()));
                 } else {
                     const decodedData = cbor.decode(res.payload);
-                    console.log(
-                        "Observe result property (cbor): ",
-                        decodedData
-                    );
+                    console.log("Observe result property (cbor): ", decodedData);
                 }
             } else {
                 console.error(`Failed to observe Event "update": ${res.code}`);
@@ -165,10 +147,7 @@ function getLastChange(acceptType) {
 
         if (res.code === "2.05") {
             if (contentType.includes("application/json")) {
-                console.log(
-                    "Last Change (json): ",
-                    JSON.parse(res.payload.toString())
-                );
+                console.log("Last Change (json): ", JSON.parse(res.payload.toString()));
             } else {
                 const decodedData = cbor.decode(res.payload);
                 console.log("Last Change (cbor): ", decodedData);
@@ -202,16 +181,10 @@ function observeLastChangeProperty(acceptType) {
 
             if (res.code === "2.05") {
                 if (contentType.includes("application/json")) {
-                    console.log(
-                        "Observe lastChange property (json): ",
-                        JSON.parse(res.payload.toString())
-                    );
+                    console.log("Observe lastChange property (json): ", JSON.parse(res.payload.toString()));
                 } else {
                     const decodedData = cbor.decode(res.payload);
-                    console.log(
-                        "Observe lastChange property (cbor): ",
-                        decodedData
-                    );
+                    console.log("Observe lastChange property (cbor): ", decodedData);
                 }
             } else {
                 console.error(`Failed to observe Event "update": ${res.code}`);
@@ -240,21 +213,14 @@ function addNumber(acceptType, contentType, numberToAdd) {
     });
 
     // Set the payload with the input value
-    addNumberReq.write(
-        contentType === "application/json"
-            ? JSON.stringify(numberToAdd)
-            : cbor.encode(numberToAdd)
-    );
+    addNumberReq.write(contentType === "application/json" ? JSON.stringify(numberToAdd) : cbor.encode(numberToAdd));
 
     addNumberReq.on("response", (res) => {
         const contentType = res.headers["Content-Type"];
 
         if (res.code === "2.05") {
             if (contentType.includes("application/json")) {
-                console.log(
-                    "Addition result (json): ",
-                    JSON.parse(res.payload.toString())
-                );
+                console.log("Addition result (json): ", JSON.parse(res.payload.toString()));
             } else {
                 const decodedData = cbor.decode(res.payload);
                 console.log("Addition result (cbor): ", decodedData);
@@ -285,9 +251,7 @@ function subtractNumber(acceptType, contentType, numberToSubtract) {
 
     // Set the payload with the input value
     subtractNumberReq.write(
-        contentType === "application/json"
-            ? JSON.stringify(numberToSubtract)
-            : cbor.encode(numberToSubtract)
+        contentType === "application/json" ? JSON.stringify(numberToSubtract) : cbor.encode(numberToSubtract)
     );
 
     subtractNumberReq.on("response", (res) => {
@@ -295,10 +259,7 @@ function subtractNumber(acceptType, contentType, numberToSubtract) {
 
         if (res.code === "2.05") {
             if (contentType.includes("application/json")) {
-                console.log(
-                    "Subtraction result (json): ",
-                    JSON.parse(res.payload.toString())
-                );
+                console.log("Subtraction result (json): ", JSON.parse(res.payload.toString()));
             } else {
                 const decodedData = cbor.decode(res.payload);
                 console.log("Subtraction result (cbor): ", decodedData);
@@ -336,10 +297,7 @@ function observeUpdateEvent(acceptType) {
 
             if (res.code === "2.05") {
                 if (contentType.includes("application/json")) {
-                    console.log(
-                        "Observe update event (json): ",
-                        JSON.parse(res.payload.toString())
-                    );
+                    console.log("Observe update event (json): ", JSON.parse(res.payload.toString()));
                 } else {
                     const decodedData = cbor.decode(res.payload);
                     console.log("Observe update event (cbor): ", decodedData);

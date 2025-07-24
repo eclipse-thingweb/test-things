@@ -465,22 +465,12 @@
         {
             "href": "http://localhost:3000/http-data-schema-thing/properties",
             "contentType": "application/json",
-            "op": [
-                "readallproperties",
-                "readmultipleproperties",
-                "writeallproperties",
-                "writemultipleproperties"
-            ]
+            "op": ["readallproperties", "readmultipleproperties", "writeallproperties", "writemultipleproperties"]
         },
         {
             "href": "http://localhost:3000/http-data-schema-thing/properties",
             "contentType": "application/cbor",
-            "op": [
-                "readallproperties",
-                "readmultipleproperties",
-                "writeallproperties",
-                "writemultipleproperties"
-            ]
+            "op": ["readallproperties", "readmultipleproperties", "writeallproperties", "writemultipleproperties"]
         }
     ]
 }

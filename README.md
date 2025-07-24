@@ -12,10 +12,22 @@ Collection of IoT device simulators that can be used for testing and exploration
 The devices are implemented via various programming languages and frameworks.
 The protocols you can currently test are:
 
-- HTTP
-- CoAP
-- MQTT
-- Modbus
+-   HTTP
+-   CoAP
+-   MQTT
+-   Modbus
+
+## How It Works
+
+-   External applications —known as WoT Consumer Stacks— send requests to the Things. Traefik, which handles inbound HTTP requests, or an MQTT broker allow them to communicate with the internal services ("Things") in two main methods.
+-   The primary application services, the "Things" (A, B, C, D) reflect several functionalities like those of a Coffee Machine or Elevator. Every service is specified by a Thing Description (TD), a standardized metadata file that explains the service's capabilities and how to interact with it.
+-   **Monitoring and Observability:** The system is built up comprehensively for monitoring.
+    -   Promtail collects logs from the services and sends them to Loki, a log aggregation system.
+    -   cAdvisor analyzes and collects overall metrics from docker containers
+    -   Prometheus, a time-series database, stores container performance measurements that cAdvisor gathers.
+    -   Grafana, a central dashboard, shows Loki's logs and Prometheus's metrics to give a whole picture of the system's condition.
+
+![Architecture Diagram](./architecture-diagram.jpg)
 
 ## Dependencies
 
@@ -93,16 +105,16 @@ The Test Thing is a total toy device that users can try different types of prope
 
 #### Supported Protocols and Programming Languages
 
-- HTTP
-  - TypeScript node-wot
-  - JavaScript Express framework
-  - Python Flask framework
-- CoAP
-  - JavaScript
-- MQTT
-  - JavaScript
-- Modbus
-  - JavaScript
+-   HTTP
+    -   TypeScript node-wot
+    -   JavaScript Express framework
+    -   Python Flask framework
+-   CoAP
+    -   JavaScript
+-   MQTT
+    -   JavaScript
+-   Modbus
+    -   JavaScript
 
 ## Current Mashups
 
@@ -112,20 +124,13 @@ See the mashup's [readme](./mashups/smart-home/README.md).
 
 ## How to Run
 
+You can either start all the devices at [the same time](#using-docker-compose) or start them [individually](#running-separately).
+
 ### Using docker-compose
 
-You can start the devices inside a container, for that running `docker-compose up` at the root directory builds and runs the containers. For custom configuration, take a look at the `Dockerfile` of each device or [docker-compose.yml](./docker-compose.yml).
-
-Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
-
-```
-docker buildx build \
---push \
---platform linux/amd64, linux/arm64 \
---tag thingweb/<IMAGE_NAME> \
---filename <DOCKERFILE_NAME> \
-<BUILD_CONTEXT>
-```
+1. Clone the [infrastructure](https://github.com/eclipse-thingweb/infrastructure) repository
+2. Start the infrastructure services via `docker-compose up -f docker-compose-services.yml`
+3. Start the Things via `docker-compose up -f docker-compose-things.yml`
 
 After the run, as default, the devices are accessible at:
 
@@ -140,6 +145,19 @@ After the run, as default, the devices are accessible at:
 | mqtt-calculator                             | `mqtt://test.mosquitto.org:1883/mqtt-calculator`               |
 | modbus-elevator                             | `modbus+tcp://localhost:3179/1`                                |
 | http-data-schema-thing                      | `http://localhost/http-data-schema-thing`                      |
+
+For custom configuration, take a look at the `Dockerfile` of each device or `docker-compose-things.yml`.
+
+Docker-compose file uses the images from Docker Hub. If you make any changes in the code build and push the new image with the changes. The command below allows you to create the Docker image for two different platforms you can use (Need permission to be able to push them to the thingweb organization):
+
+```
+docker buildx build \
+--push \
+--platform linux/amd64, linux/arm64 \
+--tag thingweb/<IMAGE_NAME> \
+--filename <DOCKERFILE_NAME> \
+<BUILD_CONTEXT>
+```
 
 ### Running separately
 

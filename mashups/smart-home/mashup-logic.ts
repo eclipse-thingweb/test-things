@@ -33,15 +33,12 @@ const wotHelper = new Helpers(servient);
     const WoT = await servient.start();
 
     const coffeeMachineURL =
-        process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME ===
-        "smart-home-simple-coffee-machine"
+        process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME === "smart-home-simple-coffee-machine"
             ? `http://${process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME}/smart-home-simple-coffee-machine`
             : `http://${process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME}:${process.env.SIMPLE_COFFEE_MACHINE_PORT}/smart-home-simple-coffee-machine`;
 
     // we will fetch the TDs of the devices
-    const coffeeMachineTD = (await wotHelper.fetch(
-        coffeeMachineURL
-    )) as WoT.ThingDescription;
+    const coffeeMachineTD = (await wotHelper.fetch(coffeeMachineURL)) as WoT.ThingDescription;
     // Alternatively, this Thing self-hosts its TD at http://plugfest.thingweb.io:8081/coffee-machine that you can fetch
     const presenceSensorTD = (await wotHelper.fetch(
         `mqtt://${process.env.PRESENCE_SENSOR_BROKER_URI}/smart-home-presence-sensor`
@@ -58,49 +55,46 @@ const wotHelper = new Helpers(servient);
     let morningCoffeeFlag = false;
 
     // We subscribe to the presence detection events
-    presenceSensorThing.subscribeEvent(
-        "presenceDetected",
-        async (eventData) => {
-            // We can log the distance of the detection but this is not necessary.
-            // The emission of the event implies that a detection happened anyways
-            console.log("Detected presence at,", await eventData.value(), "mm");
+    presenceSensorThing.subscribeEvent("presenceDetected", async (eventData) => {
+        // We can log the distance of the detection but this is not necessary.
+        // The emission of the event implies that a detection happened anyways
+        console.log("Detected presence at,", await eventData.value(), "mm");
 
-            type Time = {
-                hour: number;
-                minute: number;
-            };
+        type Time = {
+            hour: number;
+            minute: number;
+        };
 
-            // We read the time property from the smart clock
-            const currentTimeData = await smartClockThing.readProperty("time");
-            const currentTime: Time = (await currentTimeData.value()) as Time; // You need to always call the .value function
+        // We read the time property from the smart clock
+        const currentTimeData = await smartClockThing.readProperty("time");
+        const currentTime: Time = (await currentTimeData.value()) as Time; // You need to always call the .value function
 
-            // Optionally, we can log the current time
-            console.log(
-                "Current time is " +
-                    currentTime.hour.toString().padStart(2, "0") +
-                    ":" +
-                    currentTime.minute.toString().padStart(2, "0")
-            );
+        // Optionally, we can log the current time
+        console.log(
+            "Current time is " +
+                currentTime.hour.toString().padStart(2, "0") +
+                ":" +
+                currentTime.minute.toString().padStart(2, "0")
+        );
 
-            // To avoid accidental brews, a flag is used to check whether a coffee was brewed before
-            if (!morningCoffeeFlag) {
-                // As the task indicates, we brew only between 5:00 and 13:00
-                if (currentTime.hour <= 13 && currentTime.hour >= 5) {
-                    // To brew a coffee, we invoke the brew action in the coffee machine
-                    await coffeeMachineThing.invokeAction("brew", "espresso");
-                    // We log to indicate to the user that brewing has finished
-                    console.log("brewed espresso");
-                    // for today we should not brew any more coffee
-                    morningCoffeeFlag = true;
-                }
+        // To avoid accidental brews, a flag is used to check whether a coffee was brewed before
+        if (!morningCoffeeFlag) {
+            // As the task indicates, we brew only between 5:00 and 13:00
+            if (currentTime.hour <= 13 && currentTime.hour >= 5) {
+                // To brew a coffee, we invoke the brew action in the coffee machine
+                await coffeeMachineThing.invokeAction("brew", "espresso");
+                // We log to indicate to the user that brewing has finished
+                console.log("brewed espresso");
+                // for today we should not brew any more coffee
+                morningCoffeeFlag = true;
             }
-
-            // we reset the morningCoffeeFlag every day at 1am
-            setInterval(() => {
-                if (currentTime.hour === 1) {
-                    morningCoffeeFlag = false;
-                }
-            }, 1000);
         }
-    );
+
+        // we reset the morningCoffeeFlag every day at 1am
+        setInterval(() => {
+            if (currentTime.hour === 1) {
+                morningCoffeeFlag = false;
+            }
+        }, 1000);
+    });
 })();

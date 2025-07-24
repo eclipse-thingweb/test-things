@@ -29,10 +29,7 @@ export type ValidateResponse = {
 
 const spawn = require("node:child_process").spawn;
 
-export const getInitiateMain = (
-    mainCmd: string,
-    cmdArgs: string[]
-): Promise<ThingStartResponse> => {
+export const getInitiateMain = (mainCmd: string, cmdArgs: string[]): Promise<ThingStartResponse> => {
     return new Promise((resolve, reject) => {
         const thingProcess = spawn(mainCmd, cmdArgs);
 

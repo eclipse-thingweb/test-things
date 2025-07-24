@@ -6,5 +6,5 @@ These clients were created with the sole purpose of testing the main functionali
 
 ## Endpoints
 
-- Simple TD: /http-express-calculator-simple
-- Content Negotiation TD: /http-express-calculator-content-negotiation
+-   Simple TD: /http-express-calculator-simple
+-   Content Negotiation TD: /http-express-calculator-content-negotiation

@@ -46,8 +46,7 @@ function timeout(ms: number) {
 servient.start().then((WoT) => {
     WoT.produce({
         title: thingName,
-        description:
-            "A simple coffee machine that can be interacted over the Internet",
+        description: "A simple coffee machine that can be interacted over the Internet",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",
         properties: {
@@ -140,11 +139,7 @@ servient.start().then((WoT) => {
                         return undefined;
                     }
                 } else if (coffeeType === "cappuccino") {
-                    if (
-                        waterAmount <= 20 ||
-                        beansAmount <= 25 ||
-                        milkAmount <= 15
-                    ) {
+                    if (waterAmount <= 20 || beansAmount <= 25 || milkAmount <= 15) {
                         throw new Error("Not enough water or beans");
                     } else {
                         await timeout(2000);
@@ -193,9 +188,7 @@ servient.start().then((WoT) => {
             });
 
             thing.setActionHandler("refill", async (params, options) => {
-                const selectedResource = (await params.value()) as Array<
-                    "water" | "beans" | "milk"
-                >;
+                const selectedResource = (await params.value()) as Array<"water" | "beans" | "milk">;
                 console.info("received refill order of ", selectedResource);
                 if (selectedResource!.indexOf("water") !== -1) {
                     waterAmount = 1000;
@@ -213,9 +206,7 @@ servient.start().then((WoT) => {
             // expose the thing
             thing.expose().then(() => {
                 console.info(thing.getThingDescription().title + " ready");
-                console.info(
-                    "TD available at http://" + hostname + ":" + httpPort
-                );
+                console.info("TD available at http://" + hostname + ":" + httpPort);
                 fs.writeFile(
                     `${thingName}.td.json`,
                     JSON.stringify(thing.getThingDescription(), null, 4),

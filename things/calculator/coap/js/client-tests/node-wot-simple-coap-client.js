@@ -24,9 +24,7 @@ servient
     .start()
     .then(async (WoT) => {
         try {
-            const td = await WoT.requestThingDescription(
-                "coap://localhost:5683/coap-calculator-simple"
-            );
+            const td = await WoT.requestThingDescription("coap://localhost:5683/coap-calculator-simple");
 
             const thing = await WoT.consume(td);
             console.log(td);

@@ -16,14 +16,15 @@
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
     "license": "EPL-2.0 OR W3C-20150513",
     "dependencies": {
-        "@node-wot/binding-coap": "~0.8.16",
-        "@node-wot/binding-http": "~0.8.16",
-        "@node-wot/binding-mqtt": "~0.8.16",
-        "@node-wot/core": "~0.8.16"
+        "@node-wot/binding-coap": "0.8.16",
+        "@node-wot/binding-http": "0.8.16",
+        "@node-wot/binding-mqtt": "0.8.16",
+        "@node-wot/core": "0.8.16"
     },
     "devDependencies": {
         "@types/debug": "^4.1.12",
         "@types/node-fetch": "^2.6.11",
+        "@types/node": "^18.15.11",
         "dotenv": "^16.4.5",
         "typescript": "^4.7.4"
     }

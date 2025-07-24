@@ -36,31 +36,23 @@ describe("TD Test", () => {
     });
 
     it("should have a valid TD", (done) => {
-        http.get(
-            `http://localhost:${port}/http-data-schema-thing`,
-            function (response: http.IncomingMessage) {
-                const body: Buffer[] = [];
-                response.on("data", (chunk: Buffer) => {
-                    body.push(chunk);
-                });
+        http.get(`http://localhost:${port}/http-data-schema-thing`, function (response: http.IncomingMessage) {
+            const body: Buffer[] = [];
+            response.on("data", (chunk: Buffer) => {
+                body.push(chunk);
+            });
 
-                response.on("end", () => {
-                    try {
-                        const result = JSON.parse(
-                            Buffer.concat(body).toString()
-                        );
-                        const valid =
-                            validate && result !== ""
-                                ? validate(result)
-                                : false;
-                        expect(valid).to.be.true;
-                        done();
-                    } catch (error) {
-                        console.log(error);
-                        done(error);
-                    }
-                });
-            }
-        );
+            response.on("end", () => {
+                try {
+                    const result = JSON.parse(Buffer.concat(body).toString());
+                    const valid = validate && result !== "" ? validate(result) : false;
+                    expect(valid).to.be.true;
+                    done();
+                } catch (error) {
+                    console.log(error);
+                    done(error);
+                }
+            });
+        });
     });
 });

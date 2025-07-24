@@ -6,5 +6,5 @@ These clients were created with the sole purpose of testing the main functionali
 
 ## CoAP Endpoints
 
-- Simple CoAP TD: /coap-calculator-simple
-- Content Negotiation CoAP TD: /coap-calculator-content-negotiation
+-   Simple CoAP TD: /coap-calculator-simple
+-   Content Negotiation CoAP TD: /coap-calculator-content-negotiation

@@ -93,28 +93,20 @@ describe.skip("Client Tests", () => {
         it("should return sum when subtracting value from the existing result", async () => {
             const resultValue = await readProperty(thing, "result");
             const valueToSubtract = 3;
-            const response = await thing.invokeAction(
-                "subtract",
-                valueToSubtract
-            );
+            const response = await thing.invokeAction("subtract", valueToSubtract);
             const actionResultValue = await response.value();
-            expect(actionResultValue).to.be.equal(
-                resultValue - valueToSubtract
-            );
+            expect(actionResultValue).to.be.equal(resultValue - valueToSubtract);
         });
     });
 
     describe("update event", () => {
         it("should return the update message when subscribed", async () => {
-            const subscription = await thing.subscribeEvent(
-                "update",
-                async (response) => {
-                    const value = await response.value();
-                    console.log(value);
-                    expect(value).to.be.equal("Updated the thing!");
-                    subscription.stop();
-                }
-            );
+            const subscription = await thing.subscribeEvent("update", async (response) => {
+                const value = await response.value();
+                console.log(value);
+                expect(value).to.be.equal("Updated the thing!");
+                subscription.stop();
+            });
         });
     });
 });

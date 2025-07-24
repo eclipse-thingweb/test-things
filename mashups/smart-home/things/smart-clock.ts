@@ -56,8 +56,7 @@ async function timeCount(thing: WoT.ExposedThing) {
 servient.start().then((WoT) => {
     WoT.produce({
         title: thingName,
-        description:
-            "a smart clock that runs 60 times faster than real time, where 1 hour happens in 1 minute.",
+        description: "a smart clock that runs 60 times faster than real time, where 1 hour happens in 1 minute.",
         support: "https://github.com/eclipse-thingweb/node-wot/",
         "@context": "https://www.w3.org/2022/wot/td/v1.1",
         properties: {
