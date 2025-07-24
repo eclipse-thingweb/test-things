@@ -164,3 +164,7 @@ docker buildx build \
 For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able to copy `tm.json` into the container.
 
 For Node.js-based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
+
+## Tracing
+
+Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:16686](http://localhost:16686) in your browser (Jaeger UI).
