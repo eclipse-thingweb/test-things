@@ -4,14 +4,14 @@ A simple calculator implementation for the Eclipse Thingweb Test Things project.
 
 ## Description
 
-This calculator thing provides basic arithmetic operations through various protocols including HTTP, CoAP, and MQTT. The features are the same across all protocols - all implementations support the same arithmetic operations regardless of the communication protocol used.
+This calculator thing provides basic arithmetic operations through various protocols including HTTP, CoAP, and MQTT.
+The features are the same across all protocols - all implementations support the same arithmetic operations regardless of the communication protocol used.
 
 ## Features
 
 -   Basic arithmetic operations (add, subtract, multiply, divide)
 -   Multiple protocol support (HTTP, CoAP, MQTT)
 -   Content negotiation support
--   Multiple implementation frameworks
 
 ## Protocol Support
 
