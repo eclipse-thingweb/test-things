@@ -9,64 +9,83 @@ let tracer: any = null;
 
 function safeStringify(value: any): string {
     try {
-        if (value === null || value === undefined) return String(value);
-        if (typeof value === 'string') return value;
-        if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-        return JSON.stringify(value);
+        return value === null || value === undefined ? String(value) : 
+               typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) :
+               JSON.stringify(value);
     } catch {
         return `[Unable to serialize: ${typeof value}]`;
     }
 }
 
-async function captureInputs(span: any, params: any, options: any, operation: string): Promise<void> {
+function setSpanAttributes(span: any, name: string, operation: string, options: any, params?: any, error?: any, result?: any): void {
+    // Set basic attributes
+    const isAction = operation === 'invokeaction';
+    const nameKey = isAction ? 'action.name' : 'property.name';
+    
     span.setAttributes({
+        [nameKey]: name,
         'wot.operation': operation,
-        'timestamp': new Date().toISOString(),
+        'timestamp': new Date().toISOString()
     });
 
-    // Capture params without consuming the stream
-    if (params !== undefined && params !== null) {
-        try {
-            // Don't call params.value() as it consumes the stream
-            // Just capture that params are present and their type
-            span.setAttributes({
-                'input.params.present': true,
-                'input.params.type': typeof params
-            });
-        } catch (error) {
-            span.setAttributes({ 'input.params.error': safeStringify(error) });
-        }
-    } else {
-        span.setAttributes({ 'input.params.present': false });
-    }
-
-    // Capture options and uriVariables
-    if (options && typeof options === 'object') {
+    // Add input options if present
+    if (options) {
         span.setAttributes({ 'input.options': safeStringify(options) });
         
-        if ('uriVariables' in options && options.uriVariables) {
-            const uriVars = options.uriVariables as Record<string, any>;
-            span.setAttributes({ 'input.uriVariables': safeStringify(uriVars) });
+        // Add URI variables if present
+        if (options.uriVariables) {
+            span.setAttributes({ 'input.uriVariables': safeStringify(options.uriVariables) });
             
-            // Add individual uriVariable tags
-            Object.entries(uriVars).forEach(([key, value]) => {
+            // Add individual URI variables for easy filtering in Jaeger
+            for (const [key, value] of Object.entries(options.uriVariables)) {
                 span.setAttributes({ [`input.uriVariables.${key}`]: safeStringify(value) });
-            });
+            }
+        }
+    }
+
+    // Add input parameters if present
+    if (params !== undefined) {
+        span.setAttributes({
+            'input.params.present': true,
+            'input.params.type': typeof params,
+            'input.params.value': safeStringify(params)
+        });
+    }
+
+    // Add error or success information
+    if (error) {
+        const errorMessage = safeStringify(error);
+        const isValidationError = errorMessage.includes('validation') || 
+                                  errorMessage.includes('schema') || 
+                                  errorMessage.includes('required');
+        
+        span.setAttributes({
+            'td.validation': isValidationError ? 'failed' : 'passed',
+            'error.category': isValidationError ? 'td_validation' : 'handler_execution',
+            'error.message': errorMessage,
+            'status': 'error'
+        });
+    } else {
+        span.setAttributes({
+            'td.validation': 'passed',
+            'handler.execution': 'success',
+            'status': 'success'
+        });
+        
+        // Add result if present
+        if (result !== undefined) {
+            span.setAttributes({ 'result.value': safeStringify(result) });
         }
     }
 }
 
 export function initTracing(serviceName: string): void {
     const provider = new NodeTracerProvider({
-        resource: new Resource({
-            [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
-        }),
+        resource: new Resource({ [SemanticResourceAttributes.SERVICE_NAME]: serviceName }),
     });
-    
     provider.addSpanProcessor(new BatchSpanProcessor(new JaegerExporter({
         endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces",
     })));
-    
     provider.register();
     tracer = trace.getTracer(serviceName);
 }
@@ -78,23 +97,12 @@ export function traceAction<T>(
     return async (params, options) => {
         return tracer.startActiveSpan(`action.${name}`, async (span: any) => {
             try {
-                span.setAttributes({ 'action.name': name });
-                await captureInputs(span, params, options, 'invokeaction');
-                
                 const result = await fn(params, options);
-                
-                span.setAttributes({
-                    'result.present': result !== undefined,
-                    'result.value': result !== undefined ? safeStringify(result) : 'undefined',
-                    'status': 'success'
-                });
+                setSpanAttributes(span, name, 'invokeaction', options, params, null, result);
                 span.setStatus({ code: SpanStatusCode.OK });
                 return result;
             } catch (error) {
-                span.setAttributes({ 
-                    'error.message': safeStringify(error),
-                    'status': 'error'
-                });
+                setSpanAttributes(span, name, 'invokeaction', options, params, error);
                 span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
                 throw error;
             } finally {
@@ -111,16 +119,11 @@ export function traceProperty(
     return async (value, options) => {
         return tracer.startActiveSpan(`property.write.${name}`, async (span: any) => {
             try {
-                span.setAttributes({ 'property.name': name });
-                await captureInputs(span, value, options, 'writeproperty');
                 await fn(value, options);
-                span.setAttributes({ 'status': 'success' });
+                setSpanAttributes(span, name, 'writeproperty', options, value);
                 span.setStatus({ code: SpanStatusCode.OK });
             } catch (error) {
-                span.setAttributes({ 
-                    'error.message': safeStringify(error),
-                    'status': 'error'
-                });
+                setSpanAttributes(span, name, 'writeproperty', options, value, error);
                 span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
                 throw error;
             } finally {
