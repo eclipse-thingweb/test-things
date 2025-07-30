@@ -25,10 +25,11 @@ import { JsonPlaceholderReplacer } from "json-placeholder-replacer";
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
 import dotenv from "dotenv";
-import "./tracing";
-import { tracedActionHandler, tracedPropertyWriteHandler, tracer } from "./tracing";
-import { SpanStatusCode } from "@opentelemetry/api";
+import { initTracing, tracedActionHandler, tracedPropertyWriteHandler } from "./tracing";
 dotenv.config();
+
+// Initialize tracing
+initTracing("advanced-coffee-machine");
 
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
