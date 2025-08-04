@@ -171,128 +171,131 @@ servient
             });
 
             // Set up a handler for makeDrink action using traced wrapper
-            thing.setActionHandler("makeDrink", tracedActionHandler("makeDrink", async (_params, options) => {
-                // Default values
-                let drinkId = "americano";
-                let size = "m";
-                let quantity = 1;
+            thing.setActionHandler(
+                "makeDrink",
+                tracedActionHandler("makeDrink", async (_params, options) => {
+                    // Default values
+                    let drinkId = "americano";
+                    let size = "m";
+                    let quantity = 1;
 
-                // Size quantifiers
-                const sizeQuantifiers: Record<string, number> = {
-                    s: 0.1,
-                    m: 0.2,
-                    l: 0.3,
-                };
+                    // Size quantifiers
+                    const sizeQuantifiers: Record<string, number> = {
+                        s: 0.1,
+                        m: 0.2,
+                        l: 0.3,
+                    };
 
-                // Drink recipes showing the amount of a resource consumed for a particular drink
-                const drinkRecipes: Record<string, Record<string, number>> = {
-                    espresso: {
-                        water: 1,
-                        milk: 0,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    americano: {
-                        water: 2,
-                        milk: 0,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    cappuccino: {
-                        water: 1,
-                        milk: 1,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    latte: {
-                        water: 1,
-                        milk: 2,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    hotChocolate: {
-                        water: 0,
-                        milk: 0,
-                        chocolate: 1,
-                        coffeeBeans: 0,
-                    },
-                    hotWater: {
-                        water: 1,
-                        milk: 0,
-                        chocolate: 0,
-                        coffeeBeans: 0,
-                    },
-                };
+                    // Drink recipes showing the amount of a resource consumed for a particular drink
+                    const drinkRecipes: Record<string, Record<string, number>> = {
+                        espresso: {
+                            water: 1,
+                            milk: 0,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        americano: {
+                            water: 2,
+                            milk: 0,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        cappuccino: {
+                            water: 1,
+                            milk: 1,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        latte: {
+                            water: 1,
+                            milk: 2,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        hotChocolate: {
+                            water: 0,
+                            milk: 0,
+                            chocolate: 1,
+                            coffeeBeans: 0,
+                        },
+                        hotWater: {
+                            water: 1,
+                            milk: 0,
+                            chocolate: 0,
+                            coffeeBeans: 0,
+                        },
+                    };
 
-                // Check if uriVariables are provided
-                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
-                    const uriVariables = options.uriVariables as Record<string, string | number>;
-                    drinkId = "drinkId" in uriVariables ? (uriVariables.drinkId as string) : drinkId;
-                    size = "size" in uriVariables ? (uriVariables.size as string) : size;
-                    quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
-                }
-
-                // Calculate the new level of resources
-                const newResources = Object.assign({}, allAvailableResources);
-                newResources.water -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].water);
-                newResources.milk -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].milk);
-                newResources.chocolate -= Math.ceil(
-                    quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate
-                );
-                newResources.coffeeBeans -= Math.ceil(
-                    quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].coffeeBeans
-                );
-
-                // Check if the amount of available resources is sufficient to make a drink
-                for (const resource in newResources) {
-                    if (newResources[resource] <= 0) {
-                        thing.emitEvent(
-                            "outOfResource",
-                            `Low level of ${resource}: ${newResources[resource]}%`
-                        );
-                        return {
-                            result: false,
-                            message: `${resource} level is not sufficient`,
-                        };
+                    // Check if uriVariables are provided
+                    if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
+                        const uriVariables = options.uriVariables as Record<string, string | number>;
+                        drinkId = "drinkId" in uriVariables ? (uriVariables.drinkId as string) : drinkId;
+                        size = "size" in uriVariables ? (uriVariables.size as string) : size;
+                        quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
                     }
-                }
 
-                // Now store the new level of allAvailableResources
-                allAvailableResources = newResources;
-                servedCounter = servedCounter + quantity;
+                    // Calculate the new level of resources
+                    const newResources = Object.assign({}, allAvailableResources);
+                    newResources.water -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].water);
+                    newResources.milk -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].milk);
+                    newResources.chocolate -= Math.ceil(
+                        quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate
+                    );
+                    newResources.coffeeBeans -= Math.ceil(
+                        quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].coffeeBeans
+                    );
 
-                // Finally deliver the drink
-                return {
-                    result: true,
-                    message: `Your ${drinkId} is in progress!`,
-                };
-            }));
+                    // Check if the amount of available resources is sufficient to make a drink
+                    for (const resource in newResources) {
+                        if (newResources[resource] <= 0) {
+                            thing.emitEvent("outOfResource", `Low level of ${resource}: ${newResources[resource]}%`);
+                            return {
+                                result: false,
+                                message: `${resource} level is not sufficient`,
+                            };
+                        }
+                    }
 
-            // Set up a handler for setSchedule action using traced wrapper
-            thing.setActionHandler("setSchedule", tracedActionHandler("setSchedule", async (params, options) => {
-                const paramsp = params ? (await (params as any).value()) as Record<string, unknown> : null;
+                    // Now store the new level of allAvailableResources
+                    allAvailableResources = newResources;
+                    servedCounter = servedCounter + quantity;
 
-                // Check if required parameters are provided
-                if (paramsp != null && typeof paramsp === "object" && "time" in paramsp && "mode" in paramsp) {
-                    // Use default values if not provided
-                    paramsp.drinkId = "drinkId" in paramsp ? paramsp.drinkId : "americano";
-                    paramsp.size = "size" in paramsp ? paramsp.size : "m";
-                    paramsp.quantity = "quantity" in paramsp ? paramsp.quantity : 1;
-
-                    // Now add a new schedule
-                    schedules.push(paramsp);
-
+                    // Finally deliver the drink
                     return {
                         result: true,
-                        message: `Your schedule has been set!`,
+                        message: `Your ${drinkId} is in progress!`,
                     };
-                }
-                
-                return {
-                    result: false,
-                    message: `Please provide all the required parameters: time and mode.`,
-                };
-            }));
+                })
+            );
+
+            // Set up a handler for setSchedule action using traced wrapper
+            thing.setActionHandler(
+                "setSchedule",
+                tracedActionHandler("setSchedule", async (params, options) => {
+                    const paramsp = params ? ((await (params as any).value()) as Record<string, unknown>) : null;
+
+                    // Check if required parameters are provided
+                    if (paramsp != null && typeof paramsp === "object" && "time" in paramsp && "mode" in paramsp) {
+                        // Use default values if not provided
+                        paramsp.drinkId = "drinkId" in paramsp ? paramsp.drinkId : "americano";
+                        paramsp.size = "size" in paramsp ? paramsp.size : "m";
+                        paramsp.quantity = "quantity" in paramsp ? paramsp.quantity : 1;
+
+                        // Now add a new schedule
+                        schedules.push(paramsp);
+
+                        return {
+                            result: true,
+                            message: `Your schedule has been set!`,
+                        };
+                    }
+
+                    return {
+                        result: false,
+                        message: `Please provide all the required parameters: time and mode.`,
+                    };
+                })
+            );
 
             // Finally expose the thing
             thing.expose().then(() => {
