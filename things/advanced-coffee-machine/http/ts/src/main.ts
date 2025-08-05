@@ -25,13 +25,7 @@ import { JsonPlaceholderReplacer } from "json-placeholder-replacer";
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
 import dotenv from "dotenv";
-import {
-    initTracing,
-    tracedActionHandler,
-    tracedPropertyReadHandler,
-    tracedPropertyWriteHandler,
-    tracedEventHandler,
-} from "./tracing";
+import { initTracing, tracedActionHandler, tracedPropertyReadHandler, tracedPropertyWriteHandler, tracedEventHandler } from "./tracing";
 dotenv.config();
 
 // Initialize tracing
@@ -122,88 +116,65 @@ servient
             maintenanceNeeded = false;
             schedules = [];
 
-            thing.setPropertyReadHandler(
-                "allAvailableResources",
-                tracedPropertyReadHandler("allAvailableResources", async () => allAvailableResources)
-            );
-            thing.setPropertyReadHandler(
-                "possibleDrinks",
-                tracedPropertyReadHandler("possibleDrinks", async () => possibleDrinks)
-            );
-            thing.setPropertyReadHandler(
-                "maintenanceNeeded",
-                tracedPropertyReadHandler("maintenanceNeeded", async () => maintenanceNeeded)
-            );
-            thing.setPropertyReadHandler(
-                "schedules",
-                tracedPropertyReadHandler("schedules", async () => schedules)
-            );
+            thing.setPropertyReadHandler("allAvailableResources", tracedPropertyReadHandler("allAvailableResources", async () => allAvailableResources));
+            thing.setPropertyReadHandler("possibleDrinks", tracedPropertyReadHandler("possibleDrinks", async () => possibleDrinks));
+            thing.setPropertyReadHandler("maintenanceNeeded", tracedPropertyReadHandler("maintenanceNeeded", async () => maintenanceNeeded));
+            thing.setPropertyReadHandler("schedules", tracedPropertyReadHandler("schedules", async () => schedules));
 
             // Override a write handler for servedCounter property,
             // raising maintenanceNeeded flag when the value exceeds 1000 drinks
-            thing.setPropertyWriteHandler(
-                "servedCounter",
-                tracedPropertyWriteHandler("servedCounter", async (val) => {
-                    if (!val) {
-                        throw new Error("No value provided for servedCounter");
-                    }
-                    servedCounter = (await (val as any).value()) as number;
-                    if (servedCounter > 1000) {
-                        maintenanceNeeded = true;
-                        tracedEventHandler("maintenanceNeeded", (data) =>
-                            thing.emitPropertyChange("maintenanceNeeded")
-                        )(maintenanceNeeded);
+            thing.setPropertyWriteHandler("servedCounter", tracedPropertyWriteHandler("servedCounter", async (val) => {
+                if (!val) {
+                    throw new Error("No value provided for servedCounter");
+                }
+                servedCounter = (await (val as any).value()) as number;
+                if (servedCounter > 1000) {
+                    maintenanceNeeded = true;
+                    tracedEventHandler("maintenanceNeeded", (data) => thing.emitPropertyChange("maintenanceNeeded"))(maintenanceNeeded);
 
-                        // Notify a "maintainer" when the value has changed
-                        // (the notify function here simply logs a message to the console)
-                        notify(
-                            "admin@coffeeMachine.com",
-                            `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
-                        );
-                    }
-                })
-            );
+                    // Notify a "maintainer" when the value has changed
+                    // (the notify function here simply logs a message to the console)
+                    notify(
+                        "admin@coffeeMachine.com",
+                        `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
+                    );
+                }
+            }));
 
             // Now initialize the servedCounter property
             servedCounter = readFromSensor("servedCounter");
 
             // Override a write handler for availableResourceLevel property,
             // utilizing the uriVariables properly
-            thing.setPropertyWriteHandler(
-                "availableResourceLevel",
-                tracedPropertyWriteHandler("availableResourceLevel", async (val, options) => {
-                    // Check if uriVariables are provided
-                    if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
-                        const uriVariables = options.uriVariables as Record<string, string>;
-                        if ("id" in uriVariables) {
-                            const id = uriVariables.id;
-                            if (!val) {
-                                throw new Error("No value provided for availableResourceLevel");
-                            }
-                            allAvailableResources[id] = (await (val as any).value()) as number;
-                            return;
+            thing.setPropertyWriteHandler("availableResourceLevel", tracedPropertyWriteHandler("availableResourceLevel", async (val, options) => {
+                // Check if uriVariables are provided
+                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
+                    const uriVariables = options.uriVariables as Record<string, string>;
+                    if ("id" in uriVariables) {
+                        const id = uriVariables.id;
+                        if (!val) {
+                            throw new Error("No value provided for availableResourceLevel");
                         }
+                        allAvailableResources[id] = (await (val as any).value()) as number;
+                        return;
                     }
-                    throw Error("Please specify id variable as uriVariables.");
-                })
-            );
+                }
+                throw Error("Please specify id variable as uriVariables.");
+            }));
 
             // Override a read handler for availableResourceLevel property,
             // utilizing the uriVariables properly
-            thing.setPropertyReadHandler(
-                "availableResourceLevel",
-                tracedPropertyReadHandler("availableResourceLevel", async (options) => {
-                    // Check if uriVariables are provided
-                    if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
-                        const uriVariables = options.uriVariables as Record<string, string>;
-                        if ("id" in uriVariables) {
-                            const id = uriVariables.id;
-                            return allAvailableResources[id];
-                        }
+            thing.setPropertyReadHandler("availableResourceLevel", tracedPropertyReadHandler("availableResourceLevel", async (options) => {
+                // Check if uriVariables are provided
+                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
+                    const uriVariables = options.uriVariables as Record<string, string>;
+                    if ("id" in uriVariables) {
+                        const id = uriVariables.id;
+                        return allAvailableResources[id];
                     }
-                    throw Error("Please specify id variable as uriVariables.");
-                })
-            );
+                }
+                throw Error("Please specify id variable as uriVariables.");
+            }));
 
             // Set up a handler for makeDrink action using traced wrapper
             thing.setActionHandler(
@@ -269,9 +240,10 @@ servient
                         quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
                     }
 
-                    if (drinkId === "americano") {
-                        throw new Error("Americano is not available");
-                    }
+                    // Testing to see what happens when thing crashes
+                    // if (drinkId === "americano") {
+                    //     throw new Error("Americano is not available");
+                    // }
 
                     // Calculate the new level of resources
                     const newResources = Object.assign({}, allAvailableResources);
@@ -288,9 +260,7 @@ servient
                     for (const resource in newResources) {
                         if (newResources[resource] <= 0) {
                             const eventData = `Low level of ${resource}: ${newResources[resource]}%`;
-                            tracedEventHandler("outOfResource", (data) => thing.emitEvent("outOfResource", data))(
-                                eventData
-                            );
+                            tracedEventHandler("outOfResource", (data) => thing.emitEvent("outOfResource", data))(eventData);
                             return {
                                 result: false,
                                 message: `${resource} level is not sufficient`,
