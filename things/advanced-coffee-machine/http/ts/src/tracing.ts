@@ -30,7 +30,20 @@ function setSpanAttributes(
 ): void {
     // Set basic attributes
     const isAction = operation === "invokeaction";
-    const nameKey = isAction ? "action.name" : "property.name";
+    const isPropertyRead = operation === "readproperty";
+    const isPropertyWrite = operation === "writeproperty";
+    const isEvent = operation === "subscribeevent";
+
+    let nameKey: string;
+    if (isAction) {
+        nameKey = "action.name";
+    } else if (isPropertyRead || isPropertyWrite) {
+        nameKey = "property.name";
+    } else if (isEvent) {
+        nameKey = "event.name";
+    } else {
+        nameKey = "interaction.name";
+    }
 
     span.setAttributes({
         [nameKey]: name,
@@ -125,7 +138,29 @@ export function traceAction<T>(
     };
 }
 
-export function traceProperty(
+export function tracePropertyRead<T>(
+    name: string,
+    fn: (options?: WoT.InteractionOptions) => Promise<T>
+): (options?: WoT.InteractionOptions) => Promise<T> {
+    return async (options) => {
+        return tracer.startActiveSpan(`property.read.${name}`, async (span: any) => {
+            try {
+                const result = await fn(options);
+                setSpanAttributes(span, name, "readproperty", options, undefined, null, result);
+                span.setStatus({ code: SpanStatusCode.OK });
+                return result;
+            } catch (error) {
+                setSpanAttributes(span, name, "readproperty", options, undefined, error);
+                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                throw error;
+            } finally {
+                span.end();
+            }
+        });
+    };
+}
+
+export function tracePropertyWrite(
     name: string,
     fn: (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void>
 ): (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> {
@@ -146,6 +181,29 @@ export function traceProperty(
     };
 }
 
+export function traceEvent(
+    name: string,
+    fn: (data: any, options?: WoT.InteractionOptions) => void
+): (data: any, options?: WoT.InteractionOptions) => void {
+    return (data, options) => {
+        tracer.startActiveSpan(`event.${name}`, async (span: any) => {
+            try {
+                fn(data, options);
+                setSpanAttributes(span, name, "subscribeevent", options, data);
+                span.setStatus({ code: SpanStatusCode.OK });
+            } catch (error) {
+                setSpanAttributes(span, name, "subscribeevent", options, data, error);
+                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                throw error;
+            } finally {
+                span.end();
+            }
+        });
+    };
+}
+
 // Legacy compatibility
 export const tracedActionHandler = traceAction;
-export const tracedPropertyWriteHandler = traceProperty;
+export const tracedPropertyReadHandler = tracePropertyRead;
+export const tracedPropertyWriteHandler = tracePropertyWrite;
+export const tracedEventHandler = traceEvent;
