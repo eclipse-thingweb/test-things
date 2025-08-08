@@ -2,7 +2,8 @@ import { NodeTracerProvider, BatchSpanProcessor } from "@opentelemetry/sdk-trace
 import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
 import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
-import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { trace, SpanStatusCode, SpanKind } from "@opentelemetry/api";
+
 import WoT from "wot-typescript-definitions";
 
 let tracer: any = null;
@@ -102,18 +103,40 @@ function setSpanAttributes(
 }
 
 export function initTracing(serviceName: string): void {
-    const provider = new NodeTracerProvider({
-        resource: new Resource({ [SemanticResourceAttributes.SERVICE_NAME]: serviceName }),
-    });
-    provider.addSpanProcessor(
-        new BatchSpanProcessor(
-            new JaegerExporter({
-                endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces",
-            })
-        )
-    );
-    provider.register();
-    tracer = trace.getTracer(serviceName);
+    try {
+        const provider = new NodeTracerProvider({
+            resource: new Resource({ 
+                [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+                [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
+                [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: "development",
+            }),
+        });
+        
+        provider.addSpanProcessor(
+            new BatchSpanProcessor(
+                new JaegerExporter({
+                    endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces",
+                })
+            )
+        );
+        
+        provider.register();
+        tracer = trace.getTracer(serviceName);
+        
+        console.log(`OpenTelemetry tracing initialized for service: ${serviceName}`);
+    } catch (error) {
+        console.error("Failed to initialize OpenTelemetry tracing:", error);
+        // Create a no-op tracer as fallback
+        tracer = {
+            startActiveSpan: (name: string, fn: Function) => {
+                return fn({
+                    setAttributes: () => {},
+                    setStatus: () => {},
+                    end: () => {}
+                });
+            }
+        };
+    }
 }
 
 export function traceAction<T>(
@@ -121,18 +144,29 @@ export function traceAction<T>(
     fn: (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T>
 ): (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> {
     return async (params, options) => {
+        if (!tracer || !tracer.startActiveSpan) {
+            // Fallback if tracer is not available
+            return fn(params, options);
+        }
+        
         return tracer.startActiveSpan(`action.${name}`, async (span: any) => {
             try {
                 const result = await fn(params, options);
                 setSpanAttributes(span, name, "invokeaction", options, params, null, result);
-                span.setStatus({ code: SpanStatusCode.OK });
+                if (span.setStatus) {
+                    span.setStatus({ code: SpanStatusCode.OK });
+                }
                 return result;
             } catch (error) {
                 setSpanAttributes(span, name, "invokeaction", options, params, error);
-                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                if (span.setStatus) {
+                    span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                }
                 throw error;
             } finally {
-                span.end();
+                if (span.end) {
+                    span.end();
+                }
             }
         });
     };
@@ -200,6 +234,97 @@ export function traceEvent(
             }
         });
     };
+}
+
+// Helper function to create nested spans for operations
+export function createChildSpan<T>(
+    operationName: string, 
+    operation: () => Promise<T> | T,
+    attributes?: Record<string, any>
+): Promise<T> {
+    if (!tracer || !tracer.startActiveSpan) {
+        // Fallback if tracer is not available
+        return Promise.resolve(operation());
+    }
+    
+    return tracer.startActiveSpan(operationName, async (span: any) => {
+        try {
+            // Add custom attributes if provided
+            if (attributes && span.setAttributes) {
+                span.setAttributes(attributes);
+            }
+            
+            const result = await operation();
+            if (span.setStatus) {
+                span.setStatus({ code: SpanStatusCode.OK });
+            }
+            return result;
+        } catch (error) {
+            if (span.setStatus) {
+                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+            }
+            if (span.setAttributes) {
+                span.setAttributes({ 
+                    "error.name": error instanceof Error ? error.name : "Error",
+                    "error.message": String(error)
+                });
+            }
+            throw error;
+        } finally {
+            if (span.end) {
+                span.end();
+            }
+        }
+    });
+}
+
+// Helper function to simulate database operations
+export function traceDatabaseOperation<T>(
+    operation: string,
+    table: string,
+    operation_fn: () => Promise<T> | T
+): Promise<T> {
+    if (!tracer) {
+        return Promise.resolve(operation_fn());
+    }
+    return createChildSpan(`db.${operation}`, operation_fn, {
+        "db.operation": operation,
+        "db.table": table,
+        "db.system": "memory", // Since we're using in-memory storage
+        "span.kind": "internal"
+    });
+}
+
+// Helper function to trace validation operations
+export function traceValidation<T>(
+    validationType: string,
+    data: any,
+    validation_fn: () => Promise<T> | T
+): Promise<T> {
+    if (!tracer) {
+        return Promise.resolve(validation_fn());
+    }
+    return createChildSpan(`validation.${validationType}`, validation_fn, {
+        "validation.type": validationType,
+        "validation.input": safeStringify(data),
+        "span.kind": "internal"
+    });
+}
+
+// Helper function to trace business logic operations
+export function traceBusinessLogic<T>(
+    operationName: string,
+    operation_fn: () => Promise<T> | T,
+    metadata?: Record<string, any>
+): Promise<T> {
+    if (!tracer) {
+        return Promise.resolve(operation_fn());
+    }
+    return createChildSpan(`business.${operationName}`, operation_fn, {
+        "business.operation": operationName,
+        "span.kind": "internal",
+        ...metadata
+    });
 }
 
 // Legacy compatibility
