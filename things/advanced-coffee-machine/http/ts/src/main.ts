@@ -25,7 +25,17 @@ import { JsonPlaceholderReplacer } from "json-placeholder-replacer";
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
 import dotenv from "dotenv";
+import {
+    initTracing,
+    tracedActionHandler,
+    tracedPropertyReadHandler,
+    tracedPropertyWriteHandler,
+    tracedEventHandler,
+} from "./tracing";
 dotenv.config();
+
+// Initialize tracing
+initTracing("advanced-coffee-machine");
 
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
@@ -112,178 +122,223 @@ servient
             maintenanceNeeded = false;
             schedules = [];
 
-            thing.setPropertyReadHandler("allAvailableResources", async () => allAvailableResources);
-            thing.setPropertyReadHandler("possibleDrinks", async () => possibleDrinks);
-            thing.setPropertyReadHandler("maintenanceNeeded", async () => maintenanceNeeded);
-            thing.setPropertyReadHandler("schedules", async () => schedules);
+            thing.setPropertyReadHandler(
+                "allAvailableResources",
+                tracedPropertyReadHandler("allAvailableResources", async () => allAvailableResources)
+            );
+            thing.setPropertyReadHandler(
+                "possibleDrinks",
+                tracedPropertyReadHandler("possibleDrinks", async () => possibleDrinks)
+            );
+            thing.setPropertyReadHandler(
+                "maintenanceNeeded",
+                tracedPropertyReadHandler("maintenanceNeeded", async () => maintenanceNeeded)
+            );
+            thing.setPropertyReadHandler(
+                "schedules",
+                tracedPropertyReadHandler("schedules", async () => schedules)
+            );
 
             // Override a write handler for servedCounter property,
             // raising maintenanceNeeded flag when the value exceeds 1000 drinks
-            thing.setPropertyWriteHandler("servedCounter", async (val) => {
-                servedCounter = (await val.value()) as number;
-                if (servedCounter > 1000) {
-                    maintenanceNeeded = true;
-                    thing.emitPropertyChange("maintenanceNeeded");
+            thing.setPropertyWriteHandler(
+                "servedCounter",
+                tracedPropertyWriteHandler("servedCounter", async (val) => {
+                    if (!val) {
+                        throw new Error("No value provided for servedCounter");
+                    }
+                    servedCounter = (await (val as any).value()) as number;
+                    if (servedCounter > 1000) {
+                        maintenanceNeeded = true;
+                        tracedEventHandler("maintenanceNeeded", (data) =>
+                            thing.emitPropertyChange("maintenanceNeeded")
+                        )(maintenanceNeeded);
 
-                    // Notify a "maintainer" when the value has changed
-                    // (the notify function here simply logs a message to the console)
-                    notify(
-                        "admin@coffeeMachine.com",
-                        `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
-                    );
-                }
-            });
+                        // Notify a "maintainer" when the value has changed
+                        // (the notify function here simply logs a message to the console)
+                        notify(
+                            "admin@coffeeMachine.com",
+                            `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
+                        );
+                    }
+                })
+            );
 
             // Now initialize the servedCounter property
             servedCounter = readFromSensor("servedCounter");
 
             // Override a write handler for availableResourceLevel property,
             // utilizing the uriVariables properly
-            thing.setPropertyWriteHandler("availableResourceLevel", async (val, options) => {
-                // Check if uriVariables are provided
-                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
-                    const uriVariables = options.uriVariables as Record<string, string>;
-                    if ("id" in uriVariables) {
-                        const id = uriVariables.id;
-                        allAvailableResources[id] = (await val.value()) as number;
-                        return;
+            thing.setPropertyWriteHandler(
+                "availableResourceLevel",
+                tracedPropertyWriteHandler("availableResourceLevel", async (val, options) => {
+                    // Check if uriVariables are provided
+                    if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
+                        const uriVariables = options.uriVariables as Record<string, string>;
+                        if ("id" in uriVariables) {
+                            const id = uriVariables.id;
+                            if (!val) {
+                                throw new Error("No value provided for availableResourceLevel");
+                            }
+                            allAvailableResources[id] = (await (val as any).value()) as number;
+                            return;
+                        }
                     }
-                }
-                throw Error("Please specify id variable as uriVariables.");
-            });
+                    throw Error("Please specify id variable as uriVariables.");
+                })
+            );
 
             // Override a read handler for availableResourceLevel property,
             // utilizing the uriVariables properly
-            thing.setPropertyReadHandler("availableResourceLevel", async (options) => {
-                // Check if uriVariables are provided
-                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
-                    const uriVariables = options.uriVariables as Record<string, string>;
-                    if ("id" in uriVariables) {
-                        const id = uriVariables.id;
-                        return allAvailableResources[id];
+            thing.setPropertyReadHandler(
+                "availableResourceLevel",
+                tracedPropertyReadHandler("availableResourceLevel", async (options) => {
+                    // Check if uriVariables are provided
+                    if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
+                        const uriVariables = options.uriVariables as Record<string, string>;
+                        if ("id" in uriVariables) {
+                            const id = uriVariables.id;
+                            return allAvailableResources[id];
+                        }
                     }
-                }
-                throw Error("Please specify id variable as uriVariables.");
-            });
+                    throw Error("Please specify id variable as uriVariables.");
+                })
+            );
 
-            // Set up a handler for makeDrink action
-            thing.setActionHandler("makeDrink", async (_params, options) => {
-                // Default values
-                let drinkId = "americano";
-                let size = "m";
-                let quantity = 1;
+            // Set up a handler for makeDrink action using traced wrapper
+            thing.setActionHandler(
+                "makeDrink",
+                tracedActionHandler("makeDrink", async (_params, options) => {
+                    // Default values
+                    let drinkId = "americano";
+                    let size = "m";
+                    let quantity = 1;
 
-                // Size quantifiers
-                const sizeQuantifiers: Record<string, number> = {
-                    s: 0.1,
-                    m: 0.2,
-                    l: 0.3,
-                };
+                    // Size quantifiers
+                    const sizeQuantifiers: Record<string, number> = {
+                        s: 0.1,
+                        m: 0.2,
+                        l: 0.3,
+                    };
 
-                // Drink recipes showing the amount of a resource consumed for a particular drink
-                const drinkRecipes: Record<string, Record<string, number>> = {
-                    espresso: {
-                        water: 1,
-                        milk: 0,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    americano: {
-                        water: 2,
-                        milk: 0,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    cappuccino: {
-                        water: 1,
-                        milk: 1,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    latte: {
-                        water: 1,
-                        milk: 2,
-                        chocolate: 0,
-                        coffeeBeans: 2,
-                    },
-                    hotChocolate: {
-                        water: 0,
-                        milk: 0,
-                        chocolate: 1,
-                        coffeeBeans: 0,
-                    },
-                    hotWater: {
-                        water: 1,
-                        milk: 0,
-                        chocolate: 0,
-                        coffeeBeans: 0,
-                    },
-                };
+                    // Drink recipes showing the amount of a resource consumed for a particular drink
+                    const drinkRecipes: Record<string, Record<string, number>> = {
+                        espresso: {
+                            water: 1,
+                            milk: 0,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        americano: {
+                            water: 2,
+                            milk: 0,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        cappuccino: {
+                            water: 1,
+                            milk: 1,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        latte: {
+                            water: 1,
+                            milk: 2,
+                            chocolate: 0,
+                            coffeeBeans: 2,
+                        },
+                        hotChocolate: {
+                            water: 0,
+                            milk: 0,
+                            chocolate: 1,
+                            coffeeBeans: 0,
+                        },
+                        hotWater: {
+                            water: 1,
+                            milk: 0,
+                            chocolate: 0,
+                            coffeeBeans: 0,
+                        },
+                    };
 
-                // Check if uriVariables are provided
-                if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
-                    const uriVariables = options.uriVariables as Record<string, string | number>;
-                    drinkId = "drinkId" in uriVariables ? (uriVariables.drinkId as string) : drinkId;
-                    size = "size" in uriVariables ? (uriVariables.size as string) : size;
-                    quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
-                }
-
-                // Calculate the new level of resources
-                const newResources = Object.assign({}, allAvailableResources);
-                newResources.water -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].water);
-                newResources.milk -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].milk);
-                newResources.chocolate -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate);
-                newResources.coffeeBeans -= Math.ceil(
-                    quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].coffeeBeans
-                );
-
-                // Check if the amount of available resources is sufficient to make a drink
-                for (const resource in newResources) {
-                    if (newResources[resource] <= 0) {
-                        thing.emitEvent("outOfResource", `Low level of ${resource}: ${newResources[resource]}%`);
-                        return {
-                            result: false,
-                            message: `${resource} level is not sufficient`,
-                        };
+                    // Check if uriVariables are provided
+                    if (Boolean(options) && typeof options === "object" && "uriVariables" in options) {
+                        const uriVariables = options.uriVariables as Record<string, string | number>;
+                        drinkId = "drinkId" in uriVariables ? (uriVariables.drinkId as string) : drinkId;
+                        size = "size" in uriVariables ? (uriVariables.size as string) : size;
+                        quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
                     }
-                }
 
-                // Now store the new level of allAvailableResources
-                allAvailableResources = newResources;
-                servedCounter = servedCounter + quantity;
+                    // Testing to see what happens when thing crashes
+                    // if (drinkId === "americano") {
+                    //     throw new Error("Americano is not available");
+                    // }
 
-                // Finally deliver the drink
-                return {
-                    result: true,
-                    message: `Your ${drinkId} is in progress!`,
-                };
-            });
+                    // Calculate the new level of resources
+                    const newResources = Object.assign({}, allAvailableResources);
+                    newResources.water -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].water);
+                    newResources.milk -= Math.ceil(quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].milk);
+                    newResources.chocolate -= Math.ceil(
+                        quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].chocolate
+                    );
+                    newResources.coffeeBeans -= Math.ceil(
+                        quantity * sizeQuantifiers[size] * drinkRecipes[drinkId].coffeeBeans
+                    );
 
-            // Set up a handler for setSchedule action
-            thing.setActionHandler("setSchedule", async (params, options) => {
-                const paramsp = (await params.value()) as Record<string, unknown>; //  : any = await Helpers.parseInteractionOutput(params);
+                    // Check if the amount of available resources is sufficient to make a drink
+                    for (const resource in newResources) {
+                        if (newResources[resource] <= 0) {
+                            const eventData = `Low level of ${resource}: ${newResources[resource]}%`;
+                            tracedEventHandler("outOfResource", (data) => thing.emitEvent("outOfResource", data))(
+                                eventData
+                            );
+                            return {
+                                result: false,
+                                message: `${resource} level is not sufficient`,
+                            };
+                        }
+                    }
 
-                // Check if uriVariables are provided
-                if (paramsp != null && typeof paramsp === "object" && "time" in paramsp && "mode" in paramsp) {
-                    // Use default values if not provided
-                    paramsp.drinkId = "drinkId" in paramsp ? paramsp.drinkId : "americano";
-                    paramsp.size = "size" in paramsp ? paramsp.size : "m";
-                    paramsp.quantity = "quantity" in paramsp ? paramsp.quantity : 1;
+                    // Now store the new level of allAvailableResources
+                    allAvailableResources = newResources;
+                    servedCounter = servedCounter + quantity;
 
-                    // Now add a new schedule
-                    schedules.push(paramsp);
-
+                    // Finally deliver the drink
                     return {
                         result: true,
-                        message: `Your schedule has been set!`,
+                        message: `Your ${drinkId} is in progress!`,
                     };
-                }
+                })
+            );
 
-                return {
-                    result: false,
-                    message: `Please provide all the required parameters: time and mode.`,
-                };
-            });
+            // Set up a handler for setSchedule action using traced wrapper
+            thing.setActionHandler(
+                "setSchedule",
+                tracedActionHandler("setSchedule", async (params, options) => {
+                    const paramsp = params ? ((await (params as any).value()) as Record<string, unknown>) : null;
+
+                    // Check if required parameters are provided
+                    if (paramsp != null && typeof paramsp === "object" && "time" in paramsp && "mode" in paramsp) {
+                        // Use default values if not provided
+                        paramsp.drinkId = "drinkId" in paramsp ? paramsp.drinkId : "americano";
+                        paramsp.size = "size" in paramsp ? paramsp.size : "m";
+                        paramsp.quantity = "quantity" in paramsp ? paramsp.quantity : 1;
+
+                        // Now add a new schedule
+                        schedules.push(paramsp);
+
+                        return {
+                            result: true,
+                            message: `Your schedule has been set!`,
+                        };
+                    }
+
+                    return {
+                        result: false,
+                        message: `Please provide all the required parameters: time and mode.`,
+                    };
+                })
+            );
 
             // Finally expose the thing
             thing.expose().then(() => {

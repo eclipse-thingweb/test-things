@@ -30,9 +30,9 @@ The features are the same across all protocols - all implementations support the
 
 The calculator exposes basic arithmetic operations through multiple protocols. See the Thing Descriptions for details on endpoints and data formats:
 
-- [HTTP Express Simple Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/http/express/http-simple-calculator-thing.td.jsonld)
-- [HTTP Express Content Negotiation Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/http/express/http-content-negotiation-calculator-thing.td.jsonld)
-- [HTTP Flask Calculator](http://plugfest.thingweb.io/http-flask-calculator)
-- [CoAP Simple Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/coap/js/coap-simple-calculator-thing.td.jsonld)
-- [CoAP Content Negotiation Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/coap/js/coap-content-negotiation-calculator-thing.td.jsonld)
-- [MQTT Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/mqtt/js/mqtt-calculator.td.json)
+-   [HTTP Express Simple Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/http/express/http-simple-calculator-thing.td.jsonld)
+-   [HTTP Express Content Negotiation Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/http/express/http-content-negotiation-calculator-thing.td.jsonld)
+-   [HTTP Flask Calculator](http://plugfest.thingweb.io/http-flask-calculator)
+-   [CoAP Simple Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/coap/js/coap-simple-calculator-thing.td.jsonld)
+-   [CoAP Content Negotiation Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/coap/js/coap-content-negotiation-calculator-thing.td.jsonld)
+-   [MQTT Calculator](https://github.com/eclipse-thingweb/test-things/blob/main/things/calculator/mqtt/js/mqtt-calculator.td.json)

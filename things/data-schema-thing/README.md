@@ -24,4 +24,4 @@ This thing provides a variety of properties and actions to test different data t
 
 ## Usage
 
-The data schema thing exposes properties, actions, and events for testing schema compliance. See the [Thing Description](https://github.com/eclipse-thingweb/test-things/blob/main/things/data-schema-thing/http/ts/http-data-schema-thing.td.json) for details on endpoints and data formats. 
+The data schema thing exposes properties, actions, and events for testing schema compliance. See the [Thing Description](https://github.com/eclipse-thingweb/test-things/blob/main/things/data-schema-thing/http/ts/http-data-schema-thing.td.json) for details on endpoints and data formats.

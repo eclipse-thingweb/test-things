@@ -26,4 +26,4 @@ This advanced coffee machine simulates a device with resource management, drink 
 
 ## Usage
 
-The coffee machine exposes properties, actions, and events for managing drinks and resources. See the [Thing Description](http://plugfest.thingweb.io/http-advanced-coffee-machine) for details on endpoints and data formats. 
+The coffee machine exposes properties, actions, and events for managing drinks and resources. See the [Thing Description](http://plugfest.thingweb.io/http-advanced-coffee-machine) for details on endpoints and data formats.
