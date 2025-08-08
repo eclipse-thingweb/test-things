@@ -1,4 +1,4 @@
-# Coffee Machine Tracing Test Commands
+# Coffee Machine Basic Test Commands
 
 # 1. Property Read Tests
 curl -X GET http://localhost/http-advanced-coffee-machine/properties/allAvailableResources
@@ -8,25 +8,14 @@ curl -X GET http://localhost/http-advanced-coffee-machine/properties/maintenance
 # 2. Property Write Tests
 curl -X PUT http://localhost/http-advanced-coffee-machine/properties/servedCounter -H 'Content-Type: application/json' -d '1001'
 curl -X PUT "http://localhost/http-advanced-coffee-machine/properties/availableResourceLevel?id=water" -H 'Content-Type: application/json' -d '50'
-curl -X PUT "http://localhost/http-advanced-coffee-machine/properties/availableResourceLevel?id=coffeeBeans" -H 'Content-Type: application/json' -d '0'
 
-# 3. Property Read After Write Tests
-curl -X GET http://localhost/http-advanced-coffee-machine/properties/maintenanceNeeded
-curl -X GET "http://localhost/http-advanced-coffee-machine/properties/availableResourceLevel?id=water"
-
-# 4. Action Tests
+# 3. Action Tests
 curl -X POST "http://localhost/http-advanced-coffee-machine/actions/makeDrink?drinkId=cappuccino&size=m&quantity=1"
 curl -X POST http://localhost/http-advanced-coffee-machine/actions/setSchedule -H 'Content-Type: application/json' -d '{"time":"10:00","mode":"everyday","drinkId":"latte","size":"l","quantity":2}'
-
-# 5. Property Read After Action Tests
-curl -X GET http://localhost/http-advanced-coffee-machine/properties/schedules
-
-# 6. Event Trigger Tests (will trigger outOfResource event)
-curl -X POST "http://localhost/http-advanced-coffee-machine/actions/makeDrink?drinkId=espresso&size=m&quantity=1"
 
 # Expected Results:
 # - Property reads will show property.read.* traces
 # - Property writes will show property.write.* traces  
 # - Actions will show action.* traces
 # - Events will show event.* traces (maintenanceNeeded and outOfResource)
-# - Check Jaeger at http://localhost:16686 to see all the new spans 
+# - Check Jaeger at http://localhost:16686 to see the traces 
