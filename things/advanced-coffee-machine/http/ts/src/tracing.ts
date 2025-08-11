@@ -115,8 +115,14 @@ export function initTracing(serviceName: string): void {
         provider.addSpanProcessor(
             new BatchSpanProcessor(
                 new JaegerExporter({
-                    endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:14268/api/traces",
-                })
+                    endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:8085/api/traces",
+                }),
+                {
+                    // Ensure spans are processed quickly
+                    scheduledDelayMillis: 100,
+                    maxQueueSize: 1000,
+                    maxExportBatchSize: 100,
+                }
             )
         );
         
@@ -244,9 +250,11 @@ export function createChildSpan<T>(
 ): Promise<T> {
     if (!tracer || !tracer.startActiveSpan) {
         // Fallback if tracer is not available
+        console.log(`[TRACING] No tracer available for: ${operationName}`);
         return Promise.resolve(operation());
     }
-    
+
+    console.log(`[TRACING] Creating child span: ${operationName}`);
     return tracer.startActiveSpan(operationName, async (span: any) => {
         try {
             // Add custom attributes if provided
@@ -258,6 +266,7 @@ export function createChildSpan<T>(
             if (span.setStatus) {
                 span.setStatus({ code: SpanStatusCode.OK });
             }
+            console.log(`[TRACING] Child span completed: ${operationName}`);
             return result;
         } catch (error) {
             if (span.setStatus) {

@@ -8,11 +8,12 @@ echo "=================================================="
 
 # Configuration
 COFFEE_MACHINE_URL="http://localhost/http-advanced-coffee-machine"
-JAEGER_URL="http://localhost:16686"
+JAEGER_URL="http://jaeger.localhost"
+
 
 echo "📋 Prerequisites:"
 echo "   - Coffee machine should be running on port 80 (via Docker/proxy)"
-echo "   - Jaeger should be running on port 16686"
+echo "   - Jaeger should be running on port 8084 (UI) and 14268 (collector)"
 echo "   - View traces at: $JAEGER_URL"
 echo ""
 

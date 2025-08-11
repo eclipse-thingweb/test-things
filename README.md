@@ -181,4 +181,4 @@ For Node.js-based devices, we use npm workspaces and running `npm install` at th
 
 ## Tracing
 
-Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:16686](http://localhost:16686) in your browser (Jaeger UI).
+Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:8084](http://localhost:8084) in your browser (Jaeger UI). Traces are sent to the Jaeger collector on port 14268.
