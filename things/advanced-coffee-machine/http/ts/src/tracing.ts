@@ -105,13 +105,13 @@ function setSpanAttributes(
 export function initTracing(serviceName: string): void {
     try {
         const provider = new NodeTracerProvider({
-            resource: new Resource({ 
+            resource: new Resource({
                 [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
                 [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
                 [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: "development",
             }),
         });
-        
+
         provider.addSpanProcessor(
             new BatchSpanProcessor(
                 new JaegerExporter({
@@ -125,10 +125,10 @@ export function initTracing(serviceName: string): void {
                 }
             )
         );
-        
+
         provider.register();
         tracer = trace.getTracer(serviceName);
-        
+
         console.log(`OpenTelemetry tracing initialized for service: ${serviceName}`);
     } catch (error) {
         console.error("Failed to initialize OpenTelemetry tracing:", error);
@@ -138,9 +138,9 @@ export function initTracing(serviceName: string): void {
                 return fn({
                     setAttributes: () => {},
                     setStatus: () => {},
-                    end: () => {}
+                    end: () => {},
                 });
-            }
+            },
         };
     }
 }
@@ -154,7 +154,7 @@ export function traceAction<T>(
             // Fallback if tracer is not available
             return fn(params, options);
         }
-        
+
         return tracer.startActiveSpan(`action.${name}`, async (span: any) => {
             try {
                 const result = await fn(params, options);
@@ -244,7 +244,7 @@ export function traceEvent(
 
 // Helper function to create nested spans for operations
 export function createChildSpan<T>(
-    operationName: string, 
+    operationName: string,
     operation: () => Promise<T> | T,
     attributes?: Record<string, any>
 ): Promise<T> {
@@ -261,7 +261,7 @@ export function createChildSpan<T>(
             if (attributes && span.setAttributes) {
                 span.setAttributes(attributes);
             }
-            
+
             const result = await operation();
             if (span.setStatus) {
                 span.setStatus({ code: SpanStatusCode.OK });
@@ -273,9 +273,9 @@ export function createChildSpan<T>(
                 span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
             }
             if (span.setAttributes) {
-                span.setAttributes({ 
+                span.setAttributes({
                     "error.name": error instanceof Error ? error.name : "Error",
-                    "error.message": String(error)
+                    "error.message": String(error),
                 });
             }
             throw error;
@@ -300,23 +300,19 @@ export function traceDatabaseOperation<T>(
         "db.operation": operation,
         "db.table": table,
         "db.system": "memory", // Since we're using in-memory storage
-        "span.kind": "internal"
+        "span.kind": "internal",
     });
 }
 
 // Helper function to trace validation operations
-export function traceValidation<T>(
-    validationType: string,
-    data: any,
-    validation_fn: () => Promise<T> | T
-): Promise<T> {
+export function traceValidation<T>(validationType: string, data: any, validation_fn: () => Promise<T> | T): Promise<T> {
     if (!tracer) {
         return Promise.resolve(validation_fn());
     }
     return createChildSpan(`validation.${validationType}`, validation_fn, {
         "validation.type": validationType,
         "validation.input": safeStringify(data),
-        "span.kind": "internal"
+        "span.kind": "internal",
     });
 }
 
@@ -332,7 +328,7 @@ export function traceBusinessLogic<T>(
     return createChildSpan(`business.${operationName}`, operation_fn, {
         "business.operation": operationName,
         "span.kind": "internal",
-        ...metadata
+        ...metadata,
     });
 }
 
