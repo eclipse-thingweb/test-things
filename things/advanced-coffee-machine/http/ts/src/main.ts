@@ -144,16 +144,20 @@ servient
                         });
 
                         // Read sensor data for real-time validation
-                        const sensorData = await createChildSpan("sensors.readAll", async () => {
-                            const readings: Record<string, number> = {};
-                            for (const resource in allAvailableResources) {
-                                readings[resource] = readFromSensor(resource);
+                        const sensorData = await createChildSpan(
+                            "sensors.readAll",
+                            async () => {
+                                const readings: Record<string, number> = {};
+                                for (const resource in allAvailableResources) {
+                                    readings[resource] = readFromSensor(resource);
+                                }
+                                return readings;
+                            },
+                            {
+                                "sensor.count": Object.keys(allAvailableResources).length,
+                                "sensor.type": "resource_level",
                             }
-                            return readings;
-                        }, {
-                            "sensor.count": Object.keys(allAvailableResources).length,
-                            "sensor.type": "resource_level"
-                        });
+                        );
 
                         // Compare and sync with database
                         return await traceDatabaseOperation("select", "resource_levels", async () => {
@@ -179,22 +183,30 @@ servient
                         });
 
                         // Load drink availability from database
-                        const availabilityMap = await traceDatabaseOperation("select", "drink_availability", async () => {
-                            // Simulate checking drink availability based on current resources
-                            const availability: Record<string, boolean> = {};
-                            for (const drink of possibleDrinks) {
-                                availability[drink] = true; // For demo, all drinks are available
+                        const availabilityMap = await traceDatabaseOperation(
+                            "select",
+                            "drink_availability",
+                            async () => {
+                                // Simulate checking drink availability based on current resources
+                                const availability: Record<string, boolean> = {};
+                                for (const drink of possibleDrinks) {
+                                    availability[drink] = true; // For demo, all drinks are available
+                                }
+                                return availability;
                             }
-                            return availability;
-                        });
+                        );
 
                         // Filter available drinks based on current resources
-                        return await createChildSpan("processing.filterAvailableDrinks", async () => {
-                            return possibleDrinks.filter(drink => availabilityMap[drink] !== false);
-                        }, {
-                            "drinks.total": possibleDrinks.length,
-                            "filtering.criteria": "resource_availability"
-                        });
+                        return await createChildSpan(
+                            "processing.filterAvailableDrinks",
+                            async () => {
+                                return possibleDrinks.filter((drink) => availabilityMap[drink] !== false);
+                            },
+                            {
+                                "drinks.total": possibleDrinks.length,
+                                "filtering.criteria": "resource_availability",
+                            }
+                        );
                     });
                 })
             );
@@ -219,16 +231,20 @@ servient
                         });
 
                         // Process and filter active schedules
-                        return await createChildSpan("processing.filterActiveSchedules", async () => {
-                            const currentTime = new Date();
-                            return result.filter((schedule: any) => {
-                                // For demo purposes, all schedules are considered active
-                                return true;
-                            });
-                        }, {
-                            "schedules.count": schedules.length,
-                            "query.time": new Date().toISOString()
-                        });
+                        return await createChildSpan(
+                            "processing.filterActiveSchedules",
+                            async () => {
+                                const currentTime = new Date();
+                                return result.filter((schedule: any) => {
+                                    // For demo purposes, all schedules are considered active
+                                    return true;
+                                });
+                            },
+                            {
+                                "schedules.count": schedules.length,
+                                "query.time": new Date().toISOString(),
+                            }
+                        );
                     });
                 })
             );
@@ -247,16 +263,20 @@ servient
                         });
 
                         // Parse and validate the new counter value
-                        const newCounterValue = await createChildSpan("parsing.extractCounterValue", async () => {
-                            const value = (await (val as any).value()) as number;
-                            if (typeof value !== "number" || value < 0) {
-                                throw new Error(`Invalid served counter value: ${value}`);
+                        const newCounterValue = await createChildSpan(
+                            "parsing.extractCounterValue",
+                            async () => {
+                                const value = (await (val as any).value()) as number;
+                                if (typeof value !== "number" || value < 0) {
+                                    throw new Error(`Invalid served counter value: ${value}`);
+                                }
+                                return value;
+                            },
+                            {
+                                "input.type": typeof val,
+                                "parsing.operation": "counter_extraction",
                             }
-                            return value;
-                        }, {
-                            "input.type": typeof val,
-                            "parsing.operation": "counter_extraction"
-                        });
+                        );
 
                         // Update counter in database
                         await traceDatabaseOperation("update", "counters", async () => {
@@ -264,39 +284,47 @@ servient
                         });
 
                         // Check maintenance threshold and trigger events if needed
-                        await createChildSpan("business.checkMaintenanceThreshold", async () => {
-                            if (servedCounter > 1000) {
-                                // Update maintenance status
-                                await traceDatabaseOperation("update", "maintenance_status", async () => {
-                                    maintenanceNeeded = true;
-                                });
+                        await createChildSpan(
+                            "business.checkMaintenanceThreshold",
+                            async () => {
+                                if (servedCounter > 1000) {
+                                    // Update maintenance status
+                                    await traceDatabaseOperation("update", "maintenance_status", async () => {
+                                        maintenanceNeeded = true;
+                                    });
 
-                                // Emit maintenance event
-                                await createChildSpan("event.maintenanceNeeded", async () => {
-                                    tracedEventHandler("maintenanceNeeded", (data) =>
-                                        thing.emitPropertyChange("maintenanceNeeded")
-                                    )(maintenanceNeeded);
-                                });
+                                    // Emit maintenance event
+                                    await createChildSpan("event.maintenanceNeeded", async () => {
+                                        tracedEventHandler("maintenanceNeeded", (data) =>
+                                            thing.emitPropertyChange("maintenanceNeeded")
+                                        )(maintenanceNeeded);
+                                    });
 
-                                // Send notification to administrators
-                                await createChildSpan("notification.sendAlert", async () => {
-                                    notify(
-                                        "admin@coffeeMachine.com",
-                                        `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
+                                    // Send notification to administrators
+                                    await createChildSpan(
+                                        "notification.sendAlert",
+                                        async () => {
+                                            notify(
+                                                "admin@coffeeMachine.com",
+                                                `maintenanceNeeded property has changed, new value is: ${maintenanceNeeded}`
+                                            );
+                                        },
+                                        {
+                                            "notification.type": "maintenance_alert",
+                                            "notification.recipient": "admin@coffeeMachine.com",
+                                            "counter.value": servedCounter,
+                                            "maintenance.threshold": 1000,
+                                        }
                                     );
-                                }, {
-                                    "notification.type": "maintenance_alert",
-                                    "notification.recipient": "admin@coffeeMachine.com",
-                                    "counter.value": servedCounter,
-                                    "maintenance.threshold": 1000
-                                });
+                                }
+                            },
+                            {
+                                "counter.current": servedCounter,
+                                "counter.previous": servedCounter - newCounterValue,
+                                "maintenance.threshold": 1000,
+                                "maintenance.needed": maintenanceNeeded,
                             }
-                        }, {
-                            "counter.current": servedCounter,
-                            "counter.previous": servedCounter - newCounterValue,
-                            "maintenance.threshold": 1000,
-                            "maintenance.needed": maintenanceNeeded
-                        });
+                        );
                     });
                 })
             );
@@ -320,46 +348,56 @@ servient
                                 throw new Error("Please specify id variable as uriVariables.");
                             }
                             const id = uriVariables.id;
-                            
+
                             // Validate resource ID
                             const validResources = ["water", "milk", "chocolate", "coffeeBeans"];
                             if (!validResources.includes(id)) {
-                                throw new Error(`Invalid resource ID: ${id}. Valid options: ${validResources.join(", ")}`);
+                                throw new Error(
+                                    `Invalid resource ID: ${id}. Valid options: ${validResources.join(", ")}`
+                                );
                             }
                             return id;
                         });
 
                         // Validate and parse the new resource level
-                        const newLevel = await createChildSpan("parsing.extractResourceLevel", async () => {
-                            if (!val) {
-                                throw new Error("No value provided for availableResourceLevel");
+                        const newLevel = await createChildSpan(
+                            "parsing.extractResourceLevel",
+                            async () => {
+                                if (!val) {
+                                    throw new Error("No value provided for availableResourceLevel");
+                                }
+                                const level = (await (val as any).value()) as number;
+
+                                // Validate resource level range
+                                if (typeof level !== "number" || level < 0 || level > 100) {
+                                    throw new Error(`Invalid resource level: ${level}. Must be between 0 and 100.`);
+                                }
+                                return level;
+                            },
+                            {
+                                "resource.id": resourceId,
+                                "input.type": typeof val,
                             }
-                            const level = (await (val as any).value()) as number;
-                            
-                            // Validate resource level range
-                            if (typeof level !== "number" || level < 0 || level > 100) {
-                                throw new Error(`Invalid resource level: ${level}. Must be between 0 and 100.`);
-                            }
-                            return level;
-                        }, {
-                            "resource.id": resourceId,
-                            "input.type": typeof val
-                        });
+                        );
 
                         // Check current level and calculate change
-                        const levelChange = await createChildSpan("calculate.levelChange", async () => {
-                            const currentLevel = allAvailableResources[resourceId];
-                            const change = newLevel - currentLevel;
-                            return {
-                                previous: currentLevel,
-                                new: newLevel,
-                                change: change,
-                                changeType: change > 0 ? "refill" : change < 0 ? "consumption" : "no_change"
-                            };
-                        }, {
-                            "resource.id": resourceId,
-                            "calculation.type": "level_change"
-                        });
+                        const levelChange = await createChildSpan(
+                            "calculate.levelChange",
+                            async () => {
+                                const currentLevel = allAvailableResources[resourceId];
+                                const change = newLevel - currentLevel;
+                                return {
+                                    previous: currentLevel,
+                                    new: newLevel,
+                                    change: change,
+                                    changeType: change > 0 ? "refill" : change < 0 ? "consumption" : "no_change",
+                                };
+                            },
+                            {
+                                "resource.id": resourceId,
+                                "calculation.type": "level_change",
+                            }
+                        );
 
                         // Update resource level in database
                         await traceDatabaseOperation("update", "resource_levels", async () => {
@@ -367,39 +405,51 @@ servient
                         });
 
                         // Check for low resource alerts
-                        await createChildSpan("business.checkResourceThresholds", async () => {
-                            if (newLevel <= 10) {
-                                // Emit low resource event
-                                await createChildSpan("event.lowResource", async () => {
-                                    const eventData = `Low level of ${resourceId}: ${newLevel}%`;
-                                    tracedEventHandler("outOfResource", (data) => thing.emitEvent("outOfResource", data))(eventData);
-                                });
+                        await createChildSpan(
+                            "business.checkResourceThresholds",
+                            async () => {
+                                if (newLevel <= 10) {
+                                    // Emit low resource event
+                                    await createChildSpan("event.lowResource", async () => {
+                                        const eventData = `Low level of ${resourceId}: ${newLevel}%`;
+                                        tracedEventHandler("outOfResource", (data) =>
+                                            thing.emitEvent("outOfResource", data)
+                                        )(eventData);
+                                    });
+                                }
+
+                                if (newLevel === 0) {
+                                    // Update maintenance needed flag
+                                    await traceDatabaseOperation("update", "maintenance_status", async () => {
+                                        maintenanceNeeded = true;
+                                    });
+                                }
+                            },
+                            {
+                                "resource.id": resourceId,
+                                "resource.level": newLevel,
+                                "threshold.low": 10,
+                                "threshold.empty": 0,
+                                "maintenance.needed": maintenanceNeeded,
                             }
-                            
-                            if (newLevel === 0) {
-                                // Update maintenance needed flag
-                                await traceDatabaseOperation("update", "maintenance_status", async () => {
-                                    maintenanceNeeded = true;
-                                });
-                            }
-                        }, {
-                            "resource.id": resourceId,
-                            "resource.level": newLevel,
-                            "threshold.low": 10,
-                            "threshold.empty": 0,
-                            "maintenance.needed": maintenanceNeeded
-                        });
+                        );
 
                         // Log resource level change
-                        await createChildSpan("logging.resourceUpdate", async () => {
-                            console.log(`Resource ${resourceId} updated: ${levelChange.previous}% → ${newLevel}% (${levelChange.changeType})`);
-                        }, {
-                            "resource.id": resourceId,
-                            "level.previous": levelChange.previous,
-                            "level.new": newLevel,
-                            "change.type": levelChange.changeType,
-                            "change.amount": levelChange.change
-                        });
+                        await createChildSpan(
+                            "logging.resourceUpdate",
+                            async () => {
+                                console.log(
+                                    `Resource ${resourceId} updated: ${levelChange.previous}% → ${newLevel}% (${levelChange.changeType})`
+                                );
+                            },
+                            {
+                                "resource.id": resourceId,
+                                "level.previous": levelChange.previous,
+                                "level.new": newLevel,
+                                "change.type": levelChange.changeType,
+                                "change.amount": levelChange.change,
+                            }
+                        );
                     });
                 })
             );
@@ -437,147 +487,167 @@ servient
                         quantity = "quantity" in uriVariables ? (uriVariables.quantity as number) : quantity;
                     }
 
-                    return await traceBusinessLogic("makeDrink", async () => {
-                        // Validate input parameters
-                        await traceValidation("input", options, async () => {
-                            if (!drinkId || !size || !quantity) {
-                                throw new Error("Invalid input parameters");
-                            }
-                        });
+                    return await traceBusinessLogic(
+                        "makeDrink",
+                        async () => {
+                            // Validate input parameters
+                            await traceValidation("input", options, async () => {
+                                if (!drinkId || !size || !quantity) {
+                                    throw new Error("Invalid input parameters");
+                                }
+                            });
 
-                        // Load drink recipes and configuration
-                        const { drinkRecipes, sizeQuantifiers } = await traceDatabaseOperation("select", "recipes", async () => {
-                            // Size quantifiers
-                            const sizeQuantifiers: Record<string, number> = {
-                                s: 0.1,
-                                m: 0.2,
-                                l: 0.3,
+                            // Load drink recipes and configuration
+                            const { drinkRecipes, sizeQuantifiers } = await traceDatabaseOperation(
+                                "select",
+                                "recipes",
+                                async () => {
+                                    // Size quantifiers
+                                    const sizeQuantifiers: Record<string, number> = {
+                                        s: 0.1,
+                                        m: 0.2,
+                                        l: 0.3,
+                                    };
+
+                                    // Drink recipes showing the amount of a resource consumed for a particular drink
+                                    const drinkRecipes: Record<string, Record<string, number>> = {
+                                        espresso: {
+                                            water: 1,
+                                            milk: 0,
+                                            chocolate: 0,
+                                            coffeeBeans: 2,
+                                        },
+                                        americano: {
+                                            water: 2,
+                                            milk: 0,
+                                            chocolate: 0,
+                                            coffeeBeans: 2,
+                                        },
+                                        cappuccino: {
+                                            water: 1,
+                                            milk: 1,
+                                            chocolate: 0,
+                                            coffeeBeans: 2,
+                                        },
+                                        latte: {
+                                            water: 1,
+                                            milk: 2,
+                                            chocolate: 0,
+                                            coffeeBeans: 2,
+                                        },
+                                        hotChocolate: {
+                                            water: 0,
+                                            milk: 0,
+                                            chocolate: 1,
+                                            coffeeBeans: 0,
+                                        },
+                                        hotWater: {
+                                            water: 1,
+                                            milk: 0,
+                                            chocolate: 0,
+                                            coffeeBeans: 0,
+                                        },
+                                    };
+
+                                    return { drinkRecipes, sizeQuantifiers };
+                                }
+                            );
+
+                            // Validate drink availability
+                            await traceValidation("drinkAvailability", drinkId, async () => {
+                                if (!drinkRecipes[drinkId]) {
+                                    throw new Error(`Drink ${drinkId} is not available`);
+                                }
+                                if (!sizeQuantifiers[size]) {
+                                    throw new Error(`Size ${size} is not valid`);
+                                }
+                                if (quantity < 1 || quantity > 5) {
+                                    throw new Error(`Quantity ${quantity} is not valid (must be 1-5)`);
+                                }
+                            });
+
+                            // Get current resources from sensors
+                            const currentResources = await traceDatabaseOperation("select", "resources", async () => {
+                                return { ...allAvailableResources };
+                            });
+
+                            // Calculate resource consumption
+                            const newResources = await createChildSpan(
+                                "calculate.resourceConsumption",
+                                async () => {
+                                    const newResources = Object.assign({}, currentResources);
+                                    const recipe = drinkRecipes[drinkId];
+                                    const sizeMultiplier = sizeQuantifiers[size];
+
+                                    newResources.water -= Math.ceil(quantity * sizeMultiplier * recipe.water);
+                                    newResources.milk -= Math.ceil(quantity * sizeMultiplier * recipe.milk);
+                                    newResources.chocolate -= Math.ceil(quantity * sizeMultiplier * recipe.chocolate);
+                                    newResources.coffeeBeans -= Math.ceil(
+                                        quantity * sizeMultiplier * recipe.coffeeBeans
+                                    );
+
+                                    return newResources;
+                                },
+                                {
+                                    "drink.id": drinkId,
+                                    "drink.size": size,
+                                    "drink.quantity": quantity,
+                                    "calculation.type": "resource_consumption",
+                                }
+                            );
+
+                            // Validate resource availability
+                            await traceValidation("resourceAvailability", newResources, async () => {
+                                for (const resource in newResources) {
+                                    if (newResources[resource] <= 0) {
+                                        const eventData = `Low level of ${resource}: ${newResources[resource]}%`;
+                                        await createChildSpan("event.outOfResource", async () => {
+                                            tracedEventHandler("outOfResource", (data) =>
+                                                thing.emitEvent("outOfResource", data)
+                                            )(eventData);
+                                        });
+                                        throw new Error(`${resource} level is not sufficient`);
+                                    }
+                                }
+                            });
+
+                            // Update resources in database
+                            await traceDatabaseOperation("update", "resources", async () => {
+                                allAvailableResources = newResources;
+                            });
+
+                            // Update served counter
+                            await traceDatabaseOperation("update", "counters", async () => {
+                                servedCounter = servedCounter + quantity;
+                            });
+
+                            // Simulate drink preparation
+                            await createChildSpan(
+                                "hardware.prepareDrink",
+                                async () => {
+                                    // Simulate time for drink preparation
+                                    await new Promise((resolve) => setTimeout(resolve, 100));
+                                },
+                                {
+                                    "hardware.operation": "drink_preparation",
+                                    "drink.id": drinkId,
+                                    "drink.size": size,
+                                    "drink.quantity": quantity,
+                                }
+                            );
+
+                            // Return success response
+                            return {
+                                result: true,
+                                message: `Your ${drinkId} is in progress!`,
                             };
-
-                            // Drink recipes showing the amount of a resource consumed for a particular drink
-                            const drinkRecipes: Record<string, Record<string, number>> = {
-                                espresso: {
-                                    water: 1,
-                                    milk: 0,
-                                    chocolate: 0,
-                                    coffeeBeans: 2,
-                                },
-                                americano: {
-                                    water: 2,
-                                    milk: 0,
-                                    chocolate: 0,
-                                    coffeeBeans: 2,
-                                },
-                                cappuccino: {
-                                    water: 1,
-                                    milk: 1,
-                                    chocolate: 0,
-                                    coffeeBeans: 2,
-                                },
-                                latte: {
-                                    water: 1,
-                                    milk: 2,
-                                    chocolate: 0,
-                                    coffeeBeans: 2,
-                                },
-                                hotChocolate: {
-                                    water: 0,
-                                    milk: 0,
-                                    chocolate: 1,
-                                    coffeeBeans: 0,
-                                },
-                                hotWater: {
-                                    water: 1,
-                                    milk: 0,
-                                    chocolate: 0,
-                                    coffeeBeans: 0,
-                                },
-                            };
-
-                            return { drinkRecipes, sizeQuantifiers };
-                        });
-
-                        // Validate drink availability
-                        await traceValidation("drinkAvailability", drinkId, async () => {
-                            if (!drinkRecipes[drinkId]) {
-                                throw new Error(`Drink ${drinkId} is not available`);
-                            }
-                            if (!sizeQuantifiers[size]) {
-                                throw new Error(`Size ${size} is not valid`);
-                            }
-                            if (quantity < 1 || quantity > 5) {
-                                throw new Error(`Quantity ${quantity} is not valid (must be 1-5)`);
-                            }
-                        });
-
-                        // Get current resources from sensors
-                        const currentResources = await traceDatabaseOperation("select", "resources", async () => {
-                            return { ...allAvailableResources };
-                        });
-
-                        // Calculate resource consumption
-                        const newResources = await createChildSpan("calculate.resourceConsumption", async () => {
-                            const newResources = Object.assign({}, currentResources);
-                            const recipe = drinkRecipes[drinkId];
-                            const sizeMultiplier = sizeQuantifiers[size];
-                            
-                            newResources.water -= Math.ceil(quantity * sizeMultiplier * recipe.water);
-                            newResources.milk -= Math.ceil(quantity * sizeMultiplier * recipe.milk);
-                            newResources.chocolate -= Math.ceil(quantity * sizeMultiplier * recipe.chocolate);
-                            newResources.coffeeBeans -= Math.ceil(quantity * sizeMultiplier * recipe.coffeeBeans);
-                            
-                            return newResources;
-                        }, {
+                        },
+                        {
                             "drink.id": drinkId,
                             "drink.size": size,
                             "drink.quantity": quantity,
-                            "calculation.type": "resource_consumption"
-                        });
-
-                        // Validate resource availability
-                        await traceValidation("resourceAvailability", newResources, async () => {
-                            for (const resource in newResources) {
-                                if (newResources[resource] <= 0) {
-                                    const eventData = `Low level of ${resource}: ${newResources[resource]}%`;
-                                    await createChildSpan("event.outOfResource", async () => {
-                                        tracedEventHandler("outOfResource", (data) => thing.emitEvent("outOfResource", data))(eventData);
-                                    });
-                                    throw new Error(`${resource} level is not sufficient`);
-                                }
-                            }
-                        });
-
-                        // Update resources in database
-                        await traceDatabaseOperation("update", "resources", async () => {
-                            allAvailableResources = newResources;
-                        });
-
-                        // Update served counter
-                        await traceDatabaseOperation("update", "counters", async () => {
-                            servedCounter = servedCounter + quantity;
-                        });
-
-                        // Simulate drink preparation
-                        await createChildSpan("hardware.prepareDrink", async () => {
-                            // Simulate time for drink preparation
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                        }, {
-                            "hardware.operation": "drink_preparation",
-                            "drink.id": drinkId,
-                            "drink.size": size,
-                            "drink.quantity": quantity
-                        });
-
-                        // Return success response
-                        return {
-                            result: true,
-                            message: `Your ${drinkId} is in progress!`,
-                        };
-                    }, {
-                        "drink.id": drinkId,
-                        "drink.size": size,
-                        "drink.quantity": quantity
-                    });
+                        }
+                    );
                 })
             );
 
@@ -587,89 +657,134 @@ servient
                 tracedActionHandler("setSchedule", async (params, options) => {
                     // Parse input parameters first for metadata
                     const paramsp = params ? ((await (params as any).value()) as Record<string, unknown>) : null;
-                    
-                    return await traceBusinessLogic("setSchedule", async () => {
-                        // Always create initial validation span to show the process started
-                        const validatedParams = await createChildSpan("initialization.parseInput", async () => {
-                            // Validate input parameters
-                            await traceValidation("input", params, async () => {
-                                if (!paramsp) {
-                                    throw new Error("No parameters provided");
+
+                    return await traceBusinessLogic(
+                        "setSchedule",
+                        async () => {
+                            // Always create initial validation span to show the process started
+                            const validatedParams = await createChildSpan(
+                                "initialization.parseInput",
+                                async () => {
+                                    // Validate input parameters
+                                    await traceValidation("input", params, async () => {
+                                        if (!paramsp) {
+                                            throw new Error("No parameters provided");
+                                        }
+                                    });
+
+                                    // Validate required parameters
+                                    const scheduleData = await traceValidation(
+                                        "scheduleParameters",
+                                        paramsp,
+                                        async () => {
+                                            if (
+                                                paramsp == null ||
+                                                typeof paramsp !== "object" ||
+                                                !("time" in paramsp) ||
+                                                !("mode" in paramsp)
+                                            ) {
+                                                throw new Error(
+                                                    "Please provide all the required parameters: time and mode."
+                                                );
+                                            }
+
+                                            // Use default values if not provided
+                                            const data = {
+                                                time: paramsp.time,
+                                                mode: paramsp.mode,
+                                                drinkId: "drinkId" in paramsp ? paramsp.drinkId : "americano",
+                                                size: "size" in paramsp ? paramsp.size : "m",
+                                                quantity: "quantity" in paramsp ? paramsp.quantity : 1,
+                                            };
+
+                                            return data;
+                                        }
+                                    );
+
+                                    // Validate time format
+                                    await traceValidation("timeFormat", scheduleData.time, async () => {
+                                        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+                                        if (!timeRegex.test(String(scheduleData.time))) {
+                                            throw new Error("Invalid time format. Please use HH:MM format.");
+                                        }
+                                    });
+
+                                    return scheduleData;
+                                },
+                                {
+                                    "input.present": !!paramsp,
+                                    "input.type": typeof paramsp,
+                                    "schedule.time":
+                                        paramsp && typeof paramsp === "object" && "time" in paramsp
+                                            ? String(paramsp.time)
+                                            : "unknown",
+                                    "schedule.mode":
+                                        paramsp && typeof paramsp === "object" && "mode" in paramsp
+                                            ? String(paramsp.mode)
+                                            : "unknown",
                                 }
-                            });
+                            );
 
-                            // Validate required parameters
-                            const scheduleData = await traceValidation("scheduleParameters", paramsp, async () => {
-                                if (paramsp == null || typeof paramsp !== "object" || !("time" in paramsp) || !("mode" in paramsp)) {
-                                    throw new Error("Please provide all the required parameters: time and mode.");
+                            // Continue with business logic (this will only execute if validation passes)
+                            await createChildSpan(
+                                "business.scheduleProcessing",
+                                async () => {
+                                    // Check schedule conflicts
+                                    await createChildSpan(
+                                        "check.scheduleConflicts",
+                                        async () => {
+                                            const existingSchedule = schedules.find(
+                                                (s) =>
+                                                    typeof s === "object" &&
+                                                    s !== null &&
+                                                    "time" in s &&
+                                                    s.time === validatedParams.time
+                                            );
+                                            if (existingSchedule) {
+                                                throw new Error(
+                                                    `Schedule already exists for time ${validatedParams.time}`
+                                                );
+                                            }
+                                        },
+                                        {
+                                            "schedule.time": String(validatedParams.time),
+                                            "schedule.mode": String(validatedParams.mode),
+                                        }
+                                    );
+
+                                    // Save schedule to database
+                                    await traceDatabaseOperation("insert", "schedules", async () => {
+                                        schedules.push(validatedParams);
+                                    });
+
+                                    // Log schedule creation
+                                    await createChildSpan("logging.scheduleCreated", async () => {
+                                        console.log(`Schedule created: ${JSON.stringify(validatedParams)}`);
+                                    });
+                                },
+                                {
+                                    "business.operation": "schedule_processing",
+                                    "schedule.time": String(validatedParams.time),
+                                    "schedule.mode": String(validatedParams.mode),
                                 }
+                            );
 
-                                // Use default values if not provided
-                                const data = {
-                                    time: paramsp.time,
-                                    mode: paramsp.mode,
-                                    drinkId: "drinkId" in paramsp ? paramsp.drinkId : "americano",
-                                    size: "size" in paramsp ? paramsp.size : "m",
-                                    quantity: "quantity" in paramsp ? paramsp.quantity : 1,
-                                };
-
-                                return data;
-                            });
-
-                            // Validate time format
-                            await traceValidation("timeFormat", scheduleData.time, async () => {
-                                const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-                                if (!timeRegex.test(String(scheduleData.time))) {
-                                    throw new Error("Invalid time format. Please use HH:MM format.");
-                                }
-                            });
-
-                            return scheduleData;
-                        }, {
-                            "input.present": !!paramsp,
-                            "input.type": typeof paramsp,
-                            "schedule.time": paramsp && typeof paramsp === "object" && "time" in paramsp ? String(paramsp.time) : "unknown",
-                            "schedule.mode": paramsp && typeof paramsp === "object" && "mode" in paramsp ? String(paramsp.mode) : "unknown"
-                        });
-
-                        // Continue with business logic (this will only execute if validation passes)
-                        await createChildSpan("business.scheduleProcessing", async () => {
-                            // Check schedule conflicts
-                            await createChildSpan("check.scheduleConflicts", async () => {
-                                const existingSchedule = schedules.find(s => 
-                                    typeof s === "object" && s !== null && "time" in s && s.time === validatedParams.time
-                                );
-                                if (existingSchedule) {
-                                    throw new Error(`Schedule already exists for time ${validatedParams.time}`);
-                                }
-                            }, {
-                                "schedule.time": String(validatedParams.time),
-                                "schedule.mode": String(validatedParams.mode)
-                            });
-
-                            // Save schedule to database
-                            await traceDatabaseOperation("insert", "schedules", async () => {
-                                schedules.push(validatedParams);
-                            });
-
-                            // Log schedule creation
-                            await createChildSpan("logging.scheduleCreated", async () => {
-                                console.log(`Schedule created: ${JSON.stringify(validatedParams)}`);
-                            });
-                        }, {
-                            "business.operation": "schedule_processing",
-                            "schedule.time": String(validatedParams.time),
-                            "schedule.mode": String(validatedParams.mode)
-                        });
-
-                        return {
-                            result: true,
-                            message: `Your schedule has been set!`,
-                        };
-                    }, {
-                        "schedule.time": paramsp && typeof paramsp === "object" && "time" in paramsp ? String(paramsp.time) : "unknown",
-                        "schedule.mode": paramsp && typeof paramsp === "object" && "mode" in paramsp ? String(paramsp.mode) : "unknown"
-                    });
+                            return {
+                                result: true,
+                                message: `Your schedule has been set!`,
+                            };
+                        },
+                        {
+                            "schedule.time":
+                                paramsp && typeof paramsp === "object" && "time" in paramsp
+                                    ? String(paramsp.time)
+                                    : "unknown",
+                            "schedule.mode":
+                                paramsp && typeof paramsp === "object" && "mode" in paramsp
+                                    ? String(paramsp.mode)
+                                    : "unknown",
+                        }
+                    );
                 })
             );
 
