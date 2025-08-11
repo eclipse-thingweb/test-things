@@ -25,4 +25,4 @@ This counter thing provides increment, decrement, and reset operations, exposing
 
 ## Usage
 
-The counter exposes properties and actions for interacting with the count value. See the [Thing Description](https://github.com/eclipse-thingweb/test-things/blob/main/things/counter-thing/counter-thing.td.json) for details on endpoints and data formats. 
+The counter exposes properties and actions for interacting with the count value. See the [Thing Description](https://github.com/eclipse-thingweb/test-things/blob/main/things/counter-thing/counter-thing.td.json) for details on endpoints and data formats.
