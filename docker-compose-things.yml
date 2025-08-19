@@ -149,7 +149,7 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
-            - JAEGER_ENDPOINT=http://host.docker.internal:8085/api/traces
+            - JAEGER_ENDPOINT=${JAEGER_ENDPOINT}
         deploy:
             resources:
                 limits:
