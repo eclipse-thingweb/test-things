@@ -1,33 +1,59 @@
+/********************************************************************************
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
+ * Document License (2015-05-13) which is available at
+ * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
+ ********************************************************************************/
 import { NodeTracerProvider, BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
 import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
-import { trace, SpanStatusCode, SpanKind } from "@opentelemetry/api";
+import { trace, SpanStatusCode } from "@opentelemetry/api";
 
 import WoT from "wot-typescript-definitions";
 
-let tracer: any = null;
+interface SpanLike {
+    setAttributes: (attributes: Record<string, unknown>) => void;
+    setStatus: (status: { code: SpanStatusCode; message?: string }) => void;
+    end: () => void;
+}
 
-function safeStringify(value: any): string {
+interface TracerLike {
+    startActiveSpan: (name: string, fn: (span: SpanLike) => Promise<unknown> | unknown) => Promise<unknown> | unknown;
+}
+
+let tracer: TracerLike | null = null;
+
+function safeStringify(value: unknown): string {
     try {
-        return value === null || value === undefined
-            ? String(value)
-            : typeof value === "string" || typeof value === "number" || typeof value === "boolean"
-              ? String(value)
-              : JSON.stringify(value);
+        if (value === null || value === undefined) {
+            return String(value);
+        }
+        if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+            return String(value);
+        }
+        return JSON.stringify(value);
     } catch {
         return `[Unable to serialize: ${typeof value}]`;
     }
 }
 
 function setSpanAttributes(
-    span: any,
+    span: SpanLike,
     name: string,
     operation: string,
-    options: any,
-    params?: any,
-    error?: any,
-    result?: any
+    options: WoT.InteractionOptions | undefined,
+    params?: WoT.InteractionInput,
+    error?: unknown,
+    result?: unknown
 ): void {
     // Set basic attributes
     const isAction = operation === "invokeaction";
@@ -53,11 +79,11 @@ function setSpanAttributes(
     });
 
     // Add input options if present
-    if (options) {
+    if (options !== undefined) {
         span.setAttributes({ "input.options": safeStringify(options) });
 
         // Add URI variables if present
-        if (options.uriVariables) {
+        if (options.uriVariables !== undefined) {
             span.setAttributes({ "input.uriVariables": safeStringify(options.uriVariables) });
 
             // Add individual URI variables for easy filtering in Jaeger
@@ -77,7 +103,7 @@ function setSpanAttributes(
     }
 
     // Add error or success information
-    if (error) {
+    if (error !== undefined) {
         const errorMessage = safeStringify(error);
         const isValidationError =
             errorMessage.includes("validation") || errorMessage.includes("schema") || errorMessage.includes("required");
@@ -115,7 +141,7 @@ export function initTracing(serviceName: string): void {
         provider.addSpanProcessor(
             new BatchSpanProcessor(
                 new JaegerExporter({
-                    endpoint: process.env.JAEGER_ENDPOINT || "http://host.docker.internal:8085/api/traces",
+                    endpoint: process.env.JAEGER_ENDPOINT ?? "http://host.docker.internal:8085/api/traces",
                 }),
                 {
                     // Ensure spans are processed quickly
@@ -127,14 +153,14 @@ export function initTracing(serviceName: string): void {
         );
 
         provider.register();
-        tracer = trace.getTracer(serviceName);
+        tracer = trace.getTracer(serviceName) as TracerLike;
 
         console.log(`OpenTelemetry tracing initialized for service: ${serviceName}`);
     } catch (error) {
         console.error("Failed to initialize OpenTelemetry tracing:", error);
         // Create a no-op tracer as fallback
         tracer = {
-            startActiveSpan: (name: string, fn: Function) => {
+            startActiveSpan: (name: string, fn: (span: SpanLike) => Promise<unknown> | unknown) => {
                 return fn({
                     setAttributes: () => {},
                     setStatus: () => {},
@@ -150,31 +176,31 @@ export function traceAction<T>(
     fn: (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T>
 ): (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> {
     return async (params, options) => {
-        if (!tracer || !tracer.startActiveSpan) {
+        if (tracer === null || tracer.startActiveSpan === undefined) {
             // Fallback if tracer is not available
             return fn(params, options);
         }
 
-        return tracer.startActiveSpan(`action.${name}`, async (span: any) => {
+        return tracer.startActiveSpan(`action.${name}`, async (span: SpanLike) => {
             try {
                 const result = await fn(params, options);
                 setSpanAttributes(span, name, "invokeaction", options, params, null, result);
-                if (span.setStatus) {
+                if (span.setStatus !== undefined) {
                     span.setStatus({ code: SpanStatusCode.OK });
                 }
                 return result;
             } catch (error) {
                 setSpanAttributes(span, name, "invokeaction", options, params, error);
-                if (span.setStatus) {
+                if (span.setStatus !== undefined) {
                     span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
                 }
                 throw error;
             } finally {
-                if (span.end) {
+                if (span.end !== undefined) {
                     span.end();
                 }
             }
-        });
+        }) as Promise<T>;
     };
 }
 
@@ -183,20 +209,29 @@ export function tracePropertyRead<T>(
     fn: (options?: WoT.InteractionOptions) => Promise<T>
 ): (options?: WoT.InteractionOptions) => Promise<T> {
     return async (options) => {
-        return tracer.startActiveSpan(`property.read.${name}`, async (span: any) => {
+        if (tracer === null || tracer.startActiveSpan === undefined) {
+            return fn(options);
+        }
+        return tracer.startActiveSpan(`property.read.${name}`, async (span: SpanLike) => {
             try {
                 const result = await fn(options);
                 setSpanAttributes(span, name, "readproperty", options, undefined, null, result);
-                span.setStatus({ code: SpanStatusCode.OK });
+                if (span.setStatus !== undefined) {
+                    span.setStatus({ code: SpanStatusCode.OK });
+                }
                 return result;
             } catch (error) {
                 setSpanAttributes(span, name, "readproperty", options, undefined, error);
-                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                if (span.setStatus !== undefined) {
+                    span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                }
                 throw error;
             } finally {
-                span.end();
+                if (span.end !== undefined) {
+                    span.end();
+                }
             }
-        });
+        }) as Promise<T>;
     };
 }
 
@@ -205,38 +240,57 @@ export function tracePropertyWrite(
     fn: (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void>
 ): (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> {
     return async (value, options) => {
-        return tracer.startActiveSpan(`property.write.${name}`, async (span: any) => {
+        if (tracer === null || tracer.startActiveSpan === undefined) {
+            return fn(value, options);
+        }
+        return tracer.startActiveSpan(`property.write.${name}`, async (span: SpanLike) => {
             try {
                 await fn(value, options);
                 setSpanAttributes(span, name, "writeproperty", options, value);
-                span.setStatus({ code: SpanStatusCode.OK });
+                if (span.setStatus !== undefined) {
+                    span.setStatus({ code: SpanStatusCode.OK });
+                }
             } catch (error) {
                 setSpanAttributes(span, name, "writeproperty", options, value, error);
-                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                if (span.setStatus !== undefined) {
+                    span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                }
                 throw error;
             } finally {
-                span.end();
+                if (span.end !== undefined) {
+                    span.end();
+                }
             }
-        });
+        }) as Promise<void>;
     };
 }
 
 export function traceEvent(
     name: string,
-    fn: (data: any, options?: WoT.InteractionOptions) => void
-): (data: any, options?: WoT.InteractionOptions) => void {
+    fn: (data: WoT.InteractionInput, options?: WoT.InteractionOptions) => void
+): (data: WoT.InteractionInput, options?: WoT.InteractionOptions) => void {
     return (data, options) => {
-        tracer.startActiveSpan(`event.${name}`, async (span: any) => {
+        if (tracer === null || tracer.startActiveSpan === undefined) {
+            fn(data, options);
+            return;
+        }
+        tracer.startActiveSpan(`event.${name}`, async (span: SpanLike) => {
             try {
                 fn(data, options);
                 setSpanAttributes(span, name, "subscribeevent", options, data);
-                span.setStatus({ code: SpanStatusCode.OK });
+                if (span.setStatus !== undefined) {
+                    span.setStatus({ code: SpanStatusCode.OK });
+                }
             } catch (error) {
                 setSpanAttributes(span, name, "subscribeevent", options, data, error);
-                span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                if (span.setStatus !== undefined) {
+                    span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+                }
                 throw error;
             } finally {
-                span.end();
+                if (span.end !== undefined) {
+                    span.end();
+                }
             }
         });
     };
@@ -246,29 +300,29 @@ export function traceEvent(
 export function createChildSpan<T>(
     operationName: string,
     operation: () => Promise<T> | T,
-    attributes?: Record<string, any>
+    attributes?: Record<string, unknown>
 ): Promise<T> {
-    if (!tracer || !tracer.startActiveSpan) {
+    if (tracer === null || tracer.startActiveSpan === undefined) {
         return Promise.resolve(operation());
     }
 
-    return tracer.startActiveSpan(operationName, async (span: any) => {
+    return tracer.startActiveSpan(operationName, async (span: SpanLike) => {
         try {
             // Add custom attributes if provided
-            if (attributes && span.setAttributes) {
+            if (attributes !== undefined && span.setAttributes !== undefined) {
                 span.setAttributes(attributes);
             }
 
             const result = await operation();
-            if (span.setStatus) {
+            if (span.setStatus !== undefined) {
                 span.setStatus({ code: SpanStatusCode.OK });
             }
             return result;
         } catch (error) {
-            if (span.setStatus) {
+            if (span.setStatus !== undefined) {
                 span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
             }
-            if (span.setAttributes) {
+            if (span.setAttributes !== undefined) {
                 span.setAttributes({
                     "error.name": error instanceof Error ? error.name : "Error",
                     "error.message": String(error),
@@ -276,23 +330,23 @@ export function createChildSpan<T>(
             }
             throw error;
         } finally {
-            if (span.end) {
+            if (span.end !== undefined) {
                 span.end();
             }
         }
-    });
+    }) as Promise<T>;
 }
 
 // Helper function to simulate database operations
 export function traceDatabaseOperation<T>(
     operation: string,
     table: string,
-    operation_fn: () => Promise<T> | T
+    operationFn: () => Promise<T> | T
 ): Promise<T> {
-    if (!tracer) {
-        return Promise.resolve(operation_fn());
+    if (tracer === null) {
+        return Promise.resolve(operationFn());
     }
-    return createChildSpan(`db.${operation}`, operation_fn, {
+    return createChildSpan(`db.${operation}`, operationFn, {
         "db.operation": operation,
         "db.table": table,
         "db.system": "memory", // Since we're using in-memory storage
@@ -301,11 +355,15 @@ export function traceDatabaseOperation<T>(
 }
 
 // Helper function to trace validation operations
-export function traceValidation<T>(validationType: string, data: any, validation_fn: () => Promise<T> | T): Promise<T> {
-    if (!tracer) {
-        return Promise.resolve(validation_fn());
+export function traceValidation<T>(
+    validationType: string,
+    data: WoT.InteractionInput | null,
+    validationFn: () => Promise<T> | T
+): Promise<T> {
+    if (tracer === null) {
+        return Promise.resolve(validationFn());
     }
-    return createChildSpan(`validation.${validationType}`, validation_fn, {
+    return createChildSpan(`validation.${validationType}`, validationFn, {
         "validation.type": validationType,
         "validation.input": safeStringify(data),
         "span.kind": "internal",
@@ -315,13 +373,13 @@ export function traceValidation<T>(validationType: string, data: any, validation
 // Helper function to trace business logic operations
 export function traceBusinessLogic<T>(
     operationName: string,
-    operation_fn: () => Promise<T> | T,
-    metadata?: Record<string, any>
+    operationFn: () => Promise<T> | T,
+    metadata?: Record<string, unknown>
 ): Promise<T> {
-    if (!tracer) {
-        return Promise.resolve(operation_fn());
+    if (tracer === null) {
+        return Promise.resolve(operationFn());
     }
-    return createChildSpan(`business.${operationName}`, operation_fn, {
+    return createChildSpan(`business.${operationName}`, operationFn, {
         "business.operation": operationName,
         "span.kind": "internal",
         ...metadata,

@@ -58,6 +58,24 @@ function readFromSensor(sensorType: string): number {
     return Math.max(0, Math.min(100, Math.round(baseLevel + variation)));
 }
 
+// Type guard for WoT InteractionInput with value method
+function hasValueMethod(input: unknown): input is { value: () => Promise<unknown> } {
+    return (
+        typeof input === "object" &&
+        input !== null &&
+        "value" in input &&
+        typeof (input as Record<string, unknown>).value === "function"
+    );
+}
+
+// Helper to safely extract value from WoT InteractionInput
+async function extractWoTValue(input: WoT.InteractionInput): Promise<unknown> {
+    if (hasValueMethod(input)) {
+        return await input.value();
+    }
+    return input;
+}
+
 const {
     values: { port },
 } = parseArgs({
@@ -144,11 +162,11 @@ servient
                     });
 
                     // Read sensor data for real-time validation
-                    const sensorData = await logic.withProcessing(
+                    await logic.withProcessing(
                         "sensors.readAll",
                         async () => {
                             const readings: Record<string, number> = {};
-                            for (const resource in allAvailableResources) {
+                            for (const resource of Object.keys(allAvailableResources)) {
                                 readings[resource] = readFromSensor(resource);
                             }
                             return readings;
@@ -220,14 +238,14 @@ servient
                     const resourceId = await logic.withProcessing(
                         "parsing.extractResourceId",
                         async () => {
-                            const resourceId = options?.uriVariables?.id as string;
+                            const resourceId = (options?.uriVariables as Record<string, string>)?.id;
                             if (!resourceId || !(resourceId in allAvailableResources)) {
                                 throw new Error(`Invalid resource ID: ${resourceId}`);
                             }
                             return resourceId;
                         },
                         {
-                            "resource.id": options?.uriVariables?.id || "unknown",
+                            "resource.id": (options?.uriVariables as Record<string, string>)?.id ?? "unknown",
                             "parsing.operation": "resource_id_extraction",
                         }
                     );
@@ -260,7 +278,7 @@ servient
                     return await logic.withProcessing(
                         "processing.filterActiveSchedules",
                         async () => {
-                            return result.filter((schedule: any) => true); // For demo, all schedules are active
+                            return result.filter((schedule: unknown) => true); // For demo, all schedules are active
                         },
                         {
                             "schedules.count": schedules.length,
@@ -277,7 +295,7 @@ servient
                 await logic.execute(async () => {
                     // Validate input
                     await logic.withValidation("counterInput", val, async () => {
-                        if (!val) {
+                        if (val === null || val === undefined) {
                             throw new Error("No value provided for servedCounter");
                         }
                     });
@@ -286,7 +304,12 @@ servient
                     const newCounterValue = await logic.withProcessing(
                         "parsing.extractCounterValue",
                         async () => {
-                            const value = (await (val as any).value()) as number;
+                            if (val === null || val === undefined) {
+                                throw new Error("No value provided for servedCounter");
+                            }
+                            // Type guard and extraction for WoT InteractionInput
+                            const value = await extractWoTValue(val);
+
                             if (typeof value !== "number" || value < 0) {
                                 throw new Error(`Invalid served counter value: ${value}`);
                             }
@@ -330,16 +353,22 @@ servient
                     const logic = createTracedLogic("updateResourceLevel");
 
                     await logic.execute(async () => {
-                        // Parse and validate resource data
+                        // Parse and validate resource ID and new level
                         const { resourceId, newLevel } = await logic.withProcessing(
-                            "parsing.extractResourceData",
+                            "parsing.extractResourceParameters",
                             async () => {
-                                const resourceId = options?.uriVariables?.id as string;
-                                const newLevel = (await (val as any).value()) as number;
-
+                                const resourceId = (options?.uriVariables as Record<string, string>)?.id;
                                 if (!resourceId || !(resourceId in allAvailableResources)) {
-                                    throw new Error(`Invalid resource ID: ${resourceId}`);
+                                    throw Error("Please specify id variable as uriVariables.");
                                 }
+
+                                if (val === null || val === undefined) {
+                                    throw new Error("No value provided for availableResourceLevel");
+                                }
+
+                                // Type guard and extraction for WoT InteractionInput
+                                const newLevel = await extractWoTValue(val);
+
                                 if (typeof newLevel !== "number" || newLevel < 0 || newLevel > 100) {
                                     throw new Error(`Invalid level for ${resourceId}: ${newLevel}`);
                                 }
@@ -353,16 +382,17 @@ servient
                         );
 
                         // Calculate level change
-                        const change = await logic.withProcessing(
+                        await logic.withProcessing(
                             "calculate.levelChange",
                             async () => {
                                 const currentLevel = allAvailableResources[resourceId];
-                                const change = newLevel - currentLevel;
+                                const levelChange = newLevel - currentLevel;
                                 return {
                                     previous: currentLevel,
                                     new: newLevel,
-                                    change: change,
-                                    changeType: change > 0 ? "refill" : change < 0 ? "consumption" : "no_change",
+                                    change: levelChange,
+                                    changeType:
+                                        levelChange > 0 ? "refill" : levelChange < 0 ? "consumption" : "no_change",
                                 };
                             },
                             {
@@ -401,9 +431,10 @@ servient
                     const { drinkId, size, quantity } = await logic.withProcessing(
                         "parsing.extractDrinkParameters",
                         async () => {
-                            const drinkId = options?.uriVariables?.drinkId ?? "americano";
-                            const size = options?.uriVariables?.size ?? "m";
-                            const quantity = options?.uriVariables?.quantity ?? 1;
+                            const uriVars = options?.uriVariables as Record<string, unknown> | undefined;
+                            const drinkId = (uriVars?.drinkId as string) ?? "americano";
+                            const size = (uriVars?.size as string) ?? "m";
+                            const quantity = (uriVars?.quantity as number) ?? 1;
                             return { drinkId, size, quantity };
                         },
                         {
@@ -433,10 +464,10 @@ servient
 
                     // Validate drink availability
                     await logic.withValidation("drinkAvailability", drinkId, async () => {
-                        if (!drinkRecipes[drinkId]) {
+                        if (drinkRecipes[drinkId] === undefined) {
                             throw new Error(`Drink ${drinkId} is not available`);
                         }
-                        if (!sizeQuantifiers[size]) {
+                        if (sizeQuantifiers[size] === undefined) {
                             throw new Error(`Size ${size} is not valid`);
                         }
                         if (quantity < 1 || quantity > 5) {
@@ -534,13 +565,20 @@ servient
                     const scheduleData = await logic.withProcessing(
                         "parsing.extractScheduleData",
                         async () => {
-                            const data = await (params as any)?.value();
+                            if (params === null || params === undefined) {
+                                throw new Error("No parameters provided for schedule");
+                            }
+
+                            // Type guard and extraction for WoT InteractionInput
+                            const rawData = await extractWoTValue(params);
+
+                            const data = rawData as Record<string, unknown>;
                             return {
-                                drinkId: data?.drinkId ?? "americano",
-                                size: data?.size ?? "m",
-                                quantity: data?.quantity ?? 1,
-                                time: data?.time,
-                                mode: data?.mode,
+                                drinkId: (data?.drinkId as string) ?? "americano",
+                                size: (data?.size as string) ?? "m",
+                                quantity: (data?.quantity as number) ?? 1,
+                                time: data?.time as string,
+                                mode: data?.mode as string,
                             };
                         },
                         {
@@ -594,7 +632,7 @@ servient
             });
 
             thing.expose().then(() => {
-                console.info(`${(thingDescription as any).title} ready`);
+                console.info(`${(thingDescription as { title: string }).title} ready`);
                 console.log("ThingIsReady");
             });
         });

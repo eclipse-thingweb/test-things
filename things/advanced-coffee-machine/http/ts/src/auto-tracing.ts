@@ -26,7 +26,7 @@ import {
 
 interface ValidationConfig {
     type: string;
-    validator: (data: any) => Promise<void> | void;
+    validator: (data: WoT.InteractionInput | null) => Promise<void> | void;
 }
 
 interface DatabaseConfig {
@@ -36,7 +36,7 @@ interface DatabaseConfig {
 
 interface ProcessingConfig {
     name: string;
-    attributes?: Record<string, any>;
+    attributes?: Record<string, unknown>;
 }
 
 interface BusinessLogicConfig {
@@ -44,14 +44,14 @@ interface BusinessLogicConfig {
     validations?: ValidationConfig[];
     database?: DatabaseConfig[];
     processing?: ProcessingConfig[];
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
 
 // Auto-traced property handler
 export function autoTracedPropertyRead<T>(
     propertyName: string,
     config: BusinessLogicConfig,
-    businessLogic: (options?: any) => Promise<T> | T
+    businessLogic: (options?: WoT.InteractionOptions) => Promise<T> | T
 ): (options?: WoT.InteractionOptions) => Promise<T> {
     return tracedPropertyReadHandler(propertyName, async (options) => {
         return await traceBusinessLogic(config.name, async () => {
@@ -88,7 +88,7 @@ export function autoTracedPropertyRead<T>(
 export function autoTracedPropertyWrite(
     propertyName: string,
     config: BusinessLogicConfig,
-    businessLogic: (value: any, options?: any) => Promise<void> | void
+    businessLogic: (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> | void
 ): (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> {
     return tracedPropertyWriteHandler(propertyName, async (value, options) => {
         return await traceBusinessLogic(config.name, async () => {
@@ -125,15 +125,19 @@ export function autoTracedPropertyWrite(
 export function autoTracedAction<T>(
     actionName: string,
     config: BusinessLogicConfig,
-    businessLogic: (params?: any, options?: any) => Promise<T> | T
+    businessLogic: (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> | T
 ): (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> {
     return tracedActionHandler(actionName, async (params, options) => {
         return await traceBusinessLogic(config.name, async () => {
             // Execute validations
             if (config.validations) {
                 for (const validation of config.validations) {
-                    await traceValidation(validation.type, params, async () => {
-                        await validation.validator(params);
+                    await traceValidation(validation.type, params ?? null, async () => {
+                        if (params !== undefined) {
+                            await validation.validator(params);
+                        } else {
+                            await validation.validator(null);
+                        }
                     });
                 }
             }
@@ -160,9 +164,14 @@ export function autoTracedAction<T>(
 
 // Smart wrapper that automatically creates spans based on function calls
 export class TracedBusinessLogic {
+    // eslint-disable-next-line no-useless-constructor
     constructor(private baseSpanName: string) {}
 
-    async withValidation<T>(validationType: string, data: any, operation: () => Promise<T> | T): Promise<T> {
+    async withValidation<T>(
+        validationType: string,
+        data: WoT.InteractionInput | null,
+        operation: () => Promise<T> | T
+    ): Promise<T> {
         return await traceValidation(validationType, data, operation);
     }
 
@@ -173,7 +182,7 @@ export class TracedBusinessLogic {
     async withProcessing<T>(
         operationName: string,
         operation: () => Promise<T> | T,
-        attributes?: Record<string, any>
+        attributes?: Record<string, unknown>
     ): Promise<T> {
         return await createChildSpan(operationName, operation, attributes);
     }
@@ -190,29 +199,33 @@ export function createTracedLogic(spanName: string): TracedBusinessLogic {
 export class TracingConfigBuilder {
     private config: BusinessLogicConfig;
 
+    // eslint-disable-next-line no-useless-constructor
     constructor(businessLogicName: string) {
         this.config = { name: businessLogicName };
     }
 
-    addValidation(type: string, validator: (data: any) => Promise<void> | void): TracingConfigBuilder {
-        if (!this.config.validations) this.config.validations = [];
+    addValidation(
+        type: string,
+        validator: (data: WoT.InteractionInput | null) => Promise<void> | void
+    ): TracingConfigBuilder {
+        this.config.validations ??= [];
         this.config.validations.push({ type, validator });
         return this;
     }
 
     addDatabase(operation: string, table: string): TracingConfigBuilder {
-        if (!this.config.database) this.config.database = [];
+        this.config.database ??= [];
         this.config.database.push({ operation, table });
         return this;
     }
 
-    addProcessing(name: string, attributes?: Record<string, any>): TracingConfigBuilder {
-        if (!this.config.processing) this.config.processing = [];
+    addProcessing(name: string, attributes?: Record<string, unknown>): TracingConfigBuilder {
+        this.config.processing ??= [];
         this.config.processing.push({ name, attributes });
         return this;
     }
 
-    addMetadata(metadata: Record<string, any>): TracingConfigBuilder {
+    addMetadata(metadata: Record<string, unknown>): TracingConfigBuilder {
         this.config.metadata = { ...this.config.metadata, ...metadata };
         return this;
     }
@@ -227,12 +240,13 @@ export function tracingConfig(businessLogicName: string): TracingConfigBuilder {
 }
 
 export class AutoTracedThing {
+    // eslint-disable-next-line no-useless-constructor
     constructor(private thing: WoT.ExposedThing) {}
 
     setPropertyReadHandler<T>(
         propertyName: string,
         businessLogicName: string,
-        businessLogic: (options?: any) => Promise<T> | T,
+        businessLogic: (options?: WoT.InteractionOptions) => Promise<T> | T,
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
         let config = tracingConfig(businessLogicName);
@@ -242,14 +256,14 @@ export class AutoTracedThing {
 
         this.thing.setPropertyReadHandler(
             propertyName,
-            autoTracedPropertyRead(propertyName, config.build(), businessLogic) as any
+            autoTracedPropertyRead(propertyName, config.build(), businessLogic) as WoT.PropertyReadHandler
         );
     }
 
     setPropertyWriteHandler(
         propertyName: string,
         businessLogicName: string,
-        businessLogic: (value: any, options?: any) => Promise<void> | void,
+        businessLogic: (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> | void,
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
         let config = tracingConfig(businessLogicName);
@@ -266,7 +280,7 @@ export class AutoTracedThing {
     setActionHandler<T>(
         actionName: string,
         businessLogicName: string,
-        businessLogic: (params?: any, options?: any) => Promise<T> | T,
+        businessLogic: (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> | T,
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
         let config = tracingConfig(businessLogicName);
@@ -274,19 +288,30 @@ export class AutoTracedThing {
             config = configBuilder(config);
         }
 
-        this.thing.setActionHandler(actionName, autoTracedAction(actionName, config.build(), businessLogic) as any);
+        this.thing.setActionHandler(
+            actionName,
+            autoTracedAction(actionName, config.build(), businessLogic) as WoT.ActionHandler
+        );
     }
 
     // Delegate other methods to the wrapped thing
-    writeProperty(propertyName: string, value: any): Promise<void> {
-        return (this.thing as any).writeProperty(propertyName, value);
+    writeProperty(propertyName: string, value: WoT.InteractionInput): Promise<void> {
+        return (
+            this.thing as WoT.ExposedThing & {
+                writeProperty: (name: string, value: WoT.InteractionInput) => Promise<void>;
+            }
+        ).writeProperty(propertyName, value);
     }
 
     readProperty(propertyName: string, options?: WoT.InteractionOptions): Promise<WoT.InteractionOutput> {
-        return (this.thing as any).readProperty(propertyName, options);
+        return (
+            this.thing as WoT.ExposedThing & {
+                readProperty: (name: string, options?: WoT.InteractionOptions) => Promise<WoT.InteractionOutput>;
+            }
+        ).readProperty(propertyName, options);
     }
 
-    emitEvent(eventName: string, data?: any): void {
+    emitEvent(eventName: string, data?: WoT.InteractionInput): void {
         this.thing.emitEvent(eventName, data);
     }
 
