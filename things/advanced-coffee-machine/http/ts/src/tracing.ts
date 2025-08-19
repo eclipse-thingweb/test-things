@@ -249,12 +249,9 @@ export function createChildSpan<T>(
     attributes?: Record<string, any>
 ): Promise<T> {
     if (!tracer || !tracer.startActiveSpan) {
-        // Fallback if tracer is not available
-        console.log(`[TRACING] No tracer available for: ${operationName}`);
         return Promise.resolve(operation());
     }
 
-    console.log(`[TRACING] Creating child span: ${operationName}`);
     return tracer.startActiveSpan(operationName, async (span: any) => {
         try {
             // Add custom attributes if provided
@@ -266,7 +263,6 @@ export function createChildSpan<T>(
             if (span.setStatus) {
                 span.setStatus({ code: SpanStatusCode.OK });
             }
-            console.log(`[TRACING] Child span completed: ${operationName}`);
             return result;
         } catch (error) {
             if (span.setStatus) {
@@ -332,7 +328,6 @@ export function traceBusinessLogic<T>(
     });
 }
 
-// Legacy compatibility
 export const tracedActionHandler = traceAction;
 export const tracedPropertyReadHandler = tracePropertyRead;
 export const tracedPropertyWriteHandler = tracePropertyWrite;
