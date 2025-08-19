@@ -24,7 +24,6 @@ import {
     createChildSpan,
 } from "./tracing";
 
-
 interface ValidationConfig {
     type: string;
     validator: (data: any) => Promise<void> | void;
@@ -139,7 +138,7 @@ export function autoTracedAction<T>(
                 }
             }
 
-            // Execute processing steps  
+            // Execute processing steps
             if (config.processing) {
                 for (const proc of config.processing) {
                     await createChildSpan(proc.name, async () => {}, proc.attributes);
@@ -163,19 +162,11 @@ export function autoTracedAction<T>(
 export class TracedBusinessLogic {
     constructor(private baseSpanName: string) {}
 
-    async withValidation<T>(
-        validationType: string,
-        data: any,
-        operation: () => Promise<T> | T
-    ): Promise<T> {
+    async withValidation<T>(validationType: string, data: any, operation: () => Promise<T> | T): Promise<T> {
         return await traceValidation(validationType, data, operation);
     }
 
-    async withDatabase<T>(
-        operation: string,
-        table: string,
-        dbOperation: () => Promise<T> | T
-    ): Promise<T> {
+    async withDatabase<T>(operation: string, table: string, dbOperation: () => Promise<T> | T): Promise<T> {
         return await traceDatabaseOperation(operation, table, dbOperation);
     }
 
@@ -191,7 +182,6 @@ export class TracedBusinessLogic {
         return await traceBusinessLogic(this.baseSpanName, operation);
     }
 }
-
 
 export function createTracedLogic(spanName: string): TracedBusinessLogic {
     return new TracedBusinessLogic(spanName);
@@ -249,7 +239,7 @@ export class AutoTracedThing {
         if (configBuilder) {
             config = configBuilder(config);
         }
-        
+
         this.thing.setPropertyReadHandler(
             propertyName,
             autoTracedPropertyRead(propertyName, config.build(), businessLogic) as any
@@ -266,7 +256,7 @@ export class AutoTracedThing {
         if (configBuilder) {
             config = configBuilder(config);
         }
-        
+
         this.thing.setPropertyWriteHandler(
             propertyName,
             autoTracedPropertyWrite(propertyName, config.build(), businessLogic)
@@ -283,11 +273,8 @@ export class AutoTracedThing {
         if (configBuilder) {
             config = configBuilder(config);
         }
-        
-        this.thing.setActionHandler(
-            actionName,
-            autoTracedAction(actionName, config.build(), businessLogic) as any
-        );
+
+        this.thing.setActionHandler(actionName, autoTracedAction(actionName, config.build(), businessLogic) as any);
     }
 
     // Delegate other methods to the wrapped thing

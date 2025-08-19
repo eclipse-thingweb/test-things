@@ -44,14 +44,18 @@ let schedules: unknown[];
 let servedCounter: number;
 
 function readFromSensor(sensorType: string): number {
-    // Actual implementation of reading data from a sensor can go here
-    // For the sake of example, let's just return a value
-    return 100;
-}
+    // Simulate realistic sensor readings with some variation
+    const baseLevels: Record<string, number> = {
+        water: 80,
+        milk: 60,
+        chocolate: 40,
+        coffeeBeans: 90,
+    };
 
-function notify(subscribers: unknown, msg: string) {
-    // Actual implementation of notifying subscribers with a message can go here
-    console.log(msg);
+    const baseLevel = baseLevels[sensorType] || 50;
+    // Add some realistic variation (±10%) to simulate real sensor readings
+    const variation = (Math.random() - 0.5) * 20;
+    return Math.max(0, Math.min(100, Math.round(baseLevel + variation)));
 }
 
 const {
@@ -122,233 +126,209 @@ servient
             const tracedThing = createAutoTracedThing(thing);
 
             // Property: allAvailableResources
-            tracedThing.setPropertyReadHandler(
-                "allAvailableResources",
-                "getAllResources",
-                async (options) => {
-                    const logic = createTracedLogic("getAllResources");
-                    
-                    return await logic.execute(async () => {
-                        // Validate resource data integrity
-                        await logic.withValidation("resourceData", allAvailableResources, async () => {
-                            const requiredResources = ["water", "milk", "chocolate", "coffeeBeans"];
-                            for (const resource of requiredResources) {
-                                if (!(resource in allAvailableResources)) {
-                                    throw new Error(`Missing required resource: ${resource}`);
-                                }
-                                if (typeof allAvailableResources[resource] !== "number") {
-                                    throw new Error(`Invalid resource level for ${resource}`);
-                                }
-                            }
-                        });
+            tracedThing.setPropertyReadHandler("allAvailableResources", "getAllResources", async (options) => {
+                const logic = createTracedLogic("getAllResources");
 
-                        // Read sensor data for real-time validation
-                        const sensorData = await logic.withProcessing(
-                            "sensors.readAll",
-                            async () => {
-                                const readings: Record<string, number> = {};
-                                for (const resource in allAvailableResources) {
-                                    readings[resource] = readFromSensor(resource);
-                                }
-                                return readings;
-                            },
-                            {
-                                "sensor.count": Object.keys(allAvailableResources).length,
-                                "sensor.type": "resource_level",
+                return await logic.execute(async () => {
+                    // Validate resource data integrity
+                    await logic.withValidation("resourceData", allAvailableResources, async () => {
+                        const requiredResources = ["water", "milk", "chocolate", "coffeeBeans"];
+                        for (const resource of requiredResources) {
+                            if (!(resource in allAvailableResources)) {
+                                throw new Error(`Missing required resource: ${resource}`);
                             }
-                        );
-
-                        // Compare and sync with database
-                        return await logic.withDatabase("select", "resource_levels", async () => {
-                            return { ...allAvailableResources };
-                        });
+                            if (typeof allAvailableResources[resource] !== "number") {
+                                throw new Error(`Invalid resource level for ${resource}`);
+                            }
+                        }
                     });
-                }
-            );
+
+                    // Read sensor data for real-time validation
+                    const sensorData = await logic.withProcessing(
+                        "sensors.readAll",
+                        async () => {
+                            const readings: Record<string, number> = {};
+                            for (const resource in allAvailableResources) {
+                                readings[resource] = readFromSensor(resource);
+                            }
+                            return readings;
+                        },
+                        {
+                            "sensor.count": Object.keys(allAvailableResources).length,
+                            "sensor.type": "resource_level",
+                        }
+                    );
+
+                    // Compare and sync with database
+                    return await logic.withDatabase("select", "resource_levels", async () => {
+                        return { ...allAvailableResources };
+                    });
+                });
+            });
 
             // Property: possibleDrinks
-            tracedThing.setPropertyReadHandler(
-                "possibleDrinks",
-                "getPossibleDrinks",
-                async (options) => {
-                    const logic = createTracedLogic("getPossibleDrinks");
-                    
-                    return await logic.execute(async () => {
-                        // Validate drink catalog integrity
-                        await logic.withValidation("drinkCatalog", possibleDrinks, async () => {
-                            if (!Array.isArray(possibleDrinks)) {
-                                throw new Error("Drink catalog is corrupted");
-                            }
-                            if (possibleDrinks.length === 0) {
-                                throw new Error("No drinks available in catalog");
-                            }
-                        });
+            tracedThing.setPropertyReadHandler("possibleDrinks", "getPossibleDrinks", async (options) => {
+                const logic = createTracedLogic("getPossibleDrinks");
 
-                        // Load drink availability from database
-                        const availabilityMap = await logic.withDatabase(
-                            "select",
-                            "drink_availability",
-                            async () => {
-                                const availability: Record<string, boolean> = {};
-                                for (const drink of possibleDrinks) {
-                                    availability[drink] = true;
-                                }
-                                return availability;
-                            }
-                        );
-
-                        // Filter available drinks based on current resources
-                        return await logic.withProcessing(
-                            "processing.filterAvailableDrinks",
-                            async () => {
-                                return possibleDrinks.filter((drink) => availabilityMap[drink] !== false);
-                            },
-                            {
-                                "drinks.total": possibleDrinks.length,
-                                "filtering.criteria": "resource_availability",
-                            }
-                        );
+                return await logic.execute(async () => {
+                    // Validate drink catalog integrity
+                    await logic.withValidation("drinkCatalog", possibleDrinks, async () => {
+                        if (!Array.isArray(possibleDrinks)) {
+                            throw new Error("Drink catalog is corrupted");
+                        }
+                        if (possibleDrinks.length === 0) {
+                            throw new Error("No drinks available in catalog");
+                        }
                     });
-                }
-            );
+
+                    // Load drink availability from database
+                    const availabilityMap = await logic.withDatabase("select", "drink_availability", async () => {
+                        const availability: Record<string, boolean> = {};
+                        for (const drink of possibleDrinks) {
+                            availability[drink] = true;
+                        }
+                        return availability;
+                    });
+
+                    // Filter available drinks based on current resources
+                    return await logic.withProcessing(
+                        "processing.filterAvailableDrinks",
+                        async () => {
+                            return possibleDrinks.filter((drink) => availabilityMap[drink] !== false);
+                        },
+                        {
+                            "drinks.total": possibleDrinks.length,
+                            "filtering.criteria": "resource_availability",
+                        }
+                    );
+                });
+            });
 
             // Property: maintenanceNeeded (simple read)
             tracedThing.setPropertyReadHandler(
                 "maintenanceNeeded",
-                "getMaintenanceStatus", 
+                "getMaintenanceStatus",
                 async (options) => maintenanceNeeded
             );
 
             // Property Read: availableResourceLevel (with URI variables)
-            tracedThing.setPropertyReadHandler(
-                "availableResourceLevel",
-                "getResourceLevel",
-                async (options) => {
-                    const logic = createTracedLogic("getResourceLevel");
-                    
-                    return await logic.execute(async () => {
-                        // Parse resource ID from URI variables
-                        const resourceId = await logic.withProcessing(
-                            "parsing.extractResourceId",
-                            async () => {
-                                const resourceId = options?.uriVariables?.id as string;
-                                if (!resourceId || !(resourceId in allAvailableResources)) {
-                                    throw new Error(`Invalid resource ID: ${resourceId}`);
-                                }
-                                return resourceId;
-                            },
-                            {
-                                "resource.id": options?.uriVariables?.id || "unknown",
-                                "parsing.operation": "resource_id_extraction",
-                            }
-                        );
+            tracedThing.setPropertyReadHandler("availableResourceLevel", "getResourceLevel", async (options) => {
+                const logic = createTracedLogic("getResourceLevel");
 
-                        // Get resource level from database
-                        return await logic.withDatabase("select", "resource_levels", async () => {
-                            return allAvailableResources[resourceId];
-                        });
+                return await logic.execute(async () => {
+                    // Parse resource ID from URI variables
+                    const resourceId = await logic.withProcessing(
+                        "parsing.extractResourceId",
+                        async () => {
+                            const resourceId = options?.uriVariables?.id as string;
+                            if (!resourceId || !(resourceId in allAvailableResources)) {
+                                throw new Error(`Invalid resource ID: ${resourceId}`);
+                            }
+                            return resourceId;
+                        },
+                        {
+                            "resource.id": options?.uriVariables?.id || "unknown",
+                            "parsing.operation": "resource_id_extraction",
+                        }
+                    );
+
+                    // Get resource level from database
+                    return await logic.withDatabase("select", "resource_levels", async () => {
+                        return allAvailableResources[resourceId];
                     });
-                }
-            );
+                });
+            });
 
             // Property: schedules
-            tracedThing.setPropertyReadHandler(
-                "schedules",
-                "getSchedules",
-                async (options) => {
-                    const logic = createTracedLogic("getSchedules");
-                    
-                    return await logic.execute(async () => {
-                        // Validate system state
-                        await logic.withValidation("systemState", { schedulesLength: schedules.length }, async () => {
-                            if (!Array.isArray(schedules)) {
-                                throw new Error("Schedules data structure is corrupted");
-                            }
-                        });
+            tracedThing.setPropertyReadHandler("schedules", "getSchedules", async (options) => {
+                const logic = createTracedLogic("getSchedules");
 
-                        // Load schedules from database
-                        const result = await logic.withDatabase("select", "schedules", async () => {
-                            return schedules;
-                        });
-
-                        // Process and filter active schedules
-                        return await logic.withProcessing(
-                            "processing.filterActiveSchedules",
-                            async () => {
-                                return result.filter((schedule: any) => true); // For demo, all schedules are active
-                            },
-                            {
-                                "schedules.count": schedules.length,
-                                "query.time": new Date().toISOString(),
-                            }
-                        );
+                return await logic.execute(async () => {
+                    // Validate system state
+                    await logic.withValidation("systemState", { schedulesLength: schedules.length }, async () => {
+                        if (!Array.isArray(schedules)) {
+                            throw new Error("Schedules data structure is corrupted");
+                        }
                     });
-                }
-            );
+
+                    // Load schedules from database
+                    const result = await logic.withDatabase("select", "schedules", async () => {
+                        return schedules;
+                    });
+
+                    // Process and filter active schedules
+                    return await logic.withProcessing(
+                        "processing.filterActiveSchedules",
+                        async () => {
+                            return result.filter((schedule: any) => true); // For demo, all schedules are active
+                        },
+                        {
+                            "schedules.count": schedules.length,
+                            "query.time": new Date().toISOString(),
+                        }
+                    );
+                });
+            });
 
             // Property Write: servedCounter
-            tracedThing.setPropertyWriteHandler(
-                "servedCounter",
-                "updateServedCounter",
-                async (val) => {
-                    const logic = createTracedLogic("updateServedCounter");
-                    
-                    await logic.execute(async () => {
-                        // Validate input
-                        await logic.withValidation("counterInput", val, async () => {
-                            if (!val) {
-                                throw new Error("No value provided for servedCounter");
-                            }
-                        });
+            tracedThing.setPropertyWriteHandler("servedCounter", "updateServedCounter", async (val) => {
+                const logic = createTracedLogic("updateServedCounter");
 
-                        // Parse and validate the new counter value
-                        const newCounterValue = await logic.withProcessing(
-                            "parsing.extractCounterValue",
-                            async () => {
-                                const value = (await (val as any).value()) as number;
-                                if (typeof value !== "number" || value < 0) {
-                                    throw new Error(`Invalid served counter value: ${value}`);
-                                }
-                                return value;
-                            },
-                            {
-                                "input.type": typeof val,
-                                "parsing.operation": "counter_extraction",
-                            }
-                        );
-
-                        // Update counter in database
-                        await logic.withDatabase("update", "counters", async () => {
-                            servedCounter = newCounterValue;
-                        });
-
-                        // Check maintenance threshold and trigger events if needed
-                        await logic.withProcessing("business.checkMaintenanceThreshold", async () => {
-                            if (servedCounter > 1000) {
-                                // Update maintenance status
-                                await logic.withDatabase("update", "maintenance_status", async () => {
-                                    maintenanceNeeded = true;
-                                });
-
-                                // Emit maintenance event
-                                await logic.withProcessing("event.maintenanceNeeded", async () => {
-                                    tracedEventHandler("maintenanceNeeded", (data) =>
-                                        thing.emitPropertyChange("maintenanceNeeded")
-                                    )(maintenanceNeeded);
-                                });
-                            }
-                        });
+                await logic.execute(async () => {
+                    // Validate input
+                    await logic.withValidation("counterInput", val, async () => {
+                        if (!val) {
+                            throw new Error("No value provided for servedCounter");
+                        }
                     });
-                }
-            );
+
+                    // Parse and validate the new counter value
+                    const newCounterValue = await logic.withProcessing(
+                        "parsing.extractCounterValue",
+                        async () => {
+                            const value = (await (val as any).value()) as number;
+                            if (typeof value !== "number" || value < 0) {
+                                throw new Error(`Invalid served counter value: ${value}`);
+                            }
+                            return value;
+                        },
+                        {
+                            "input.type": typeof val,
+                            "parsing.operation": "counter_extraction",
+                        }
+                    );
+
+                    // Update counter in database
+                    await logic.withDatabase("update", "counters", async () => {
+                        servedCounter = newCounterValue;
+                    });
+
+                    // Check maintenance threshold and trigger events if needed
+                    await logic.withProcessing("business.checkMaintenanceThreshold", async () => {
+                        if (servedCounter > 1000) {
+                            // Update maintenance status
+                            await logic.withDatabase("update", "maintenance_status", async () => {
+                                maintenanceNeeded = true;
+                            });
+
+                            // Emit maintenance event
+                            await logic.withProcessing("event.maintenanceNeeded", async () => {
+                                tracedEventHandler("maintenanceNeeded", (data) =>
+                                    thing.emitPropertyChange("maintenanceNeeded")
+                                )(maintenanceNeeded);
+                            });
+                        }
+                    });
+                });
+            });
 
             // Property Write: availableResourceLevel
             tracedThing.setPropertyWriteHandler(
-                "availableResourceLevel", 
+                "availableResourceLevel",
                 "updateResourceLevel",
                 async (val, options) => {
                     const logic = createTracedLogic("updateResourceLevel");
-                    
+
                     await logic.execute(async () => {
                         // Parse and validate resource data
                         const { resourceId, newLevel } = await logic.withProcessing(
@@ -356,14 +336,14 @@ servient
                             async () => {
                                 const resourceId = options?.uriVariables?.id as string;
                                 const newLevel = (await (val as any).value()) as number;
-                                
+
                                 if (!resourceId || !(resourceId in allAvailableResources)) {
                                     throw new Error(`Invalid resource ID: ${resourceId}`);
                                 }
                                 if (typeof newLevel !== "number" || newLevel < 0 || newLevel > 100) {
                                     throw new Error(`Invalid level for ${resourceId}: ${newLevel}`);
                                 }
-                                
+
                                 return { resourceId, newLevel };
                             },
                             {
@@ -412,198 +392,206 @@ servient
                 }
             );
 
-            // Action: makeDrink  
-            tracedThing.setActionHandler(
-                "makeDrink",
-                "makeDrink",
-                async (params, options) => {
-                    const logic = createTracedLogic("makeDrink");
-                    
-                    return await logic.execute(async () => {
-                        // Parse parameters with defaults
-                        const { drinkId, size, quantity } = await logic.withProcessing(
-                            "parsing.extractDrinkParameters",
-                            async () => {
-                                const drinkId = options?.uriVariables?.drinkId ?? "americano";
-                                const size = options?.uriVariables?.size ?? "m";
-                                const quantity = options?.uriVariables?.quantity ?? 1;
-                                return { drinkId, size, quantity };
-                            },
-                            {
-                                "parsing.operation": "drink_parameters",
-                                "defaults.applied": true,
-                            }
-                        );
+            // Action: makeDrink
+            tracedThing.setActionHandler("makeDrink", "makeDrink", async (params, options) => {
+                const logic = createTracedLogic("makeDrink");
 
-                        // Load drink recipes and configuration
-                        const { drinkRecipes, sizeQuantifiers } = await logic.withDatabase(
-                            "select",
-                            "recipes",
-                            async () => {
-                                // Define recipes and quantifiers (would come from database in real system)
-                                const sizeQuantifiers: Record<string, number> = { s: 0.1, m: 0.2, l: 0.3 };
-                                const drinkRecipes: Record<string, Record<string, number>> = {
-                                    espresso: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 2 },
-                                    americano: { water: 2, milk: 0, chocolate: 0, coffeeBeans: 2 },
-                                    cappuccino: { water: 1, milk: 1, chocolate: 0, coffeeBeans: 2 },
-                                    latte: { water: 1, milk: 2, chocolate: 0, coffeeBeans: 2 },
-                                    hotChocolate: { water: 0, milk: 0, chocolate: 1, coffeeBeans: 0 },
-                                    hotWater: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 0 },
-                                };
-                                return { drinkRecipes, sizeQuantifiers };
-                            }
-                        );
+                return await logic.execute(async () => {
+                    // Parse parameters with defaults
+                    const { drinkId, size, quantity } = await logic.withProcessing(
+                        "parsing.extractDrinkParameters",
+                        async () => {
+                            const drinkId = options?.uriVariables?.drinkId ?? "americano";
+                            const size = options?.uriVariables?.size ?? "m";
+                            const quantity = options?.uriVariables?.quantity ?? 1;
+                            return { drinkId, size, quantity };
+                        },
+                        {
+                            "parsing.operation": "drink_parameters",
+                            "defaults.applied": true,
+                        }
+                    );
 
-                        // Validate drink availability
-                        await logic.withValidation("drinkAvailability", drinkId, async () => {
-                            if (!drinkRecipes[drinkId]) {
-                                throw new Error(`Drink ${drinkId} is not available`);
-                            }
-                            if (!sizeQuantifiers[size]) {
-                                throw new Error(`Size ${size} is not valid`);
-                            }
-                            if (quantity < 1 || quantity > 5) {
-                                throw new Error(`Quantity ${quantity} is not valid (must be 1-5)`);
-                            }
-                        });
+                    // Load drink recipes and configuration
+                    const { drinkRecipes, sizeQuantifiers } = await logic.withDatabase(
+                        "select",
+                        "recipes",
+                        async () => {
+                            // Define recipes and quantifiers (would come from database in real system)
+                            const sizeQuantifiers: Record<string, number> = { s: 0.1, m: 0.2, l: 0.3 };
+                            const drinkRecipes: Record<string, Record<string, number>> = {
+                                espresso: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 2 },
+                                americano: { water: 2, milk: 0, chocolate: 0, coffeeBeans: 2 },
+                                cappuccino: { water: 1, milk: 1, chocolate: 0, coffeeBeans: 2 },
+                                latte: { water: 1, milk: 2, chocolate: 0, coffeeBeans: 2 },
+                                hotChocolate: { water: 0, milk: 0, chocolate: 1, coffeeBeans: 0 },
+                                hotWater: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 0 },
+                            };
+                            return { drinkRecipes, sizeQuantifiers };
+                        }
+                    );
 
-                        // Get current resources
-                        const currentResources = await logic.withDatabase("select", "resources", async () => {
-                            return { ...allAvailableResources };
-                        });
-
-                        // Calculate resource consumption
-                        const newResources = await logic.withProcessing(
-                            "calculate.resourceConsumption",
-                            async () => {
-                                const newResources = Object.assign({}, currentResources);
-                                const recipe = drinkRecipes[drinkId];
-                                const sizeMultiplier = sizeQuantifiers[size];
-
-                                newResources.water -= Math.ceil(quantity * sizeMultiplier * recipe.water);
-                                newResources.milk -= Math.ceil(quantity * sizeMultiplier * recipe.milk);
-                                newResources.chocolate -= Math.ceil(quantity * sizeMultiplier * recipe.chocolate);
-                                newResources.coffeeBeans -= Math.ceil(quantity * sizeMultiplier * recipe.coffeeBeans);
-
-                                return newResources;
-                            },
-                            {
-                                "drink.id": drinkId,
-                                "drink.size": size,
-                                "drink.quantity": quantity,
-                                "calculation.type": "resource_consumption",
-                            }
-                        );
-
-                        // Validate resource availability and emit events if needed
-                        await logic.withValidation("resourceAvailability", newResources, async () => {
-                            const insufficientResources: string[] = [];
-                            for (const [resource, level] of Object.entries(newResources)) {
-                                if (level < 0) {
-                                    insufficientResources.push(resource);
-                                }
-                            }
-                            
-                            if (insufficientResources.length > 0) {
-                                // Emit outOfResource event before throwing error
-                                await logic.withProcessing("event.outOfResource", async () => {
-                                    const eventData = `Insufficient resources: ${insufficientResources.join(", ")} for making ${quantity} ${size} ${drinkId}(s)`;
-                                    tracedEventHandler("outOfResource", (data) =>
-                                        thing.emitEvent("outOfResource", data)
-                                    )(eventData);
-                                });
-                                
-                                throw new Error(`Insufficient ${insufficientResources[0]} for making ${quantity} ${size} ${drinkId}(s)`);
-                            }
-                        });
-
-                        // Update resources and increment counter
-                        await logic.withDatabase("update", "all_resources", async () => {
-                            Object.assign(allAvailableResources, newResources);
-                            servedCounter += quantity;
-                        });
-
-                        // Simulate brewing process
-                        await logic.withProcessing(
-                            "brewing.process",
-                            async () => {
-                                // Simulate brewing time
-                                await new Promise(resolve => setTimeout(resolve, 1000));
-                                return `Successfully brewed ${quantity} ${size} ${drinkId}(s)`;
-                            },
-                            {
-                                "brewing.drink": drinkId,
-                                "brewing.quantity": quantity,
-                                "brewing.size": size,
-                                "brewing.duration_ms": 1000,
-                            }
-                        );
-
-                        return {
-                            result: true,
-                            message: `Enjoy your ${quantity} ${size} ${drinkId}(s)!`,
-                        };
+                    // Validate drink availability
+                    await logic.withValidation("drinkAvailability", drinkId, async () => {
+                        if (!drinkRecipes[drinkId]) {
+                            throw new Error(`Drink ${drinkId} is not available`);
+                        }
+                        if (!sizeQuantifiers[size]) {
+                            throw new Error(`Size ${size} is not valid`);
+                        }
+                        if (quantity < 1 || quantity > 5) {
+                            throw new Error(`Quantity ${quantity} is not valid (must be 1-5)`);
+                        }
                     });
-                }
-            );
+
+                    // Get current resources
+                    const currentResources = await logic.withDatabase("select", "resources", async () => {
+                        return { ...allAvailableResources };
+                    });
+
+                    // Calculate resource consumption
+                    const newResources = await logic.withProcessing(
+                        "calculate.resourceConsumption",
+                        async () => {
+                            const newResources = Object.assign({}, currentResources);
+                            const recipe = drinkRecipes[drinkId];
+                            const sizeMultiplier = sizeQuantifiers[size];
+
+                            newResources.water -= Math.ceil(quantity * sizeMultiplier * recipe.water);
+                            newResources.milk -= Math.ceil(quantity * sizeMultiplier * recipe.milk);
+                            newResources.chocolate -= Math.ceil(quantity * sizeMultiplier * recipe.chocolate);
+                            newResources.coffeeBeans -= Math.ceil(quantity * sizeMultiplier * recipe.coffeeBeans);
+
+                            return newResources;
+                        },
+                        {
+                            "drink.id": drinkId,
+                            "drink.size": size,
+                            "drink.quantity": quantity,
+                            "calculation.type": "resource_consumption",
+                        }
+                    );
+
+                    // Validate resource availability and emit events if needed
+                    await logic.withValidation("resourceAvailability", newResources, async () => {
+                        const insufficientResources: string[] = [];
+                        for (const [resource, level] of Object.entries(newResources)) {
+                            if (level < 0) {
+                                insufficientResources.push(resource);
+                            }
+                        }
+
+                        if (insufficientResources.length > 0) {
+                            // Emit outOfResource event before throwing error
+                            await logic.withProcessing("event.outOfResource", async () => {
+                                const eventData = `Insufficient resources: ${insufficientResources.join(", ")} for making ${quantity} ${size} ${drinkId}(s)`;
+                                tracedEventHandler("outOfResource", (data) => thing.emitEvent("outOfResource", data))(
+                                    eventData
+                                );
+                            });
+
+                            throw new Error(
+                                `Insufficient ${insufficientResources[0]} for making ${quantity} ${size} ${drinkId}(s)`
+                            );
+                        }
+                    });
+
+                    // Update resources and increment counter
+                    await logic.withDatabase("update", "all_resources", async () => {
+                        Object.assign(allAvailableResources, newResources);
+                        servedCounter += quantity;
+                    });
+
+                    // Simulate brewing process
+                    await logic.withProcessing(
+                        "brewing.process",
+                        async () => {
+                            // Simulate brewing time
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                            return `Successfully brewed ${quantity} ${size} ${drinkId}(s)`;
+                        },
+                        {
+                            "brewing.drink": drinkId,
+                            "brewing.quantity": quantity,
+                            "brewing.size": size,
+                            "brewing.duration_ms": 1000,
+                        }
+                    );
+
+                    return {
+                        result: true,
+                        message: `Enjoy your ${quantity} ${size} ${drinkId}(s)!`,
+                    };
+                });
+            });
 
             // Action: setSchedule
-            tracedThing.setActionHandler(
-                "setSchedule",
-                "setSchedule", 
-                async (params) => {
-                    const logic = createTracedLogic("setSchedule");
-                    
-                    return await logic.execute(async () => {
-                        // Parse and validate schedule data
-                        const scheduleData = await logic.withProcessing(
-                            "parsing.extractScheduleData",
-                            async () => {
-                                const data = await (params as any)?.value();
-                                return {
-                                    drinkId: data?.drinkId ?? "americano",
-                                    size: data?.size ?? "m", 
-                                    quantity: data?.quantity ?? 1,
-                                    time: data?.time,
-                                    mode: data?.mode,
-                                };
-                            },
-                            {
-                                "parsing.operation": "schedule_extraction",
-                            }
-                        );
+            tracedThing.setActionHandler("setSchedule", "setSchedule", async (params) => {
+                const logic = createTracedLogic("setSchedule");
 
-                        // Validate required fields and format
-                        await logic.withValidation("scheduleData", scheduleData, async () => {
-                            if (!scheduleData.time || !scheduleData.mode) {
-                                throw new Error("Time and mode are required for scheduling");
-                            }
-                            
-                            // Validate time format (HH:MM in 24-hour format)
-                            const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-                            if (!timeRegex.test(scheduleData.time)) {
-                                throw new Error(`Invalid time format: ${scheduleData.time}. Expected HH:MM (24-hour format)`);
-                            }
-                            
-                            // Validate mode
-                            const validModes = ["once", "everyday", "everyMo", "everyTu", "everyWe", "everyTh", "everyFr", "everySat", "everySun"];
-                            if (!validModes.includes(scheduleData.mode)) {
-                                throw new Error(`Invalid mode: ${scheduleData.mode}. Must be one of: ${validModes.join(", ")}`);
-                            }
-                        });
+                return await logic.execute(async () => {
+                    // Parse and validate schedule data
+                    const scheduleData = await logic.withProcessing(
+                        "parsing.extractScheduleData",
+                        async () => {
+                            const data = await (params as any)?.value();
+                            return {
+                                drinkId: data?.drinkId ?? "americano",
+                                size: data?.size ?? "m",
+                                quantity: data?.quantity ?? 1,
+                                time: data?.time,
+                                mode: data?.mode,
+                            };
+                        },
+                        {
+                            "parsing.operation": "schedule_extraction",
+                        }
+                    );
 
-                        // Add schedule to database
-                        await logic.withDatabase("insert", "schedules", async () => {
-                            schedules.push(scheduleData);
-                        });
+                    // Validate required fields and format
+                    await logic.withValidation("scheduleData", scheduleData, async () => {
+                        if (!scheduleData.time || !scheduleData.mode) {
+                            throw new Error("Time and mode are required for scheduling");
+                        }
 
-                        return {
-                            result: true,
-                            message: `Schedule set for ${scheduleData.time} (${scheduleData.mode})`,
-                        };
+                        // Validate time format (HH:MM in 24-hour format)
+                        const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+                        if (!timeRegex.test(scheduleData.time)) {
+                            throw new Error(
+                                `Invalid time format: ${scheduleData.time}. Expected HH:MM (24-hour format)`
+                            );
+                        }
+
+                        // Validate mode
+                        const validModes = [
+                            "once",
+                            "everyday",
+                            "everyMo",
+                            "everyTu",
+                            "everyWe",
+                            "everyTh",
+                            "everyFr",
+                            "everySat",
+                            "everySun",
+                        ];
+                        if (!validModes.includes(scheduleData.mode)) {
+                            throw new Error(
+                                `Invalid mode: ${scheduleData.mode}. Must be one of: ${validModes.join(", ")}`
+                            );
+                        }
                     });
-                }
-            );
+
+                    // Add schedule to database
+                    await logic.withDatabase("insert", "schedules", async () => {
+                        schedules.push(scheduleData);
+                    });
+
+                    return {
+                        result: true,
+                        message: `Schedule set for ${scheduleData.time} (${scheduleData.mode})`,
+                    };
+                });
+            });
 
             thing.expose().then(() => {
                 console.info(`${(thingDescription as any).title} ready`);
