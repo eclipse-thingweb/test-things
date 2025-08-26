@@ -15,6 +15,7 @@
 
 import * as chai from "chai";
 import * as http from "http";
+// eslint-disable-next-line workspaces/no-relative-imports, workspaces/require-dependency
 import { getTDValidate } from "../../../../../util/util";
 import { ValidateFunction } from "ajv";
 import { port } from "./fixtures";

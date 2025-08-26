@@ -101,8 +101,8 @@ services:
             - things_network
     http-advanced-coffee-machine:
         build:
-            context: ./things/advanced-coffee-machine
-            dockerfile: ./http/ts/Dockerfile
+            context: .
+            dockerfile: ./things/advanced-coffee-machine/http/ts/Dockerfile
         labels:
             - traefik.http.routers.http-advanced-coffee-machine.rule=PathPrefix(`/http-advanced-coffee-machine`)
             - traefik.http.services.http-advanced-coffee-machine.loadbalancer.server.port=${WEB_PORT_OUT}

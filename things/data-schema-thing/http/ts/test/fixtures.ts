@@ -14,6 +14,7 @@
  ********************************************************************************/
 
 import { ChildProcess } from "child_process";
+// eslint-disable-next-line workspaces/no-relative-imports, workspaces/require-dependency
 import { getInitiateMain, ThingStartResponse } from "../../../../../util/util";
 import path from "path";
 
