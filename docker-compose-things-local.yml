@@ -129,7 +129,7 @@ services:
     counter-thing:
         build:
             context: ./things/counter-thing
-            dockerfile: Dockerfile
+            dockerfile: ./http/ts/Dockerfile
         labels:
             - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter-thing`)
             - traefik.http.services.counter-thing.loadbalancer.server.port=${WEB_PORT_OUT}
