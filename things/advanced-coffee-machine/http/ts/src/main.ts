@@ -28,7 +28,7 @@ import dotenv from "dotenv";
 // eslint-disable-next-line workspaces/no-relative-imports, workspaces/require-dependency
 import { initTracing, tracedEventHandler } from "../../../../../util/dist/tracing";
 // eslint-disable-next-line workspaces/no-relative-imports, workspaces/require-dependency
-import { createAutoTracedThing, createTracedLogic } from "../../../../../util/dist/auto-tracing";
+import { createAutoTracedThing, TracedBusinessLogic } from "../../../../../util/dist/auto-tracing";
 
 dotenv.config();
 
@@ -149,43 +149,39 @@ servient
             tracedThing.setPropertyReadHandler(
                 "allAvailableResources",
                 "getAllResources",
-                async (options?: WoT.InteractionOptions) => {
-                    const logic = createTracedLogic("getAllResources");
-
-                    return await logic.execute(async () => {
-                        // Validate resource data integrity
-                        await logic.withValidation("resourceData", allAvailableResources, async () => {
-                            const requiredResources = ["water", "milk", "chocolate", "coffeeBeans"];
-                            for (const resource of requiredResources) {
-                                if (!(resource in allAvailableResources)) {
-                                    throw new Error(`Missing required resource: ${resource}`);
-                                }
-                                if (typeof allAvailableResources[resource] !== "number") {
-                                    throw new Error(`Invalid resource level for ${resource}`);
-                                }
+                async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
+                    // Validate resource data integrity
+                    await logic.withValidation("resourceData", allAvailableResources, async () => {
+                        const requiredResources = ["water", "milk", "chocolate", "coffeeBeans"];
+                        for (const resource of requiredResources) {
+                            if (!(resource in allAvailableResources)) {
+                                throw new Error(`Missing required resource: ${resource}`);
                             }
-                        });
-
-                        // Read sensor data for real-time validation
-                        await logic.withProcessing(
-                            "sensors.readAll",
-                            async () => {
-                                const readings: Record<string, number> = {};
-                                for (const resource of Object.keys(allAvailableResources)) {
-                                    readings[resource] = readFromSensor(resource);
-                                }
-                                return readings;
-                            },
-                            {
-                                "sensor.count": Object.keys(allAvailableResources).length,
-                                "sensor.type": "resource_level",
+                            if (typeof allAvailableResources[resource] !== "number") {
+                                throw new Error(`Invalid resource level for ${resource}`);
                             }
-                        );
+                        }
+                    });
 
-                        // Compare and sync with database
-                        return await logic.withDatabase("select", "resource_levels", async () => {
-                            return { ...allAvailableResources };
-                        });
+                    // Read sensor data for real-time validation
+                    await logic.withProcessing(
+                        "sensors.readAll",
+                        async () => {
+                            const readings: Record<string, number> = {};
+                            for (const resource of Object.keys(allAvailableResources)) {
+                                readings[resource] = readFromSensor(resource);
+                            }
+                            return readings;
+                        },
+                        {
+                            "sensor.count": Object.keys(allAvailableResources).length,
+                            "sensor.type": "resource_level",
+                        }
+                    );
+
+                    // Compare and sync with database
+                    return await logic.withDatabase("select", "resource_levels", async () => {
+                        return { ...allAvailableResources };
                     });
                 }
             );
@@ -194,41 +190,37 @@ servient
             tracedThing.setPropertyReadHandler(
                 "possibleDrinks",
                 "getPossibleDrinks",
-                async (options?: WoT.InteractionOptions) => {
-                    const logic = createTracedLogic("getPossibleDrinks");
-
-                    return await logic.execute(async () => {
-                        // Validate drink catalog integrity
-                        await logic.withValidation("drinkCatalog", possibleDrinks, async () => {
-                            if (!Array.isArray(possibleDrinks)) {
-                                throw new Error("Drink catalog is corrupted");
-                            }
-                            if (possibleDrinks.length === 0) {
-                                throw new Error("No drinks available in catalog");
-                            }
-                        });
-
-                        // Load drink availability from database
-                        const availabilityMap = await logic.withDatabase("select", "drink_availability", async () => {
-                            const availability: Record<string, boolean> = {};
-                            for (const drink of possibleDrinks) {
-                                availability[drink] = true;
-                            }
-                            return availability;
-                        });
-
-                        // Filter available drinks based on current resources
-                        return await logic.withProcessing(
-                            "processing.filterAvailableDrinks",
-                            async () => {
-                                return possibleDrinks.filter((drink) => availabilityMap[drink] !== false);
-                            },
-                            {
-                                "drinks.total": possibleDrinks.length,
-                                "filtering.criteria": "resource_availability",
-                            }
-                        );
+                async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
+                    // Validate drink catalog integrity
+                    await logic.withValidation("drinkCatalog", possibleDrinks, async () => {
+                        if (!Array.isArray(possibleDrinks)) {
+                            throw new Error("Drink catalog is corrupted");
+                        }
+                        if (possibleDrinks.length === 0) {
+                            throw new Error("No drinks available in catalog");
+                        }
                     });
+
+                    // Load drink availability from database
+                    const availabilityMap = await logic.withDatabase("select", "drink_availability", async () => {
+                        const availability: Record<string, boolean> = {};
+                        for (const drink of possibleDrinks) {
+                            availability[drink] = true;
+                        }
+                        return availability;
+                    });
+
+                    // Filter available drinks based on current resources
+                    return await logic.withProcessing(
+                        "processing.filterAvailableDrinks",
+                        async () => {
+                            return possibleDrinks.filter((drink) => availabilityMap[drink] !== false);
+                        },
+                        {
+                            "drinks.total": possibleDrinks.length,
+                            "filtering.criteria": "resource_availability",
+                        }
+                    );
                 }
             );
 
@@ -243,30 +235,26 @@ servient
             tracedThing.setPropertyReadHandler(
                 "availableResourceLevel",
                 "getResourceLevel",
-                async (options?: WoT.InteractionOptions) => {
-                    const logic = createTracedLogic("getResourceLevel");
-
-                    return await logic.execute(async () => {
-                        // Parse resource ID from URI variables
-                        const resourceId = await logic.withProcessing(
-                            "parsing.extractResourceId",
-                            async () => {
-                                const resourceId = (options?.uriVariables as Record<string, string>)?.id;
-                                if (!resourceId || !(resourceId in allAvailableResources)) {
-                                    throw new Error(`Invalid resource ID: ${resourceId}`);
-                                }
-                                return resourceId;
-                            },
-                            {
-                                "resource.id": (options?.uriVariables as Record<string, string>)?.id ?? "unknown",
-                                "parsing.operation": "resource_id_extraction",
+                async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
+                    // Parse resource ID from URI variables
+                    const resourceId = await logic.withProcessing(
+                        "parsing.extractResourceId",
+                        async () => {
+                            const resourceId = (options?.uriVariables as Record<string, string>)?.id;
+                            if (!resourceId || !(resourceId in allAvailableResources)) {
+                                throw new Error(`Invalid resource ID: ${resourceId}`);
                             }
-                        );
+                            return resourceId;
+                        },
+                        {
+                            "resource.id": (options?.uriVariables as Record<string, string>)?.id ?? "unknown",
+                            "parsing.operation": "resource_id_extraction",
+                        }
+                    );
 
-                        // Get resource level from database
-                        return await logic.withDatabase("select", "resource_levels", async () => {
-                            return allAvailableResources[resourceId];
-                        });
+                    // Get resource level from database
+                    return await logic.withDatabase("select", "resource_levels", async () => {
+                        return allAvailableResources[resourceId];
                     });
                 }
             );
@@ -275,34 +263,30 @@ servient
             tracedThing.setPropertyReadHandler(
                 "schedules",
                 "getSchedules",
-                async (options?: WoT.InteractionOptions) => {
-                    const logic = createTracedLogic("getSchedules");
-
-                    return await logic.execute(async () => {
-                        // Validate system state
-                        await logic.withValidation("systemState", { schedulesLength: schedules.length }, async () => {
-                            if (!Array.isArray(schedules)) {
-                                throw new Error("Schedules data structure is corrupted");
-                            }
-                        });
-
-                        // Load schedules from database
-                        const result = await logic.withDatabase("select", "schedules", async () => {
-                            return schedules;
-                        });
-
-                        // Process and filter active schedules
-                        return await logic.withProcessing(
-                            "processing.filterActiveSchedules",
-                            async () => {
-                                return result.filter((schedule: unknown) => true); // For demo, all schedules are active
-                            },
-                            {
-                                "schedules.count": schedules.length,
-                                "query.time": new Date().toISOString(),
-                            }
-                        );
+                async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
+                    // Validate system state
+                    await logic.withValidation("systemState", { schedulesLength: schedules.length }, async () => {
+                        if (!Array.isArray(schedules)) {
+                            throw new Error("Schedules data structure is corrupted");
+                        }
                     });
+
+                    // Load schedules from database
+                    const result = await logic.withDatabase("select", "schedules", async () => {
+                        return schedules;
+                    });
+
+                    // Process and filter active schedules
+                    return await logic.withProcessing(
+                        "processing.filterActiveSchedules",
+                        async () => {
+                            return result.filter((schedule: unknown) => true); // For demo, all schedules are active
+                        },
+                        {
+                            "schedules.count": schedules.length,
+                            "query.time": new Date().toISOString(),
+                        }
+                    );
                 }
             );
 
@@ -310,59 +294,55 @@ servient
             tracedThing.setPropertyWriteHandler(
                 "servedCounter",
                 "updateServedCounter",
-                async (val: WoT.InteractionInput) => {
-                    const logic = createTracedLogic("updateServedCounter");
+                async (logic: TracedBusinessLogic, val: WoT.InteractionInput) => {
+                    // Validate input
+                    await logic.withValidation("counterInput", val, async () => {
+                        if (val === null || val === undefined) {
+                            throw new Error("No value provided for servedCounter");
+                        }
+                    });
 
-                    await logic.execute(async () => {
-                        // Validate input
-                        await logic.withValidation("counterInput", val, async () => {
+                    // Parse and validate the new counter value
+                    const newCounterValue = await logic.withProcessing(
+                        "parsing.extractCounterValue",
+                        async () => {
                             if (val === null || val === undefined) {
                                 throw new Error("No value provided for servedCounter");
                             }
-                        });
+                            // Type guard and extraction for WoT InteractionInput
+                            const value = await extractWoTValue(val);
 
-                        // Parse and validate the new counter value
-                        const newCounterValue = await logic.withProcessing(
-                            "parsing.extractCounterValue",
-                            async () => {
-                                if (val === null || val === undefined) {
-                                    throw new Error("No value provided for servedCounter");
-                                }
-                                // Type guard and extraction for WoT InteractionInput
-                                const value = await extractWoTValue(val);
-
-                                if (typeof value !== "number" || value < 0) {
-                                    throw new Error(`Invalid served counter value: ${value}`);
-                                }
-                                return value;
-                            },
-                            {
-                                "input.type": typeof val,
-                                "parsing.operation": "counter_extraction",
+                            if (typeof value !== "number" || value < 0) {
+                                throw new Error(`Invalid served counter value: ${value}`);
                             }
-                        );
+                            return value;
+                        },
+                        {
+                            "input.type": typeof val,
+                            "parsing.operation": "counter_extraction",
+                        }
+                    );
 
-                        // Update counter in database
-                        await logic.withDatabase("update", "counters", async () => {
-                            servedCounter = newCounterValue;
-                        });
+                    // Update counter in database
+                    await logic.withDatabase("update", "counters", async () => {
+                        servedCounter = newCounterValue;
+                    });
 
-                        // Check maintenance threshold and trigger events if needed
-                        await logic.withProcessing("business.checkMaintenanceThreshold", async () => {
-                            if (servedCounter > 1000) {
-                                // Update maintenance status
-                                await logic.withDatabase("update", "maintenance_status", async () => {
-                                    maintenanceNeeded = true;
-                                });
+                    // Check maintenance threshold and trigger events if needed
+                    await logic.withProcessing("business.checkMaintenanceThreshold", async () => {
+                        if (servedCounter > 1000) {
+                            // Update maintenance status
+                            await logic.withDatabase("update", "maintenance_status", async () => {
+                                maintenanceNeeded = true;
+                            });
 
-                                // Emit maintenance event
-                                await logic.withProcessing("event.maintenanceNeeded", async () => {
-                                    tracedEventHandler("maintenanceNeeded", (data: WoT.InteractionInput) =>
-                                        thing.emitPropertyChange("maintenanceNeeded")
-                                    )(maintenanceNeeded);
-                                });
-                            }
-                        });
+                            // Emit maintenance event
+                            await logic.withProcessing("event.maintenanceNeeded", async () => {
+                                tracedEventHandler("maintenanceNeeded", (data: WoT.InteractionInput) =>
+                                    thing.emitPropertyChange("maintenanceNeeded")
+                                )(maintenanceNeeded);
+                            });
+                        }
                     });
                 }
             );
@@ -371,75 +351,71 @@ servient
             tracedThing.setPropertyWriteHandler(
                 "availableResourceLevel",
                 "updateResourceLevel",
-                async (val: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
-                    const logic = createTracedLogic("updateResourceLevel");
-
-                    await logic.execute(async () => {
-                        // Parse and validate resource ID and new level
-                        const { resourceId, newLevel } = await logic.withProcessing(
-                            "parsing.extractResourceParameters",
-                            async () => {
-                                const resourceId = (options?.uriVariables as Record<string, string>)?.id;
-                                if (!resourceId || !(resourceId in allAvailableResources)) {
-                                    throw Error("Please specify id variable as uriVariables.");
-                                }
-
-                                if (val === null || val === undefined) {
-                                    throw new Error("No value provided for availableResourceLevel");
-                                }
-
-                                // Type guard and extraction for WoT InteractionInput
-                                const newLevel = await extractWoTValue(val);
-
-                                if (typeof newLevel !== "number" || newLevel < 0 || newLevel > 100) {
-                                    throw new Error(`Invalid level for ${resourceId}: ${newLevel}`);
-                                }
-
-                                return { resourceId, newLevel };
-                            },
-                            {
-                                "resource.id": "dynamic",
-                                "parsing.operation": "resource_extraction",
+                async (logic: TracedBusinessLogic, val: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
+                    // Parse and validate resource ID and new level
+                    const { resourceId, newLevel } = await logic.withProcessing(
+                        "parsing.extractResourceParameters",
+                        async () => {
+                            const resourceId = (options?.uriVariables as Record<string, string>)?.id;
+                            if (!resourceId || !(resourceId in allAvailableResources)) {
+                                throw Error("Please specify id variable as uriVariables.");
                             }
-                        );
 
-                        // Calculate level change
-                        await logic.withProcessing(
-                            "calculate.levelChange",
-                            async () => {
-                                const currentLevel = allAvailableResources[resourceId];
-                                const levelChange = newLevel - currentLevel;
-                                return {
-                                    previous: currentLevel,
-                                    new: newLevel,
-                                    change: levelChange,
-                                    changeType:
-                                        levelChange > 0 ? "refill" : levelChange < 0 ? "consumption" : "no_change",
-                                };
-                            },
-                            {
-                                "resource.id": resourceId,
-                                "calculation.type": "level_change",
+                            if (val === null || val === undefined) {
+                                throw new Error("No value provided for availableResourceLevel");
                             }
-                        );
 
-                        // Update resource level in database
-                        await logic.withDatabase("update", "resource_levels", async () => {
-                            allAvailableResources[resourceId] = newLevel;
-                        });
+                            // Type guard and extraction for WoT InteractionInput
+                            const newLevel = await extractWoTValue(val);
 
-                        // Check for low resource alerts
-                        await logic.withProcessing("business.checkResourceThresholds", async () => {
-                            if (newLevel <= 10) {
-                                // Emit low resource event
-                                await logic.withProcessing("event.lowResource", async () => {
-                                    const eventData = `Low level of ${resourceId}: ${newLevel}%`;
-                                    tracedEventHandler("outOfResource", (data: WoT.InteractionInput) =>
-                                        thing.emitEvent("outOfResource", data)
-                                    )(eventData);
-                                });
+                            if (typeof newLevel !== "number" || newLevel < 0 || newLevel > 100) {
+                                throw new Error(`Invalid level for ${resourceId}: ${newLevel}`);
                             }
-                        });
+
+                            return { resourceId, newLevel };
+                        },
+                        {
+                            "resource.id": "dynamic",
+                            "parsing.operation": "resource_extraction",
+                        }
+                    );
+
+                    // Calculate level change
+                    await logic.withProcessing(
+                        "calculate.levelChange",
+                        async () => {
+                            const currentLevel = allAvailableResources[resourceId];
+                            const levelChange = newLevel - currentLevel;
+                            return {
+                                previous: currentLevel,
+                                new: newLevel,
+                                change: levelChange,
+                                changeType:
+                                    levelChange > 0 ? "refill" : levelChange < 0 ? "consumption" : "no_change",
+                            };
+                        },
+                        {
+                            "resource.id": resourceId,
+                            "calculation.type": "level_change",
+                        }
+                    );
+
+                    // Update resource level in database
+                    await logic.withDatabase("update", "resource_levels", async () => {
+                        allAvailableResources[resourceId] = newLevel;
+                    });
+
+                    // Check for low resource alerts
+                    await logic.withProcessing("business.checkResourceThresholds", async () => {
+                        if (newLevel <= 10) {
+                            // Emit low resource event
+                            await logic.withProcessing("event.lowResource", async () => {
+                                const eventData = `Low level of ${resourceId}: ${newLevel}%`;
+                                tracedEventHandler("outOfResource", (data: WoT.InteractionInput) =>
+                                    thing.emitEvent("outOfResource", data)
+                                )(eventData);
+                            });
+                        }
                     });
                 }
             );
@@ -448,11 +424,8 @@ servient
             tracedThing.setActionHandler(
                 "makeDrink",
                 "makeDrink",
-                async (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
-                    const logic = createTracedLogic("makeDrink");
-
-                    return await logic.execute(async () => {
-                        // Parse parameters with defaults
+                async (logic: TracedBusinessLogic, params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
+                    // Parse parameters with defaults
                         const { drinkId, size, quantity } = await logic.withProcessing(
                             "parsing.extractDrinkParameters",
                             async () => {
@@ -574,20 +547,16 @@ servient
                             }
                         );
 
-                        return {
-                            result: true,
-                            message: `Enjoy your ${quantity} ${size} ${drinkId}(s)!`,
-                        };
-                    });
+                    return {
+                        result: true,
+                        message: `Enjoy your ${quantity} ${size} ${drinkId}(s)!`,
+                    };
                 }
             );
 
             // Action: setSchedule
-            tracedThing.setActionHandler("setSchedule", "setSchedule", async (params?: WoT.InteractionInput) => {
-                const logic = createTracedLogic("setSchedule");
-
-                return await logic.execute(async () => {
-                    // Parse and validate schedule data
+            tracedThing.setActionHandler("setSchedule", "setSchedule", async (logic: TracedBusinessLogic, params?: WoT.InteractionInput) => {
+                // Parse and validate schedule data
                     const scheduleData = await logic.withProcessing(
                         "parsing.extractScheduleData",
                         async () => {
@@ -655,11 +624,10 @@ servient
                         schedules.push(scheduleData);
                     });
 
-                    return {
-                        result: true,
-                        message: `Schedule set for ${scheduleData.time} (${scheduleData.mode})`,
-                    };
-                });
+                return {
+                    result: true,
+                    message: `Schedule set for ${scheduleData.time} (${scheduleData.mode})`,
+                };
             });
 
             thing.expose().then(() => {
