@@ -69,6 +69,20 @@ If you are going to add a completely new Thing:
 2. Add your Thing Model under the previously created directory and name it such as `<your_thing_name>.tm.json`.
 3. Follow the steps above to add your protocol and programming language/framework.
 
+**TypeScript Tracing Integration:**
+Wrap your WoT Thing with auto-tracing to get detailed OpenTelemetry spans for validation, processing, and database operations:
+```typescript
+import { createAutoTracedThing, TracedBusinessLogic } from "../../util/dist/auto-tracing";
+const tracedThing = createAutoTracedThing(thing);
+
+// Enhanced tracing with injected logic
+tracedThing.setPropertyReadHandler("prop", "operation", 
+  async (logic: TracedBusinessLogic, options) => {
+    await logic.withValidation("type", data, async () => {});
+    return await logic.withDatabase("select", "table", async () => {});
+  });
+```
+
 ## Current Devices
 
 The table below contains the public base URIs of the Things used for protocol testing.
@@ -181,4 +195,6 @@ For Node.js-based devices, we use npm workspaces and running `npm install` at th
 
 ## Tracing
 
-Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:8084](http://localhost:8084) in your browser (Jaeger UI). Traces are sent to the Jaeger collector on port 14268.
+Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:8084](http://localhost:8084) in your browser (Jaeger UI). Traces are sent to the Jaeger collector on port 8085.
+
+Enhanced auto-tracing automatically injects `TracedBusinessLogic` for detailed span creation without redundancy. Function signatures determine tracing mode.
