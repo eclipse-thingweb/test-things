@@ -71,16 +71,16 @@ If you are going to add a completely new Thing:
 
 **TypeScript Tracing Integration:**
 Wrap your WoT Thing with auto-tracing to get detailed OpenTelemetry spans for validation, processing, and database operations:
+
 ```typescript
 import { createAutoTracedThing, TracedBusinessLogic } from "../../util/dist/auto-tracing";
 const tracedThing = createAutoTracedThing(thing);
 
 // Enhanced tracing with injected logic
-tracedThing.setPropertyReadHandler("prop", "operation", 
-  async (logic: TracedBusinessLogic, options) => {
+tracedThing.setPropertyReadHandler("prop", "operation", async (logic: TracedBusinessLogic, options) => {
     await logic.withValidation("type", data, async () => {});
     return await logic.withDatabase("select", "table", async () => {});
-  });
+});
 ```
 
 ## Current Devices

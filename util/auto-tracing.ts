@@ -260,7 +260,9 @@ export class AutoTracedThing {
     setPropertyReadHandler<T>(
         propertyName: string,
         businessLogicName: string,
-        businessLogic: ((options?: WoT.InteractionOptions) => Promise<T> | T) | ((logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => Promise<T> | T),
+        businessLogic:
+            | ((options?: WoT.InteractionOptions) => Promise<T> | T)
+            | ((logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => Promise<T> | T),
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
         let config = tracingConfig(businessLogicName);
@@ -269,14 +271,19 @@ export class AutoTracedThing {
         }
 
         // Check if businessLogic expects TracedBusinessLogic as first parameter
-        if (businessLogic.length >= 2 || (businessLogic.length === 1 && businessLogic.toString().includes('logic'))) {
+        if (businessLogic.length >= 2 || (businessLogic.length === 1 && businessLogic.toString().includes("logic"))) {
             // Enhanced version with TracedBusinessLogic injection
             this.thing.setPropertyReadHandler(
                 propertyName,
                 tracedPropertyReadHandler(propertyName, async (options) => {
                     const logic = createTracedLogic(businessLogicName);
                     return await logic.execute(async () => {
-                        return await (businessLogic as (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => Promise<T>)(logic, options);
+                        return await (
+                            businessLogic as (
+                                logic: TracedBusinessLogic,
+                                options?: WoT.InteractionOptions
+                            ) => Promise<T>
+                        )(logic, options);
                     });
                 }) as WoT.PropertyReadHandler
             );
@@ -284,7 +291,11 @@ export class AutoTracedThing {
             // Original version with config-based tracing
             this.thing.setPropertyReadHandler(
                 propertyName,
-                autoTracedPropertyRead(propertyName, config.build(), businessLogic as (options?: WoT.InteractionOptions) => Promise<T>) as WoT.PropertyReadHandler
+                autoTracedPropertyRead(
+                    propertyName,
+                    config.build(),
+                    businessLogic as (options?: WoT.InteractionOptions) => Promise<T>
+                ) as WoT.PropertyReadHandler
             );
         }
     }
@@ -299,14 +310,24 @@ export class AutoTracedThing {
     setPropertyWriteHandler(
         propertyName: string,
         businessLogicName: string,
-        businessLogic: (logic: TracedBusinessLogic, value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> | void,
+        businessLogic: (
+            logic: TracedBusinessLogic,
+            value: WoT.InteractionInput,
+            options?: WoT.InteractionOptions
+        ) => Promise<void> | void,
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void;
 
     setPropertyWriteHandler(
         propertyName: string,
         businessLogicName: string,
-        businessLogic: ((value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> | void) | ((logic: TracedBusinessLogic, value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> | void),
+        businessLogic:
+            | ((value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void> | void)
+            | ((
+                  logic: TracedBusinessLogic,
+                  value: WoT.InteractionInput,
+                  options?: WoT.InteractionOptions
+              ) => Promise<void> | void),
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
         let config = tracingConfig(businessLogicName);
@@ -315,14 +336,20 @@ export class AutoTracedThing {
         }
 
         // Check if businessLogic expects TracedBusinessLogic as first parameter
-        if (businessLogic.length >= 3 || (businessLogic.length >= 2 && businessLogic.toString().includes('logic'))) {
+        if (businessLogic.length >= 3 || (businessLogic.length >= 2 && businessLogic.toString().includes("logic"))) {
             // Enhanced version with TracedBusinessLogic injection
             this.thing.setPropertyWriteHandler(
                 propertyName,
                 tracedPropertyWriteHandler(propertyName, async (value, options) => {
                     const logic = createTracedLogic(businessLogicName);
                     return await logic.execute(async () => {
-                        return await (businessLogic as (logic: TracedBusinessLogic, value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void>)(logic, value, options);
+                        return await (
+                            businessLogic as (
+                                logic: TracedBusinessLogic,
+                                value: WoT.InteractionInput,
+                                options?: WoT.InteractionOptions
+                            ) => Promise<void>
+                        )(logic, value, options);
                     });
                 }) as WoT.PropertyWriteHandler
             );
@@ -330,7 +357,11 @@ export class AutoTracedThing {
             // Original version with config-based tracing
             this.thing.setPropertyWriteHandler(
                 propertyName,
-                autoTracedPropertyWrite(propertyName, config.build(), businessLogic as (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void>)
+                autoTracedPropertyWrite(
+                    propertyName,
+                    config.build(),
+                    businessLogic as (value: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<void>
+                )
             );
         }
     }
@@ -345,14 +376,24 @@ export class AutoTracedThing {
     setActionHandler<T>(
         actionName: string,
         businessLogicName: string,
-        businessLogic: (logic: TracedBusinessLogic, params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> | T,
+        businessLogic: (
+            logic: TracedBusinessLogic,
+            params?: WoT.InteractionInput,
+            options?: WoT.InteractionOptions
+        ) => Promise<T> | T,
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void;
-    
+
     setActionHandler<T>(
         actionName: string,
         businessLogicName: string,
-        businessLogic: ((params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> | T) | ((logic: TracedBusinessLogic, params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> | T),
+        businessLogic:
+            | ((params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T> | T)
+            | ((
+                  logic: TracedBusinessLogic,
+                  params?: WoT.InteractionInput,
+                  options?: WoT.InteractionOptions
+              ) => Promise<T> | T),
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
         let config = tracingConfig(businessLogicName);
@@ -361,14 +402,20 @@ export class AutoTracedThing {
         }
 
         // Check if businessLogic expects TracedBusinessLogic as first parameter
-        if (businessLogic.length >= 3 || (businessLogic.length >= 1 && businessLogic.toString().includes('logic'))) {
+        if (businessLogic.length >= 3 || (businessLogic.length >= 1 && businessLogic.toString().includes("logic"))) {
             // Enhanced version with TracedBusinessLogic injection
             this.thing.setActionHandler(
                 actionName,
                 tracedActionHandler(actionName, async (params, options) => {
                     const logic = createTracedLogic(businessLogicName);
                     return await logic.execute(async () => {
-                        return await (businessLogic as (logic: TracedBusinessLogic, params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T>)(logic, params, options);
+                        return await (
+                            businessLogic as (
+                                logic: TracedBusinessLogic,
+                                params?: WoT.InteractionInput,
+                                options?: WoT.InteractionOptions
+                            ) => Promise<T>
+                        )(logic, params, options);
                     });
                 }) as WoT.ActionHandler
             );
@@ -376,7 +423,11 @@ export class AutoTracedThing {
             // Original version with config-based tracing
             this.thing.setActionHandler(
                 actionName,
-                autoTracedAction(actionName, config.build(), businessLogic as (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T>) as WoT.ActionHandler
+                autoTracedAction(
+                    actionName,
+                    config.build(),
+                    businessLogic as (params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => Promise<T>
+                ) as WoT.ActionHandler
             );
         }
     }

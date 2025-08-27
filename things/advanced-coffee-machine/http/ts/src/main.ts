@@ -390,8 +390,7 @@ servient
                                 previous: currentLevel,
                                 new: newLevel,
                                 change: levelChange,
-                                changeType:
-                                    levelChange > 0 ? "refill" : levelChange < 0 ? "consumption" : "no_change",
+                                changeType: levelChange > 0 ? "refill" : levelChange < 0 ? "consumption" : "no_change",
                             };
                         },
                         {
@@ -426,126 +425,126 @@ servient
                 "makeDrink",
                 async (logic: TracedBusinessLogic, params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
                     // Parse parameters with defaults
-                        const { drinkId, size, quantity } = await logic.withProcessing(
-                            "parsing.extractDrinkParameters",
-                            async () => {
-                                const uriVars = options?.uriVariables as Record<string, unknown> | undefined;
-                                const drinkId = (uriVars?.drinkId as string) ?? "americano";
-                                const size = (uriVars?.size as string) ?? "m";
-                                const quantity = (uriVars?.quantity as number) ?? 1;
-                                return { drinkId, size, quantity };
-                            },
-                            {
-                                "parsing.operation": "drink_parameters",
-                                "defaults.applied": true,
+                    const { drinkId, size, quantity } = await logic.withProcessing(
+                        "parsing.extractDrinkParameters",
+                        async () => {
+                            const uriVars = options?.uriVariables as Record<string, unknown> | undefined;
+                            const drinkId = (uriVars?.drinkId as string) ?? "americano";
+                            const size = (uriVars?.size as string) ?? "m";
+                            const quantity = (uriVars?.quantity as number) ?? 1;
+                            return { drinkId, size, quantity };
+                        },
+                        {
+                            "parsing.operation": "drink_parameters",
+                            "defaults.applied": true,
+                        }
+                    );
+
+                    // Load drink recipes and configuration
+                    const { drinkRecipes, sizeQuantifiers } = await logic.withDatabase(
+                        "select",
+                        "recipes",
+                        async () => {
+                            // Define recipes and quantifiers (would come from database in real system)
+                            const sizeQuantifiers: Record<string, number> = { s: 0.1, m: 0.2, l: 0.3 };
+                            const drinkRecipes: Record<string, Record<string, number>> = {
+                                espresso: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 2 },
+                                americano: { water: 2, milk: 0, chocolate: 0, coffeeBeans: 2 },
+                                cappuccino: { water: 1, milk: 1, chocolate: 0, coffeeBeans: 2 },
+                                latte: { water: 1, milk: 2, chocolate: 0, coffeeBeans: 2 },
+                                hotChocolate: { water: 0, milk: 0, chocolate: 1, coffeeBeans: 0 },
+                                hotWater: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 0 },
+                            };
+                            return { drinkRecipes, sizeQuantifiers };
+                        }
+                    );
+
+                    // Validate drink availability
+                    await logic.withValidation("drinkAvailability", drinkId, async () => {
+                        if (drinkRecipes[drinkId] === undefined) {
+                            throw new Error(`Drink ${drinkId} is not available`);
+                        }
+                        if (sizeQuantifiers[size] === undefined) {
+                            throw new Error(`Size ${size} is not valid`);
+                        }
+                        if (quantity < 1 || quantity > 5) {
+                            throw new Error(`Quantity ${quantity} is not valid (must be 1-5)`);
+                        }
+                    });
+
+                    // Get current resources
+                    const currentResources = await logic.withDatabase("select", "resources", async () => {
+                        return { ...allAvailableResources };
+                    });
+
+                    // Calculate resource consumption
+                    const newResources = await logic.withProcessing(
+                        "calculate.resourceConsumption",
+                        async () => {
+                            const newResources = Object.assign({}, currentResources);
+                            const recipe = drinkRecipes[drinkId];
+                            const sizeMultiplier = sizeQuantifiers[size];
+
+                            newResources.water -= Math.ceil(quantity * sizeMultiplier * recipe.water);
+                            newResources.milk -= Math.ceil(quantity * sizeMultiplier * recipe.milk);
+                            newResources.chocolate -= Math.ceil(quantity * sizeMultiplier * recipe.chocolate);
+                            newResources.coffeeBeans -= Math.ceil(quantity * sizeMultiplier * recipe.coffeeBeans);
+
+                            return newResources;
+                        },
+                        {
+                            "drink.id": drinkId,
+                            "drink.size": size,
+                            "drink.quantity": quantity,
+                            "calculation.type": "resource_consumption",
+                        }
+                    );
+
+                    // Validate resource availability and emit events if needed
+                    await logic.withValidation("resourceAvailability", newResources, async () => {
+                        const insufficientResources: string[] = [];
+                        for (const [resource, level] of Object.entries(newResources)) {
+                            if (typeof level === "number" && level < 0) {
+                                insufficientResources.push(resource);
                             }
-                        );
+                        }
 
-                        // Load drink recipes and configuration
-                        const { drinkRecipes, sizeQuantifiers } = await logic.withDatabase(
-                            "select",
-                            "recipes",
-                            async () => {
-                                // Define recipes and quantifiers (would come from database in real system)
-                                const sizeQuantifiers: Record<string, number> = { s: 0.1, m: 0.2, l: 0.3 };
-                                const drinkRecipes: Record<string, Record<string, number>> = {
-                                    espresso: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 2 },
-                                    americano: { water: 2, milk: 0, chocolate: 0, coffeeBeans: 2 },
-                                    cappuccino: { water: 1, milk: 1, chocolate: 0, coffeeBeans: 2 },
-                                    latte: { water: 1, milk: 2, chocolate: 0, coffeeBeans: 2 },
-                                    hotChocolate: { water: 0, milk: 0, chocolate: 1, coffeeBeans: 0 },
-                                    hotWater: { water: 1, milk: 0, chocolate: 0, coffeeBeans: 0 },
-                                };
-                                return { drinkRecipes, sizeQuantifiers };
-                            }
-                        );
+                        if (insufficientResources.length > 0) {
+                            // Emit outOfResource event before throwing error
+                            await logic.withProcessing("event.outOfResource", async () => {
+                                const eventData = `Insufficient resources: ${insufficientResources.join(", ")} for making ${quantity} ${size} ${drinkId}(s)`;
+                                tracedEventHandler("outOfResource", (data: WoT.InteractionInput) =>
+                                    thing.emitEvent("outOfResource", data)
+                                )(eventData);
+                            });
 
-                        // Validate drink availability
-                        await logic.withValidation("drinkAvailability", drinkId, async () => {
-                            if (drinkRecipes[drinkId] === undefined) {
-                                throw new Error(`Drink ${drinkId} is not available`);
-                            }
-                            if (sizeQuantifiers[size] === undefined) {
-                                throw new Error(`Size ${size} is not valid`);
-                            }
-                            if (quantity < 1 || quantity > 5) {
-                                throw new Error(`Quantity ${quantity} is not valid (must be 1-5)`);
-                            }
-                        });
+                            throw new Error(
+                                `Insufficient ${insufficientResources[0]} for making ${quantity} ${size} ${drinkId}(s)`
+                            );
+                        }
+                    });
 
-                        // Get current resources
-                        const currentResources = await logic.withDatabase("select", "resources", async () => {
-                            return { ...allAvailableResources };
-                        });
+                    // Update resources and increment counter
+                    await logic.withDatabase("update", "all_resources", async () => {
+                        Object.assign(allAvailableResources, newResources);
+                        servedCounter += quantity;
+                    });
 
-                        // Calculate resource consumption
-                        const newResources = await logic.withProcessing(
-                            "calculate.resourceConsumption",
-                            async () => {
-                                const newResources = Object.assign({}, currentResources);
-                                const recipe = drinkRecipes[drinkId];
-                                const sizeMultiplier = sizeQuantifiers[size];
-
-                                newResources.water -= Math.ceil(quantity * sizeMultiplier * recipe.water);
-                                newResources.milk -= Math.ceil(quantity * sizeMultiplier * recipe.milk);
-                                newResources.chocolate -= Math.ceil(quantity * sizeMultiplier * recipe.chocolate);
-                                newResources.coffeeBeans -= Math.ceil(quantity * sizeMultiplier * recipe.coffeeBeans);
-
-                                return newResources;
-                            },
-                            {
-                                "drink.id": drinkId,
-                                "drink.size": size,
-                                "drink.quantity": quantity,
-                                "calculation.type": "resource_consumption",
-                            }
-                        );
-
-                        // Validate resource availability and emit events if needed
-                        await logic.withValidation("resourceAvailability", newResources, async () => {
-                            const insufficientResources: string[] = [];
-                            for (const [resource, level] of Object.entries(newResources)) {
-                                if (typeof level === "number" && level < 0) {
-                                    insufficientResources.push(resource);
-                                }
-                            }
-
-                            if (insufficientResources.length > 0) {
-                                // Emit outOfResource event before throwing error
-                                await logic.withProcessing("event.outOfResource", async () => {
-                                    const eventData = `Insufficient resources: ${insufficientResources.join(", ")} for making ${quantity} ${size} ${drinkId}(s)`;
-                                    tracedEventHandler("outOfResource", (data: WoT.InteractionInput) =>
-                                        thing.emitEvent("outOfResource", data)
-                                    )(eventData);
-                                });
-
-                                throw new Error(
-                                    `Insufficient ${insufficientResources[0]} for making ${quantity} ${size} ${drinkId}(s)`
-                                );
-                            }
-                        });
-
-                        // Update resources and increment counter
-                        await logic.withDatabase("update", "all_resources", async () => {
-                            Object.assign(allAvailableResources, newResources);
-                            servedCounter += quantity;
-                        });
-
-                        // Simulate brewing process
-                        await logic.withProcessing(
-                            "brewing.process",
-                            async () => {
-                                // Simulate brewing time
-                                await new Promise((resolve) => setTimeout(resolve, 1000));
-                                return `Successfully brewed ${quantity} ${size} ${drinkId}(s)`;
-                            },
-                            {
-                                "brewing.drink": drinkId,
-                                "brewing.quantity": quantity,
-                                "brewing.size": size,
-                                "brewing.duration_ms": 1000,
-                            }
-                        );
+                    // Simulate brewing process
+                    await logic.withProcessing(
+                        "brewing.process",
+                        async () => {
+                            // Simulate brewing time
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                            return `Successfully brewed ${quantity} ${size} ${drinkId}(s)`;
+                        },
+                        {
+                            "brewing.drink": drinkId,
+                            "brewing.quantity": quantity,
+                            "brewing.size": size,
+                            "brewing.duration_ms": 1000,
+                        }
+                    );
 
                     return {
                         result: true,
@@ -555,8 +554,11 @@ servient
             );
 
             // Action: setSchedule
-            tracedThing.setActionHandler("setSchedule", "setSchedule", async (logic: TracedBusinessLogic, params?: WoT.InteractionInput) => {
-                // Parse and validate schedule data
+            tracedThing.setActionHandler(
+                "setSchedule",
+                "setSchedule",
+                async (logic: TracedBusinessLogic, params?: WoT.InteractionInput) => {
+                    // Parse and validate schedule data
                     const scheduleData = await logic.withProcessing(
                         "parsing.extractScheduleData",
                         async () => {
@@ -624,11 +626,12 @@ servient
                         schedules.push(scheduleData);
                     });
 
-                return {
-                    result: true,
-                    message: `Schedule set for ${scheduleData.time} (${scheduleData.mode})`,
-                };
-            });
+                    return {
+                        result: true,
+                        message: `Schedule set for ${scheduleData.time} (${scheduleData.mode})`,
+                    };
+                }
+            );
 
             thing.expose().then(() => {
                 console.info(`${(thingDescription as { title: string }).title} ready`);
