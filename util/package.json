@@ -37,12 +37,13 @@
     "license": "EPL-2.0 OR W3C-20150513",
     "dependencies": {
         "@opentelemetry/api": "1.9.0",
-        "@opentelemetry/sdk-trace-node": "1.9.0",
         "@opentelemetry/exporter-jaeger": "1.9.0",
         "@opentelemetry/resources": "1.9.0",
+        "@opentelemetry/sdk-trace-node": "1.9.0",
         "@opentelemetry/semantic-conventions": "1.9.0",
-        "wot-typescript-definitions": "0.8.0-SNAPSHOT.29",
-        "ajv": "^8.12.0"
+        "ajv": "^8.12.0",
+        "wot-thing-description-types": "^1.1.0-09-November-2023",
+        "wot-typescript-definitions": "0.8.0-SNAPSHOT.29"
     },
     "devDependencies": {
         "@types/node": "^22.1.0",

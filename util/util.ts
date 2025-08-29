@@ -14,9 +14,8 @@
  ********************************************************************************/
 
 import Ajv, { ValidateFunction } from "ajv";
-import * as https from "https";
-import { IncomingMessage } from "http";
 import { ChildProcess, spawn } from "node:child_process";
+import * as tdSchema from "wot-thing-description-types";
 
 export type ThingStartResponse = {
     process?: ChildProcess;
@@ -60,40 +59,10 @@ export const getInitiateMain = (mainCmd: string, cmdArgs: string[]): Promise<Thi
 
 const ajv = new Ajv({ strict: false, allErrors: true, validateFormats: false });
 
-const getTDJSONSchema = new Promise<Record<string, unknown>>((resolve, reject) => {
-    https
-        .get(
-            "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/td-json-schema-validation.json",
-            function (response: IncomingMessage) {
-                const body: Buffer[] = [];
-                response.on("data", (chunk: Buffer) => {
-                    body.push(chunk);
-                });
-
-                response.on("end", () => {
-                    try {
-                        const tdSchema = JSON.parse(Buffer.concat(body).toString()) as Record<string, unknown>;
-                        resolve(tdSchema);
-                    } catch (error) {
-                        reject(new Error(`Failed to parse TD schema: ${error}`));
-                    }
-                });
-
-                response.on("error", (error: Error) => {
-                    reject(new Error(`HTTP request failed: ${error.message}`));
-                });
-            }
-        )
-        .on("error", (error: Error) => {
-            reject(new Error(`HTTP request failed: ${error.message}`));
-        });
-});
-
 export const getTDValidate = async (): Promise<ValidateResponse> => {
-    const tdSchema: Record<string, unknown> = await getTDJSONSchema;
-
+    // Use the wot-thing-description-types package instead of fetching from remote URL
     return Promise.resolve({
-        validate: ajv.compile(tdSchema),
+        validate: ajv.compile(tdSchema as Record<string, unknown>),
         message: "Success",
     });
 };
