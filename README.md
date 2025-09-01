@@ -203,9 +203,7 @@ Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all trace
 
 Enhanced auto-tracing automatically injects `TracedBusinessLogic` for detailed span creation without redundancy. Function signatures determine tracing mode.
 
-### Testing and Error Visibility
-
-The project includes comprehensive test suites that are also traced and visible in Jaeger:
+Also, there is comprehensive test suites that are also traced and visible in Jaeger:
 
 -   **Thing Description (TD) validation tests** - Test if the exposed TD is valid according to W3C WoT standards
 -   **Thing Model (TM) validation tests** - Validate the Thing Model against the schema
