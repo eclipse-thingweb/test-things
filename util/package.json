@@ -1,0 +1,52 @@
+{
+    "name": "util",
+    "version": "1.0.0",
+    "description": "Shared utilities for Test Things project",
+    "main": "dist/util.js",
+    "exports": {
+        "./tracing": {
+            "types": "./dist/tracing.d.ts",
+            "default": "./dist/tracing.js"
+        },
+        "./auto-tracing": {
+            "types": "./dist/auto-tracing.d.ts",
+            "default": "./dist/auto-tracing.js"
+        },
+        ".": {
+            "types": "./dist/util.d.ts",
+            "default": "./dist/util.js"
+        }
+    },
+    "types": "dist/util.d.ts",
+    "scripts": {
+        "build": "tsc -b",
+        "clean": "rm -rf dist",
+        "test": "echo \"No tests specified for util package\"",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write \"*.ts\" \"**/*.json\""
+    },
+    "keywords": [
+        "wot",
+        "thing",
+        "iot",
+        "tracing",
+        "utilities"
+    ],
+    "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+    "license": "EPL-2.0 OR W3C-20150513",
+    "dependencies": {
+        "@opentelemetry/api": "1.9.0",
+        "@opentelemetry/exporter-jaeger": "1.9.0",
+        "@opentelemetry/resources": "1.9.0",
+        "@opentelemetry/sdk-trace-node": "1.9.0",
+        "@opentelemetry/semantic-conventions": "1.9.0",
+        "ajv": "^8.12.0",
+        "wot-thing-description-types": "^1.1.0-09-November-2023",
+        "wot-typescript-definitions": "0.8.0-SNAPSHOT.29"
+    },
+    "devDependencies": {
+        "@types/node": "^22.1.0",
+        "typescript": "^4.7.4"
+    }
+}

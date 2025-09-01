@@ -101,14 +101,15 @@ services:
             - things_network
     http-advanced-coffee-machine:
         build:
-            context: ./things/advanced-coffee-machine
-            dockerfile: ./http/ts/Dockerfile
+            context: .
+            dockerfile: ./things/advanced-coffee-machine/http/ts/Dockerfile
         labels:
             - traefik.http.routers.http-advanced-coffee-machine.rule=PathPrefix(`/http-advanced-coffee-machine`)
             - traefik.http.services.http-advanced-coffee-machine.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - JAEGER_ENDPOINT=${JAEGER_ENDPOINT}
         networks:
             - things_network
     http-data-schema-thing:
@@ -128,7 +129,7 @@ services:
     counter-thing:
         build:
             context: ./things/counter-thing
-            dockerfile: Dockerfile
+            dockerfile: ./http/ts/Dockerfile
         labels:
             - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter-thing`)
             - traefik.http.services.counter-thing.loadbalancer.server.port=${WEB_PORT_OUT}

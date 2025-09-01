@@ -149,6 +149,7 @@ services:
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - JAEGER_ENDPOINT=${JAEGER_ENDPOINT}
         deploy:
             resources:
                 limits:

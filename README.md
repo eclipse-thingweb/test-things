@@ -69,6 +69,24 @@ If you are going to add a completely new Thing:
 2. Add your Thing Model under the previously created directory and name it such as `<your_thing_name>.tm.json`.
 3. Follow the steps above to add your protocol and programming language/framework.
 
+**TypeScript Tracing Integration:**
+Wrap your WoT Thing with auto-tracing to get detailed OpenTelemetry spans for validation, processing, and database operations:
+
+```typescript
+import { createAutoTracedThing, TracedBusinessLogic } from "../../util/dist/auto-tracing";
+const tracedThing = createAutoTracedThing(thing);
+
+// Property writes get ".read" suffix
+tracedThing.setPropertyReadHandler("allAvailableResources", async (options) => {
+    return getResources(); // Span: "allAvailableResources.read"
+});
+
+// Property writes get ".write" suffix
+tracedThing.setPropertyWriteHandler("servedCounter", async (value) => {
+    updateCounter(value); // Span: "servedCounter.write"
+});
+```
+
 ## Current Devices
 
 The table below contains the public base URIs of the Things used for protocol testing.
@@ -178,3 +196,24 @@ docker buildx build \
 For running the things separately, using their `Dockerfile`'s, `docker build -t <image-tag> -f ./Dockerfile ../../` command must be used to give the context to be able to copy `tm.json` into the container.
 
 For Node.js-based devices, we use npm workspaces and running `npm install` at the root directory installs all the packages needed for every device. After packages are installed, running `node main.js` would run the thing. For port configuration, running either `node main.js -p 1000` or `node main.js --port 1000` would start the thing on port 1000.
+
+## Tracing
+
+Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:8084](http://localhost:8084) in your browser (Jaeger UI). Traces are sent to the Jaeger collector on port 8085.
+
+Enhanced auto-tracing automatically injects `TracedBusinessLogic` for detailed span creation without redundancy. Function signatures determine tracing mode.
+
+Also, there is comprehensive test suites that are also traced and visible in Jaeger:
+
+-   **Thing Description (TD) validation tests** - Test if the exposed TD is valid according to W3C WoT standards
+-   **Thing Model (TM) validation tests** - Validate the Thing Model against the schema
+-   **Integration tests** - Test actual interactions with the Things
+
+When tests run, they appear in Jaeger with clear span names like `td.test` or `tm.test`. Failed tests show up as **error spans** with red highlighting in the Jaeger UI, making it easy to:
+
+-   **Debug test failures** by examining the error details and stack traces in span logs
+-   **Track test performance** and identify slow validation steps
+-   **Monitor CI/CD pipelines** by observing test execution patterns
+-   **Correlate test failures** with specific Thing operations or configurations
+
+Test spans include detailed attributes about what was validated, error messages for failures, and timing information for performance analysis.

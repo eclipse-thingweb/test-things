@@ -14,6 +14,7 @@
         "iot"
     ],
     "workspaces": [
+        "./util",
         "./mashups/*",
         "./things/*/*/*"
     ],
@@ -35,8 +36,10 @@
         "eslint-config-prettier": "^9.1.0",
         "eslint-config-standard": "^17.1.0",
         "eslint-plugin-import": "^2.30.0",
+        "eslint-plugin-n": "^16.6.2",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-notice": "^1.0.0",
+        "eslint-plugin-promise": "^6.6.0",
         "eslint-plugin-unused-imports": "^4.1.4",
         "eslint-plugin-workspaces": "^0.10.1",
         "mocha": "^10.7.3",
