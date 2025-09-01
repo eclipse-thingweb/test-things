@@ -148,7 +148,6 @@ servient
             // Property: allAvailableResources
             tracedThing.setPropertyReadHandler(
                 "allAvailableResources",
-                "getAllResources",
                 async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
                     // Validate resource data integrity
                     await logic.withValidation("resourceData", allAvailableResources, async () => {
@@ -189,7 +188,6 @@ servient
             // Property: possibleDrinks
             tracedThing.setPropertyReadHandler(
                 "possibleDrinks",
-                "getPossibleDrinks",
                 async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
                     // Validate drink catalog integrity
                     await logic.withValidation("drinkCatalog", possibleDrinks, async () => {
@@ -227,14 +225,12 @@ servient
             // Property: maintenanceNeeded (simple read)
             tracedThing.setPropertyReadHandler(
                 "maintenanceNeeded",
-                "getMaintenanceStatus",
                 async (options?: WoT.InteractionOptions) => maintenanceNeeded
             );
 
             // Property Read: availableResourceLevel (with URI variables)
             tracedThing.setPropertyReadHandler(
                 "availableResourceLevel",
-                "getResourceLevel",
                 async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
                     // Parse resource ID from URI variables
                     const resourceId = await logic.withProcessing(
@@ -262,7 +258,6 @@ servient
             // Property: schedules
             tracedThing.setPropertyReadHandler(
                 "schedules",
-                "getSchedules",
                 async (logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => {
                     // Validate system state
                     await logic.withValidation("systemState", { schedulesLength: schedules.length }, async () => {
@@ -293,7 +288,6 @@ servient
             // Property Write: servedCounter
             tracedThing.setPropertyWriteHandler(
                 "servedCounter",
-                "updateServedCounter",
                 async (logic: TracedBusinessLogic, val: WoT.InteractionInput) => {
                     // Validate input
                     await logic.withValidation("counterInput", val, async () => {
@@ -350,7 +344,6 @@ servient
             // Property Write: availableResourceLevel
             tracedThing.setPropertyWriteHandler(
                 "availableResourceLevel",
-                "updateResourceLevel",
                 async (logic: TracedBusinessLogic, val: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
                     // Parse and validate resource ID and new level
                     const { resourceId, newLevel } = await logic.withProcessing(
@@ -421,7 +414,6 @@ servient
 
             // Action: makeDrink
             tracedThing.setActionHandler(
-                "makeDrink",
                 "makeDrink",
                 async (logic: TracedBusinessLogic, params?: WoT.InteractionInput, options?: WoT.InteractionOptions) => {
                     // Parse parameters with defaults
@@ -555,7 +547,6 @@ servient
 
             // Action: setSchedule
             tracedThing.setActionHandler(
-                "setSchedule",
                 "setSchedule",
                 async (logic: TracedBusinessLogic, params?: WoT.InteractionInput) => {
                     // Parse and validate schedule data
