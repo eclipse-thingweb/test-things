@@ -262,7 +262,8 @@ export class AutoTracedThing {
             | ((logic: TracedBusinessLogic, options?: WoT.InteractionOptions) => Promise<T> | T),
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
-        let config = tracingConfig(propertyName);
+        const spanName = `${propertyName}.read`;
+        let config = tracingConfig(spanName);
         if (configBuilder) {
             config = configBuilder(config);
         }
@@ -273,7 +274,7 @@ export class AutoTracedThing {
             this.thing.setPropertyReadHandler(
                 propertyName,
                 tracedPropertyReadHandler(propertyName, async (options) => {
-                    const logic = createTracedLogic(propertyName);
+                    const logic = createTracedLogic(spanName);
                     return await logic.execute(async () => {
                         return await (
                             businessLogic as (
@@ -324,7 +325,8 @@ export class AutoTracedThing {
               ) => Promise<void> | void),
         configBuilder?: (builder: TracingConfigBuilder) => TracingConfigBuilder
     ): void {
-        let config = tracingConfig(propertyName);
+        const spanName = `${propertyName}.write`;
+        let config = tracingConfig(spanName);
         if (configBuilder) {
             config = configBuilder(config);
         }
@@ -335,7 +337,7 @@ export class AutoTracedThing {
             this.thing.setPropertyWriteHandler(
                 propertyName,
                 tracedPropertyWriteHandler(propertyName, async (value, options) => {
-                    const logic = createTracedLogic(propertyName);
+                    const logic = createTracedLogic(spanName);
                     return await logic.execute(async () => {
                         return await (
                             businessLogic as (

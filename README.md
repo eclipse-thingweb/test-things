@@ -76,10 +76,14 @@ Wrap your WoT Thing with auto-tracing to get detailed OpenTelemetry spans for va
 import { createAutoTracedThing, TracedBusinessLogic } from "../../util/dist/auto-tracing";
 const tracedThing = createAutoTracedThing(thing);
 
-// Enhanced tracing with injected logic
-tracedThing.setPropertyReadHandler("prop", "operation", async (logic: TracedBusinessLogic, options) => {
-    await logic.withValidation("type", data, async () => {});
-    return await logic.withDatabase("select", "table", async () => {});
+// Property writes get ".read" suffix
+tracedThing.setPropertyReadHandler("allAvailableResources", async (options) => {
+    return getResources(); // Span: "allAvailableResources.read"
+});
+
+// Property writes get ".write" suffix
+tracedThing.setPropertyWriteHandler("servedCounter", async (value) => {
+    updateCounter(value); // Span: "servedCounter.write"
 });
 ```
 
@@ -198,3 +202,20 @@ For Node.js-based devices, we use npm workspaces and running `npm install` at th
 Distributed tracing is enabled using OpenTelemetry and Jaeger. To view all traces and logs, open [http://localhost:8084](http://localhost:8084) in your browser (Jaeger UI). Traces are sent to the Jaeger collector on port 8085.
 
 Enhanced auto-tracing automatically injects `TracedBusinessLogic` for detailed span creation without redundancy. Function signatures determine tracing mode.
+
+### Testing and Error Visibility
+
+The project includes comprehensive test suites that are also traced and visible in Jaeger:
+
+-   **Thing Description (TD) validation tests** - Test if the exposed TD is valid according to W3C WoT standards
+-   **Thing Model (TM) validation tests** - Validate the Thing Model against the schema
+-   **Integration tests** - Test actual interactions with the Things
+
+When tests run, they appear in Jaeger with clear span names like `td.test` or `tm.test`. Failed tests show up as **error spans** with red highlighting in the Jaeger UI, making it easy to:
+
+-   **Debug test failures** by examining the error details and stack traces in span logs
+-   **Track test performance** and identify slow validation steps
+-   **Monitor CI/CD pipelines** by observing test execution patterns
+-   **Correlate test failures** with specific Thing operations or configurations
+
+Test spans include detailed attributes about what was validated, error messages for failures, and timing information for performance analysis.
