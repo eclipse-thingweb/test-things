@@ -12,12 +12,13 @@
         "@node-wot/binding-http": "0.8.16",
         "@node-wot/core": "0.8.16",
         "dotenv": "^16.0.3",
+        "test-things": "file:../../../..",
         "winston": "^3.8.2",
         "winston-loki": "^6.1.2"
     },
     "devDependencies": {
-        "@types/node": "^18.15.11",
         "@types/debug": "^4.1.12",
+        "@types/node": "^18.15.11",
         "@types/node-fetch": "^2.6.11",
         "ts-node": "^10.9.1",
         "typescript": "^5.0.4"

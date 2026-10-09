@@ -4,7 +4,8 @@ WORKDIR /app
 COPY ./calculator.tm.json .
 COPY ./coap/js .
 
-RUN npm install
+# The workspace-root "test-things" file: dependency resolves to "/" inside the image and crashes npm.
+RUN npm pkg delete dependencies.test-things && rm -f package-lock.json && npm install
 
 ENV TM_PATH="./calculator.tm.json"
 

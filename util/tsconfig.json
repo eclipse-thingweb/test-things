@@ -5,7 +5,7 @@
         "skipLibCheck": true,
         "module": "commonjs",
         "outDir": "dist",
-        "rootDir": ".",
+        "rootDir": "./",
         "strict": true,
         "composite": true,
         "incremental": true,
@@ -25,5 +25,5 @@
         "forceConsistentCasingInFileNames": true
     },
     "include": ["*.ts"],
-    "exclude": ["dist", "node_modules"]
+    "exclude": ["dist", "node_modules", "**/*.d.ts"]
 }

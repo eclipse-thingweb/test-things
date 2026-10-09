@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json .
 COPY ./tsconfig.json .
 
-RUN npm install
+RUN npm pkg delete dependencies.test-things && npm install
 
 COPY ./things/simple-coffee-machine.ts ./things/simple-coffee-machine.ts 
 

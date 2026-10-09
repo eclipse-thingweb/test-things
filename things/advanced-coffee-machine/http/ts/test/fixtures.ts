@@ -20,10 +20,13 @@ import path from "path";
 
 let thingProcess: ChildProcess | undefined;
 let response: ThingStartResponse;
-export const port = 3000;
+export const port = Number(process.env.TEST_PORT ?? 3010);
 
 export async function mochaGlobalSetup() {
     try {
+        process.env.PROTOCOL = "http";
+        process.env.HOSTNAME = `localhost:${port}`;
+        delete process.env.EXTERNAL_PORT;
         response = await getInitiateMain("node", [path.join(__dirname, "..", "dist", "main.js"), "-p", `${port}`]);
         thingProcess = response.process;
     } catch (error: unknown) {

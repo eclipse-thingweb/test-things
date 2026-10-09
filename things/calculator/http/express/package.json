@@ -24,6 +24,7 @@
         "eventsource": "^2.0.2",
         "express": "^4.18.2",
         "json-placeholder-replacer": "^1.0.35",
+        "test-things": "file:../../../..",
         "winston": "^3.14.2",
         "winston-loki": "^6.1.2"
     },

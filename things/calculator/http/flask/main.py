@@ -18,15 +18,25 @@ app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.disabled = True
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Accept, Authorization"
+    return response
+
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        return ("", 204)
+
 cli = sys.modules['flask.cli']
 
 cli.show_server_banner = lambda *x: click.echo("ThingIsReady")
 
-hostname = "0.0.0.0"
 portNumber = 5000
-
-if "HOSTNAME" in os.environ:
-    hostname = os.environ["HOSTNAME"]
+protocol = os.getenv("PROTOCOL", "https").lower()
+hostname = os.getenv("HOSTNAME", "0.0.0.0")
 
 if "PORT" in os.environ:
     portNumber = os.environ["PORT"]
@@ -43,7 +53,7 @@ with open(tmPath) as infile:
 
 thingModel["@type"] = 'Thing'
 thingModel = json.dumps(thingModel)
-thingModel = thingModel.replace('{{PROTOCOL}}', 'http')
+thingModel = thingModel.replace('{{PROTOCOL}}', protocol)
 thingModel = thingModel.replace('{{HOSTNAME}}', hostname)
 thingModel = thingModel.replace('{{PROPERTIES}}', PROPERTIES)
 thingModel = thingModel.replace('{{ACTIONS}}', ACTIONS)
@@ -158,4 +168,4 @@ else:
     port = 5000
 
 if __name__ == "__main__":
-    app.run(debug=False, host=hostname, port=port)
+    app.run(debug=False, host="0.0.0.0", port=port)

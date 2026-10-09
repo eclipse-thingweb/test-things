@@ -3,6 +3,9 @@
 # Install dependencies for npm workspaces packages
 npm ci
 
+npm --workspace ./util run clean
+npm --workspace ./util run build
+
 # Install dependencies for non-npm packages
 for protocol_directory in things/*/*/* ; do
     current_path="$(pwd)"

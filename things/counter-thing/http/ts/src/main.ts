@@ -27,6 +27,15 @@ dotenv.config();
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "counter";
+const protocol = (process.env.PROTOCOL ?? "https").toLowerCase();
+const defaultExternalPort = protocol === "http" ? 80 : 443;
+
+const externalPort =
+    process.env.EXTERNAL_PORT != null && process.env.EXTERNAL_PORT !== ""
+        ? parseInt(process.env.EXTERNAL_PORT)
+        : defaultExternalPort;
+
+const baseUri = externalPort === defaultExternalPort ? `${hostname}` : `${hostname}:${externalPort}`;
 
 const logger = createLogger({
     transports: [
@@ -89,12 +98,13 @@ const setLastChange = (value: string) => {
 };
 
 const thingDescription = JSON.parse(fs.readFileSync(path.join(__dirname, "../../counter-thing.td.json"), "utf8"));
+thingDescription.base = `${protocol}://${baseUri}/${thingName}/`;
 
 // Create Servient and add HTTP binding with port configuration
 const servient = new Servient();
 servient.addServer(
     new HttpServer({
-        baseUri: `http://${hostname}:${portNumber}`,
+        baseUri: `${protocol}://${hostname}:${portNumber}`,
         port: portNumber,
     })
 );

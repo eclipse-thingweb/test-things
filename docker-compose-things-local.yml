@@ -10,85 +10,95 @@ services:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${COAP_SIMPLE_PORT_OUT}
         networks:
-            - things_network
+            - things_network_local
     coap-calculator-content-negotiation:
         build:
             context: ./things/calculator
             dockerfile: ./coap/js/Dockerfile-contentneg
         labels:
             - traefik.udp.routers.coap-calculator-content-negotiation.entrypoints=coap-calculator-content-negotiation
-            - traefik.udp.services.coap-calculator-simple.loadbalancer.server.port=${COAP_NEGOTIATION_PORT_OUT}
+            - traefik.udp.services.coap-calculator-content-negotiation.loadbalancer.server.port=${COAP_NEGOTIATION_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${COAP_NEGOTIATION_PORT_OUT}
         networks:
-            - things_network
+            - things_network_local
     http-express-calculator-simple:
         build:
             context: ./things/calculator
             dockerfile: ./http/express/Dockerfile-simple
         labels:
             - traefik.http.routers.http-express-calculator-simple.rule=PathPrefix(`/http-express-calculator-simple`)
+            - traefik.http.routers.http-express-calculator-simple.entrypoints=web
             - traefik.http.services.http-express-calculator-simple.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - EXTERNAL_PORT=${WEB_PORT_OUT}
+            - PROTOCOL=http
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
         healthcheck:
-            test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple || exit 1
+            test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-simple
             interval: ${HC_INTERVAL}
             timeout: ${HC_TIMEOUT}
             retries: ${HC_RETRIES}
             start_period: ${HC_START_PERIOD}
         networks:
-            - things_network
+            - things_network_local
     http-express-calculator-content-negotiation:
         build:
             context: ./things/calculator
             dockerfile: ./http/express/Dockerfile-contentneg
         labels:
             - traefik.http.routers.http-express-calculator-content-negotiation.rule=PathPrefix(`/http-express-calculator-content-negotiation`)
+            - traefik.http.routers.http-express-calculator-content-negotiation.entrypoints=web
             - traefik.http.services.http-express-calculator-content-negotiation.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - EXTERNAL_PORT=${WEB_PORT_OUT}
+            - PROTOCOL=http
         healthcheck:
-            test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-content-negotiation || exit 1
+            test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-express-calculator-content-negotiation
             interval: ${HC_INTERVAL}
             timeout: ${HC_TIMEOUT}
             retries: ${HC_RETRIES}
             start_period: ${HC_START_PERIOD}
         networks:
-            - things_network
+            - things_network_local
     http-flask-calculator:
         build:
             context: ./things/calculator
             dockerfile: ./http/flask/Dockerfile
         labels:
             - traefik.http.routers.http-flask-calculator.rule=PathPrefix(`/http-flask-calculator`)
+            - traefik.http.routers.http-flask-calculator.entrypoints=web
             - traefik.http.services.http-flask-calculator.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - EXTERNAL_PORT=${WEB_PORT_OUT}
+            - PROTOCOL=http
         healthcheck:
-            test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-flask-calculator || exit 1
+            test: wget --no-verbose --tries=1 --spider http://${STACK_HOSTNAME}:${WEB_PORT_OUT}/http-flask-calculator
             interval: ${HC_INTERVAL}
             timeout: ${HC_TIMEOUT}
             retries: ${HC_RETRIES}
             start_period: ${HC_START_PERIOD}
         networks:
-            - things_network
+            - things_network_local
     mqtt-calculator:
         build:
             context: ./things/calculator
             dockerfile: ./mqtt/js/Dockerfile
         environment:
             - BROKER_URI=${BROKER_URI}
+            - BROKER_PORT=${BROKER_PORT}
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
         networks:
-            - things_network
+            - things_network_local
     modbus-elevator:
         build:
             context: ./things/elevator
@@ -98,54 +108,66 @@ services:
             - traefik.tcp.routers.modbus-elevator.rule=HostSNI(`*`)
             - traefik.tcp.services.modbus-elevator.loadbalancer.server.port=${MODBUS_ELEVATOR_PORT_OUT}
         networks:
-            - things_network
+            - things_network_local
     http-advanced-coffee-machine:
         build:
             context: .
             dockerfile: ./things/advanced-coffee-machine/http/ts/Dockerfile
         labels:
             - traefik.http.routers.http-advanced-coffee-machine.rule=PathPrefix(`/http-advanced-coffee-machine`)
+            - traefik.http.routers.http-advanced-coffee-machine.entrypoints=web
             - traefik.http.services.http-advanced-coffee-machine.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - EXTERNAL_PORT=${WEB_PORT_OUT}
+            - PROTOCOL=http
             - JAEGER_ENDPOINT=${JAEGER_ENDPOINT}
         networks:
-            - things_network
+            - things_network_local
     http-data-schema-thing:
         build:
             context: ./things/data-schema-thing
             dockerfile: ./http/ts/Dockerfile
         labels:
             - traefik.http.routers.http-data-schema-thing.rule=PathPrefix(`/http-data-schema-thing`)
+            - traefik.http.routers.http-data-schema-thing.entrypoints=web
             - traefik.http.services.http-data-schema-thing.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - EXTERNAL_PORT=${WEB_PORT_OUT}
+            - PROTOCOL=http
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
         networks:
-            - things_network
+            - things_network_local
     counter-thing:
         build:
             context: ./things/counter-thing
             dockerfile: ./http/ts/Dockerfile
         labels:
-            - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter-thing`)
+            - traefik.http.routers.counter-thing.rule=PathPrefix(`/counter`)
+            - traefik.http.routers.counter-thing.entrypoints=web
             - traefik.http.services.counter-thing.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             - HOSTNAME=${STACK_HOSTNAME}
             - PORT=${WEB_PORT_OUT}
+            - EXTERNAL_PORT=${WEB_PORT_OUT}
+            - PROTOCOL=http
             - LOKI_HOSTNAME=${LOKI_HOSTNAME}
             - LOKI_PORT=${LOKI_PORT}
         networks:
-            - things_network
+            - things_network_local
     smart-home-presence-sensor:
         build:
             context: ./mashups/smart-home
             dockerfile: ./dockerfiles/presence-sensor.Dockerfile
+        environment:
+            - PRESENCE_SENSOR_BROKER_URI=${BROKER_URI}
+            - PRESENCE_SENSOR_BROKER_PORT=${BROKER_PORT}
         networks:
-            - things_network
+            - things_network_local
     smart-home-simple-coffee-machine:
         build:
             context: ./mashups/smart-home
@@ -153,15 +175,18 @@ services:
         labels:
             # TD is not exposed since it contains hostname that cannot be accessed outside the docker network
             - traefik.http.routers.smart-home-simple-coffee-machine.rule=PathRegexp(`/smart-home-simple-coffee-machine/.+`)
+            - traefik.http.routers.smart-home-simple-coffee-machine.entrypoints=web
+            - traefik.http.routers.smart-home-simple-coffee-machine-secure.rule=PathPrefix(`/smart-home-simple-coffee-machine`)
             - traefik.http.services.smart-home-simple-coffee-machine.loadbalancer.server.port=${WEB_PORT_OUT}
         environment:
             # Since mashup communicates inside the Docker network use of localhost in a TD result as
             # the mashup container's its own localhost. Therefore hostname given as their docker service name.
             # In production we will have a dedicated address and this issue won't be a problem.
+            - SIMPLE_COFFEE_MACHINE_PROTOCOL=http
             - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
-            - PORT=${WEB_PORT_OUT}
+            - SIMPLE_COFFEE_MACHINE_PORT=${WEB_PORT_OUT}
         networks:
-            - things_network
+            - things_network_local
     smart-home-smart-clock:
         build:
             context: ./mashups/smart-home
@@ -174,16 +199,20 @@ services:
             # the mashup container's its own localhost. Therefore hostname given as their docker service name.
             # In production we will have a dedicated address and this issue won't be a problem.
             - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
-            - PORT=${SMART_HOME_SMART_CLOCK_PORT_OUT}
+            - SMART_CLOCK_PORT=${SMART_HOME_SMART_CLOCK_PORT_OUT}
         networks:
-            - things_network
+            - things_network_local
     smart-home-mashup:
         build:
             context: ./mashups/smart-home
             dockerfile: ./dockerfiles/mashup.Dockerfile
         environment:
+            - SIMPLE_COFFEE_MACHINE_PROTOCOL=http
             - SIMPLE_COFFEE_MACHINE_HOSTNAME=smart-home-simple-coffee-machine
+            - SIMPLE_COFFEE_MACHINE_PORT=${WEB_PORT_OUT}
+            - SIMPLE_COFFEE_MACHINE_PATH=smart-home-simple-coffee-machine
             - PRESENCE_SENSOR_BROKER_URI=${BROKER_URI}
+            - PRESENCE_SENSOR_PORT=${BROKER_PORT}
             - SMART_CLOCK_HOSTNAME=smart-home-smart-clock
             - SMART_CLOCK_PORT=${SMART_HOME_SMART_CLOCK_PORT_OUT}
         depends_on:
@@ -192,9 +221,9 @@ services:
             - smart-home-smart-clock
         restart: on-failure
         networks:
-            - things_network
+            - things_network_local
 
 networks:
-    things_network:
-        name: things_network
+    things_network_local:
+        name: things_network_local
         external: true

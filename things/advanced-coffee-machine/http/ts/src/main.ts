@@ -38,6 +38,15 @@ initTracing("advanced-coffee-machine");
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "http-advanced-coffee-machine";
+const protocol = (process.env.PROTOCOL ?? "https").toLowerCase();
+const defaultExternalPort = protocol === "http" ? 80 : 443;
+
+const externalPort =
+    process.env.EXTERNAL_PORT != null && process.env.EXTERNAL_PORT !== ""
+        ? parseInt(process.env.EXTERNAL_PORT)
+        : defaultExternalPort;
+
+const baseUri = externalPort === defaultExternalPort ? `${hostname}` : `${hostname}:${externalPort}`;
 
 let allAvailableResources: Record<string, number>;
 let possibleDrinks: string[];
@@ -107,10 +116,9 @@ if (tmPath != null && tmPath !== "") {
 
 const placeholderReplacer = new JsonPlaceholderReplacer();
 placeholderReplacer.addVariableMap({
-    PROTOCOL: "http",
+    PROTOCOL: protocol,
     THING_NAME: thingName,
-    HOSTNAME: hostname,
-    PORT_NUMBER: portNumber,
+    BASE_URI: baseUri,
 });
 
 let thingDescription = placeholderReplacer.replace(thingModel);
@@ -122,7 +130,7 @@ thingDescription = {
 const servient = new Servient();
 servient.addServer(
     new HttpServer({
-        baseUri: `http://${hostname}:${portNumber}`,
+        baseUri: `${protocol}://${hostname}`,
         port: portNumber,
     })
 );

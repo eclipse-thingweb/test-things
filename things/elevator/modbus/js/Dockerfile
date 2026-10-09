@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./elevator.tm.json .
 COPY ./modbus/js .
 
-RUN npm install
+RUN npm pkg delete dependencies.test-things && rm -f package-lock.json && npm install
 
 ENV TM_PATH="./elevator.tm.json"
 

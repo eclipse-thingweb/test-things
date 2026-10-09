@@ -18,7 +18,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [18.x]
+                node-version: [24.x]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
         steps:
@@ -52,10 +52,10 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v2
 
-            - name: Use Node.js 18
+            - name: Use Node.js 24
               uses: actions/setup-node@v1
               with:
-                  node-version: 18
+                  node-version: 24
 
             - name: Install
               run: npm ci

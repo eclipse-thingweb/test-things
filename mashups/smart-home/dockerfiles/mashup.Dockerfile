@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json .
 COPY ./tsconfig.json .
 
-RUN npm install
+RUN npm pkg delete dependencies.test-things && npm install
 
 COPY ./mashup-logic.ts ./mashup-logic.ts 
 
