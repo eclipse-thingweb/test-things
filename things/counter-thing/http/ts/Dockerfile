@@ -5,8 +5,7 @@ WORKDIR /app
 # Copy package files
 COPY ./http/ts/package*.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm pkg delete dependencies.test-things && rm -f package-lock.json && npm install --include=dev
 
 # Copy source code
 COPY ./http/ts .

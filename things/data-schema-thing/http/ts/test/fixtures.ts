@@ -19,16 +19,19 @@ import { getInitiateMain, ThingStartResponse } from "../../../../../util/util";
 import path from "path";
 
 let thingProcess: ChildProcess | undefined;
-let response: ThingStartResponse;
-export const port = 3000;
+let response: ThingStartResponse | undefined;
+export const port = Number(process.env.TEST_PORT ?? 3011);
 
 export async function mochaGlobalSetup() {
     try {
+        process.env.PROTOCOL = "http";
+        process.env.HOSTNAME = `localhost:${port}`;
+        delete process.env.EXTERNAL_PORT;
         response = await getInitiateMain("node", [path.join(__dirname, "..", "dist", "main.js"), "-p", `${port}`]);
     } catch (error) {
         console.log(error);
     } finally {
-        thingProcess = response.process;
+        thingProcess = response?.process;
     }
 }
 

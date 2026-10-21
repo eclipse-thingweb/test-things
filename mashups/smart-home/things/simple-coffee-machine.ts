@@ -27,12 +27,27 @@ const thingName = "smart-home-simple-coffee-machine";
 const servient = new Servient();
 const hostname = process.env.SIMPLE_COFFEE_MACHINE_HOSTNAME ?? "localhost";
 const httpPort = process.env.SIMPLE_COFFEE_MACHINE_PORT ?? "8081";
-servient.addServer(
-    new HttpServer({
-        baseUri: `http://${hostname}:${httpPort}`,
-        port: parseInt(httpPort),
-    })
-);
+
+switch (process.env.SIMPLE_COFFEE_MACHINE_PROTOCOL) {
+    case "http":
+        servient.addServer(
+            new HttpServer({
+                baseUri: `http://${hostname}:${httpPort}`,
+                port: parseInt(httpPort),
+            })
+        );
+        break;
+    case "https":
+        servient.addServer(
+            new HttpServer({
+                baseUri: `https://${hostname}:${httpPort}`,
+                port: parseInt(httpPort),
+            })
+        );
+        break;
+    default:
+        throw new Error("Unsupported protocol: " + process.env.SIMPLE_COFFEE_MACHINE_PROTOCOL);
+}
 
 let waterAmount = 1000;
 let beansAmount = 1000;

@@ -11,11 +11,10 @@ COPY ./util ../util
 COPY ./things/advanced-coffee-machine/advanced-coffee-machine.tm.json ./
 COPY ./things/advanced-coffee-machine/http/ts ./
 
-# Build util package first
-RUN cd ../util && npm install --legacy-peer-deps && npm run build
+RUN cd ../util && npm pkg delete dependencies.test-things && rm -f package-lock.json \
+    && npm install --legacy-peer-deps && npm run build
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm pkg delete dependencies.test-things && rm -f package-lock.json && npm install --legacy-peer-deps
 
 # Build the project
 RUN npm run build

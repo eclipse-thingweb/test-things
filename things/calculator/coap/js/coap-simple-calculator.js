@@ -47,11 +47,18 @@ if (process.platform === "win32") {
 
 const thingModel = JSON.parse(fs.readFileSync(path.join(__dirname, tmPath)));
 
+// The TM's base has no port placeholder, so it has to be carried by the hostname.
+const externalPort =
+    process.env.EXTERNAL_PORT != null && process.env.EXTERNAL_PORT !== ""
+        ? parseInt(process.env.EXTERNAL_PORT)
+        : portNumber;
+const baseUri = hostname.includes(":") ? hostname : `${hostname}:${externalPort}`;
+
 const placeholderReplacer = new JsonPlaceholderReplacer();
 placeholderReplacer.addVariableMap({
     PROTOCOL: "coap",
     THING_NAME: thingName,
-    HOSTNAME: hostname,
+    HOSTNAME: baseUri,
     PORT_NUMBER: portNumber,
     RESULT_OBSERVABLE: true,
     LAST_CHANGE_OBSERVABLE: true,

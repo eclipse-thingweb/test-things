@@ -9,7 +9,7 @@
     "@type": "tm:ThingModel",
     "title": "{{THING_NAME}}",
     "description": "Test Thing",
-    "base": "{{PROTOCOL}}://{{HOSTNAME}}:{{PORT_NUMBER}}/{{THING_NAME}}",
+    "base": "{{PROTOCOL}}://{{BASE_URI}}/{{THING_NAME}}",
     "properties": {
         "bool": {
             "title": "Boolean",

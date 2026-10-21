@@ -15,7 +15,8 @@
 
 import Ajv, { ValidateFunction } from "ajv";
 import { ChildProcess, spawn } from "node:child_process";
-import * as tdSchema from "wot-thing-description-types";
+import fs from "node:fs";
+import path from "node:path";
 
 export type ThingStartResponse = {
     process?: ChildProcess;
@@ -27,32 +28,65 @@ export type ValidateResponse = {
     message: string;
 };
 
+function getPortFromArgs(cmdArgs: string[]): string | undefined {
+    for (let i = 0; i < cmdArgs.length; i++) {
+        const arg = cmdArgs[i];
+        if ((arg === "-p" || arg === "--port") && i + 1 < cmdArgs.length) {
+            return cmdArgs[i + 1];
+        }
+        if (arg.startsWith("--port=")) {
+            return arg.slice("--port=".length);
+        }
+    }
+    return undefined;
+}
+
 export const getInitiateMain = (mainCmd: string, cmdArgs: string[]): Promise<ThingStartResponse> => {
     return new Promise((resolve, reject) => {
         const thingProcess = spawn(mainCmd, cmdArgs);
+        let settled = false;
+        let stderr = "";
+        const timerRef: { timeout?: NodeJS.Timeout } = {};
 
-        // Avoids unsettled promise in case the promise is not settled in a second.
-        const timeout = setTimeout(() => {
-            reject(new Error("Thing did not start as expected."));
-        }, 1000);
+        const settleReject = (err: Error) => {
+            if (settled) return;
+            settled = true;
+            if (timerRef.timeout) clearTimeout(timerRef.timeout);
+            reject(err);
+        };
+        thingProcess.stderr?.on("data", (data) => {
+            stderr += data.toString();
+        });
+        // Give things enough time to initialize transports and announce readiness.
+        const startTimeout = Number(process.env.THING_START_TIMEOUT ?? 60000);
+
+        timerRef.timeout = setTimeout(() => {
+            thingProcess.kill();
+            settleReject(new Error(`Thing did not start as expected.${stderr ? `\n${stderr}` : ""}`));
+        }, startTimeout);
+
+        const settleResolve = (result: ThingStartResponse) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            if (timerRef.timeout) clearTimeout(timerRef.timeout);
+            resolve(result);
+        };
 
         thingProcess.stdout!.on("data", (data: Buffer) => {
             if (data.toString().includes("ThingIsReady")) {
-                clearTimeout(timeout);
-                resolve({
+                settleResolve({
                     process: thingProcess,
                     message: "Success",
                 });
             }
         });
-        thingProcess.stderr!.on("data", (data: Buffer) => {
-            reject(new Error(`Process stderr: ${data}`));
-        });
         thingProcess.on("error", (error: Error) => {
-            reject(new Error(`Process error: ${error.message}`));
+            settleReject(new Error(`Process error: ${error.message}`));
         });
         thingProcess.on("close", () => {
-            reject(new Error("Failed to initiate the main script."));
+            settleReject(new Error(`Failed to initiate the main script.${stderr ? `\n${stderr}` : ""}`));
         });
     });
 };
@@ -60,9 +94,13 @@ export const getInitiateMain = (mainCmd: string, cmdArgs: string[]): Promise<Thi
 const ajv = new Ajv({ strict: false, allErrors: true, validateFormats: false });
 
 export const getTDValidate = async (): Promise<ValidateResponse> => {
-    // Use the wot-thing-description-types package instead of fetching from remote URL
+    // Load TD schema JSON from the package files
+    const packageJsonPath = require.resolve("wot-thing-description-types/package.json");
+    const schemaPath = path.join(path.dirname(packageJsonPath), "schema", "td-json-schema-validation.json");
+    const tdSchema = JSON.parse(fs.readFileSync(schemaPath, "utf-8")) as Record<string, unknown>;
+
     return Promise.resolve({
-        validate: ajv.compile(tdSchema as Record<string, unknown>),
+        validate: ajv.compile(tdSchema),
         message: "Success",
     });
 };

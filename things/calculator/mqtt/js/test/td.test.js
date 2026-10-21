@@ -16,10 +16,10 @@
 const chai = require("chai");
 const mqtt = require("mqtt");
 const { getTDValidate } = require("../../../../../util/dist/util");
-const { port } = require("./fixtures");
+const { port, brokerURI } = require("./fixtures");
 
 const expect = chai.expect;
-const hostname = "test.mosquitto.org";
+const hostname = brokerURI;
 
 describe("Calculator MQTT JS", () => {
     let validate;
@@ -37,18 +37,27 @@ describe("Calculator MQTT JS", () => {
 
     it("should have a valid TD", (done) => {
         const broker = mqtt.connect(`mqtt://${hostname}`, { port });
-        broker.subscribe("mqtt-calculator");
+        console.log(`Connecting to MQTT broker at mqtt://${hostname}:${port}`);
 
-        let valid = false;
-
-        broker.on("message", (topic, payload, packet) => {
-            valid = validate(JSON.parse(payload.toString()));
-            broker.end();
+        broker.on("connect", () => {
+            broker.subscribe("mqtt-calculator");
         });
 
-        broker.on("close", () => {
-            expect(valid).to.be.true;
-            done();
+        broker.on("message", (topic, payload) => {
+            const valid = validate(JSON.parse(payload.toString()));
+            broker.end(false, {}, () => {
+                try {
+                    expect(valid, JSON.stringify(validate.errors)).to.be.true;
+                    done();
+                } catch (error) {
+                    done(error);
+                }
+            });
+        });
+
+        broker.on("error", (error) => {
+            broker.end(true);
+            done(error);
         });
     });
 });

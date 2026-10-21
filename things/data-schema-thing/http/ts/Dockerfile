@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./data-schema-thing.tm.json .
 COPY ./http/ts .
 
-RUN npm install
+RUN npm pkg delete dependencies.test-things && rm -f package-lock.json && npm install
 
 RUN npm run build
 

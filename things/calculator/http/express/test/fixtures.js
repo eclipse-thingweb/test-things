@@ -19,11 +19,14 @@ const path = require("node:path");
 let simpleThingProcess;
 let contentNegotiationThingProcess;
 let response;
-const simplePort = 3000;
-const contentNegotiationPort = 3001;
+const simplePort = Number(process.env.TEST_PORT_SIMPLE ?? 3012);
+const contentNegotiationPort = Number(process.env.TEST_PORT_CONTENT_NEGOTIATION ?? 3013);
 
 const mochaGlobalSetup = async function () {
     try {
+        process.env.PROTOCOL = "http";
+        process.env.HOSTNAME = `localhost:${simplePort}`;
+        delete process.env.EXTERNAL_PORT;
         response = await getInitiateMain("node", [
             path.join(__dirname, "..", "http-simple-calculator.js"),
             "-p",
@@ -36,6 +39,9 @@ const mochaGlobalSetup = async function () {
     }
 
     try {
+        process.env.PROTOCOL = "http";
+        process.env.HOSTNAME = `localhost:${contentNegotiationPort}`;
+        delete process.env.EXTERNAL_PORT;
         response = await getInitiateMain("node", [
             path.join(__dirname, "..", "http-content-negotiation-calculator.js"),
             "-p",

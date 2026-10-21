@@ -15,7 +15,7 @@
         }
     },
     "security": ["nosec_sc"],
-    "base": "mqtt://test.mosquitto.org:1883/mqtt-calculator/",
+    "base": "mqtt://localhost/mqtt-calculator/",
     "properties": {
         "result": {
             "type": "number",

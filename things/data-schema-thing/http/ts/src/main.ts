@@ -28,6 +28,15 @@ dotenv.config();
 const hostname = process.env.HOSTNAME ?? "localhost";
 let portNumber = process.env.PORT != null && process.env.PORT !== "" ? parseInt(process.env.PORT) : 3000;
 const thingName = "http-data-schema-thing";
+const protocol = (process.env.PROTOCOL ?? "https").toLowerCase();
+const defaultExternalPort = protocol === "http" ? 80 : 443;
+
+const externalPort =
+    process.env.EXTERNAL_PORT != null && process.env.EXTERNAL_PORT !== ""
+        ? parseInt(process.env.EXTERNAL_PORT)
+        : defaultExternalPort;
+
+const baseUri = externalPort === defaultExternalPort ? `${hostname}` : `${hostname}:${externalPort}`;
 
 const logger = createLogger({
     transports: [
@@ -91,10 +100,9 @@ if (tmPath != null && tmPath !== "") {
 
 const placeholderReplacer = new JsonPlaceholderReplacer();
 placeholderReplacer.addVariableMap({
-    PROTOCOL: "http",
+    PROTOCOL: protocol,
     THING_NAME: thingName,
-    HOSTNAME: hostname,
-    PORT_NUMBER: portNumber,
+    BASE_URI: baseUri,
 });
 
 let thingDescription = placeholderReplacer.replace(thingModel);
@@ -203,7 +211,7 @@ setObject({ id: 123, name: "abc" });
 const servient = new Servient();
 servient.addServer(
     new HttpServer({
-        baseUri: `http://${hostname}:${portNumber}`,
+        baseUri: `${protocol}://${hostname}`,
         port: portNumber,
     })
 );

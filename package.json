@@ -43,6 +43,9 @@
         "eslint-plugin-unused-imports": "^4.1.4",
         "eslint-plugin-workspaces": "^0.10.1",
         "mocha": "^10.7.3",
-        "prettier": "3.3.3"
+        "prettier": "^3.3.3"
+    },
+    "dependencies": {
+        "test-things": "file:"
     }
 }

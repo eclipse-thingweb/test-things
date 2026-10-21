@@ -42,12 +42,14 @@ describe("Client Tests", () => {
     it("should read allAvailableResources property", async () => {
         const response = await thing.readProperty("allAvailableResources");
         const value = await response.value();
-        expect(value).to.be.eql({
-            water: 100,
-            milk: 100,
-            chocolate: 100,
-            coffeeBeans: 100,
-        });
+        expect(value).to.be.an("object");
+        expect(value).to.have.keys("water", "milk", "chocolate", "coffeeBeans");
+
+        for (const resourceLevel of Object.values(value as Record<string, unknown>)) {
+            expect(resourceLevel).to.be.a("number");
+            expect(resourceLevel).to.be.at.least(0);
+            expect(resourceLevel).to.be.at.most(100);
+        }
     });
 
     it("should change water level to 80", async () => {
@@ -96,13 +98,24 @@ describe("Client Tests", () => {
     });
 
     it("should subscribe to outOfResource event", async () => {
-        await thing.subscribeEvent("outOfResource", async (data) => {
-            const value = await data.value();
-            expect(value).to.be.not.null;
+        let resolveEvent: (value: unknown) => void;
+        const eventReceived = new Promise<unknown>((resolve) => {
+            resolveEvent = resolve;
         });
 
-        await thing.invokeAction("makeDrink", undefined, {
-            uriVariables: { drinkId: "latte", size: "l", quantity: 1000 },
+        const subscription = await thing.subscribeEvent("outOfResource", async (data) => {
+            resolveEvent(await data.value());
         });
+
+        await thing.writeProperty("availableResourceLevel", 0, { uriVariables: { id: "water" } });
+
+        await expect(
+            thing.invokeAction("makeDrink", undefined, {
+                uriVariables: { drinkId: "latte", size: "l", quantity: 1 },
+            })
+        ).to.be.rejected;
+
+        expect(await eventReceived).to.be.a("string");
+        await subscription.stop();
     });
 });

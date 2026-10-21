@@ -23,8 +23,8 @@ require("dotenv").config();
 const { createLogger, transports, format } = require("winston");
 const LokiTransport = require("winston-loki");
 
-const brokerURI = process.env.BROKER_URI ?? "test.mosquitto.org";
-let portNumber = process.env.PORT ?? 1883;
+const brokerURI = process.env.BROKER_URI ?? "plugfest.thingweb.io";
+let portNumber = process.env.PORT ?? 8087;
 
 const {
     values: { port },
@@ -148,6 +148,17 @@ broker.on("connect", () => {
     broker.subscribe(`${thingName}/${ACTIONS}/add`);
     broker.subscribe(`${thingName}/${ACTIONS}/subtract`);
     broker.subscribe(`${thingName}/${EVENTS}/update`);
+
+    broker.publish(`${thingName}`, JSON.stringify(thingDescription), { retain: true }, () => {
+        console.log("ThingIsReady");
+    });
+});
+
+broker.on("error", (error) => {
+    console.log(`Cannot connect to broker mqtt://${brokerURI}:${portNumber} - ${error.message}`);
+    broker.end(true, {}, () => {
+        process.exit(1);
+    });
 });
 
 const setResult = (value) => {
@@ -295,8 +306,3 @@ broker.on("message", (topic, payload, packet) => {
 setInterval(() => {
     broker.publish(`${thingName}/${EVENTS}/update`, "Updated the thing!");
 }, 500);
-
-broker.publish(`${thingName}`, JSON.stringify(thingDescription), {
-    retain: true,
-});
-console.log("ThingIsReady");

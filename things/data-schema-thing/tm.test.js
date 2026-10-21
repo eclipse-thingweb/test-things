@@ -10,21 +10,18 @@ describe("Test Thing", () => {
     let validate;
 
     before((done) => {
-        https.get(
-            "https://raw.githubusercontent.com/w3c/wot-thing-description/main/validation/tm-json-schema-validation.json",
-            function (response) {
-                const body = [];
-                response.on("data", (chunk) => {
-                    body.push(chunk);
-                });
+        https.get("https://www.w3.org/2022/wot/tm-schema/v1.1", function (response) {
+            const body = [];
+            response.on("data", (chunk) => {
+                body.push(chunk);
+            });
 
-                response.on("end", () => {
-                    const tmSchema = JSON.parse(Buffer.concat(body).toString());
-                    validate = ajv.compile(tmSchema);
-                    done();
-                });
-            }
-        );
+            response.on("end", () => {
+                const tmSchema = JSON.parse(Buffer.concat(body).toString());
+                validate = ajv.compile(tmSchema);
+                done();
+            });
+        });
     });
 
     it("should have a valid TM", () => {

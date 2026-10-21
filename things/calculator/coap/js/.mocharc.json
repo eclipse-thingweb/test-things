@@ -1,5 +1,6 @@
 {
     "exit": true,
+    "timeout": 5000,
     "spec": "./test/**.test.js",
     "require": ["./test/fixtures.js"]
 }

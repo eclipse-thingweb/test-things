@@ -3,6 +3,7 @@
     "title": "Counter",
     "description": "Counter example Thing",
     "support": "https://github.com/eclipse-thingweb/node-wot/",
+    "base": "https://plugfest.thingweb.io:3000/counter/",
     "links": [
         {
             "href": "https://www.thingweb.io/img/favicon/favicon.png",
@@ -27,7 +28,7 @@
             "readOnly": true,
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/properties/count"
+                    "href": "properties/count"
                 }
             ]
         },
@@ -42,7 +43,7 @@
             },
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/properties/countAsImage",
+                    "href": "properties/countAsImage",
                     "contentType": "image/svg+xml"
                 }
             ]
@@ -53,7 +54,7 @@
             "readOnly": true,
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/properties/redDotImage",
+                    "href": "properties/redDotImage",
                     "contentType": "image/png;base64"
                 }
             ]
@@ -66,7 +67,7 @@
             "readOnly": true,
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/properties/lastChange"
+                    "href": "properties/lastChange"
                 }
             ]
         }
@@ -77,7 +78,7 @@
             "description": "Increment counter value",
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/actions/increment"
+                    "href": "actions/increment"
                 }
             ]
         },
@@ -86,7 +87,7 @@
             "description": "Decrementing counter value",
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/actions/decrement"
+                    "href": "actions/decrement"
                 }
             ]
         },
@@ -95,7 +96,7 @@
             "description": "Resetting counter value",
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/actions/reset"
+                    "href": "actions/reset"
                 }
             ]
         }
@@ -106,7 +107,7 @@
             "description": "Change event",
             "forms": [
                 {
-                    "href": "http://plugfest.thingweb.io/counter-thing/events/change"
+                    "href": "events/change"
                 }
             ]
         }
