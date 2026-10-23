@@ -92,18 +92,24 @@ tracedThing.setPropertyWriteHandler("servedCounter", async (value) => {
 The table below contains the public base URIs of the Things used for protocol testing.
 For HTTP and CoAP Things, the base URL also contains the TD.
 Also see [Mashup Things](./mashups/smart-home/README.md), which are useful when combined together and are not necessarily developed for protocol testing.
+Their titles and base URIs are provided below for convenience.
 
 | Thing Title                                 | Base URI                                                                  |
 | ------------------------------------------- | ------------------------------------------------------------------------- |
-| http-advanced-coffee-machine                | `http://plugfest.thingweb.io/http-advanced-coffee-machine`                |
-| coap-calculator-simple                      |                                                                           |
-| coap-calculator-content-negotiation         |                                                                           |
-| http-express-calculator-simple              | `http://plugfest.thingweb.io/http-express-calculator-simple`              |
-| http-express-calculator-content-negotiation | `http://plugfest.thingweb.io/http-express-calculator-content-negotiation` |
-| http-flask-calculator                       | `http://plugfest.thingweb.io/http-flask-calculator`                       |
-| mqtt-calculator                             |                                                                           |
+| http-advanced-coffee-machine                | `https://plugfest.thingweb.io/http-advanced-coffee-machine`               |
+| http-express-calculator-simple              | `https://plugfest.thingweb.io/http-express-calculator-simple`             |
+| http-express-calculator-content-negotiation | `https://plugfest.thingweb.io/http-express-calculator-content-negotiation`|
+| http-flask-calculator                       | `https://plugfest.thingweb.io/http-flask-calculator`                      |
+| http-data-schema-thing                      | `https://plugfest.thingweb.io/http-data-schema-thing`                     |
+| smart-home-simple-coffee-machine            | `https://plugfest.thingweb.io/smart-home-simple-coffee-machine`           |
+| counter                                     | `https://plugfest.thingweb.io/counter`                                    |
+| smart-home-smart-clock                      | `coap://plugfest.thingweb.io:5685/smart-home-smart-clock`                 |
+| coap-calculator-simple                      | `coap://plugfest.thingweb.io:5683/coap-calculator-simple`                 |
+| coap-calculator-content-negotiation         | `coap://plugfest.thingweb.io:5684/coap-calculator-content-negotiation`    |
+| mqtt-calculator                             | `mqtt://plugfest.thingweb.io/mqtt-calculator`                             |
+| smart-home-presence-sensor                  | `mqtt://plugfest.thingweb.io/smart-home-presence-sensor`                  |
 | modbus-elevator                             |                                                                           |
-| http-data-schema-thing                      | `http://plugfest.thingweb.io/http-data-schema-thing`                      |
+
 
 ### Advanced Coffee Machine
 
