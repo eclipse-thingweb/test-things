@@ -1,0 +1,26 @@
+{
+    "name": "test-things-log-analyzer",
+    "version": "2.1.0",
+    "description": "WoT-based log analyzer using node-wot, Servient, and Loki HTTP API.",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "dev": "ts-node src/index.ts"
+    },
+    "author": "Eclipse Thingweb <thingweb-dev@eclipse.org>",
+    "license": "EPL-2.0 OR W3C-20150513",
+    "dependencies": {
+        "@node-wot/core": "~0.8.16",
+        "@node-wot/binding-http": "~0.8.16",
+        "@node-wot/binding-coap": "~0.8.16",
+        "@node-wot/binding-mqtt": "~0.8.16",
+        "winston": "^3.11.0",
+        "dotenv": "^16.3.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.8.0",
+        "typescript": "^5.2.2",
+        "ts-node": "^10.9.1"
+    }
+}
