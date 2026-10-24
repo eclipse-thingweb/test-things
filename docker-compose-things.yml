@@ -157,7 +157,7 @@ services:
         labels:
             - traefik.tcp.routers.modbus-elevator.entrypoints=modbus-elevator
             - traefik.tcp.routers.modbus-elevator.rule=HostSNI(`*`)
-            - traefik.tcp.services.modbus-elevator.loadbalancer.server.port=${MODBUS_ELEVATOR_PORT_OUT}
+            - traefik.tcp.services.modbus-elevator.loadbalancer.server.port=8502
         restart: on-failure
         deploy:
             resources:

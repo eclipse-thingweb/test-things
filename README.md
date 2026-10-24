@@ -108,7 +108,7 @@ Their titles and base URIs are provided below for convenience.
 | coap-calculator-content-negotiation         | `coap://plugfest.thingweb.io:5684/coap-calculator-content-negotiation`    |
 | mqtt-calculator                             | `mqtt://plugfest.thingweb.io/mqtt-calculator`                             |
 | smart-home-presence-sensor                  | `mqtt://plugfest.thingweb.io/smart-home-presence-sensor`                  |
-| modbus-elevator                             |                                                                           |
+| modbus-elevator                             | `modbus+tcp://plugfest.thingweb.io:3179/1`                                |
 
 
 ### Advanced Coffee Machine
